@@ -1,4 +1,5 @@
 let babel = require("babel-core");
+let babylon = require("babylon");
 import traverse from 'babel-traverse';
 
 export const NodeTypes = {
@@ -22,6 +23,11 @@ function getNodeCodeRange(node) {
   //   return { start: node.start, end: node.end };
   // case 'FunctionExpression':
   //   return { start: node.body.start, end: node.body.end };
+  case 'VariableDeclarator':
+    // console.log(node.id)
+    // console.log(node.init)
+    
+    // return { start: node.body.start, end: node.body.end };
   case 'ObjectProperty':
     return { start: getNodeCodeRange(node.key).start, end: getNodeCodeRange(node.value).end };
   default:
@@ -85,17 +91,24 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
     // if the identifier exists in the scope, this is the easiest way to fetch
     // it
     if(root.scope && root.scope.getBinding(query.matcher)) {
+      // console.log("its in scope");
       let binding = root.scope.getBinding(query.matcher)
       let parent = binding.path.node; // binding.path.parent ?
+      // console.log('binding.path', binding.path);
 
       range = getNodeCodeRange(parent);
       nextRoot = parent;
     } else {
+      console.log("its traversed");
+
       let path;
       traverse(ast, {
         Identifier: function (_path) {
           if(_path.node.name === query.matcher) {
-            path = _path;
+            if(!path) {
+              path = _path;
+              // console.log(path);
+            }
             _path.stop();
           }
         }
@@ -191,7 +204,8 @@ function resolveListOfQueries(ast, root, code, query, opts) {
 }
 
 export default function cq(code, query, opts) {
-  let result = babel.transform(code, opts.babel);
+  // let result = babel.transform(code, opts.babel);
+  let result = babylon.parse(code, opts.babel);
   let ast = result.ast;
   let program = getProgram(ast);
 

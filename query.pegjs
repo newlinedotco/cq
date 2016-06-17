@@ -1,8 +1,19 @@
  /*
- * Simple Arithmetics Grammar
+ * cq Grammer
  * ==========================
  *
- * Accepts expressions like "2 * (3 + 4)" and computes their value.
+ * Example Queries:
+ * 
+ * .Switch
+ * .Switch .render
+ * .hello
+ * .farm:-2,+2
+ * .hello-.Farm
+ * .hello-.Farm:-2,+2
+ * 10-12
+ * .Switch .renderOtherStuff-.render
+ * .Polygon .distance-.area
+ * 
  */
 
 {
@@ -12,10 +23,9 @@
 
 start
   = SelectionExpression
-// modifiers
 
 SelectionExpression
-  = head:Term tail:(ws Term)* {
+  = head:TermWithModifiers tail:(ws TermWithModifiers)* {
     let result = head;
     let i;
 
@@ -30,9 +40,17 @@ SelectionExpression
     return result;
   }
 
+TermWithModifiers 
+  = term:Term colon? modifiers:Modifiers? {
+    if(modifiers) {
+      term.modifiers = modifiers;
+    }
+    return term;
+  }
+
 Term
   = Range
-  / Selection
+  / Selection 
 
 Range
   = start:Selection dash end:Selection {
@@ -60,12 +78,31 @@ Identifier
       };
   }
 
+Modifiers
+  = head:Modifier tail:(comma Modifier)* {
+    return [head, ...tail.map((t) => t[1])];
+  }
+
+Modifier
+  = operator:ModifierOperator number:Integer {
+    return {
+      type: NodeTypes.EXTRA_LINES,
+      amount: operator == '-' ? (number * -1) : number
+    }
+  }
+
+ModifierOperator
+  = plus
+  / minus
+
 Integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }
 
 dot = "."
 dash = "-"
+plus = "+"
+minus = "-"
 colon = ":"
-_ "whitespace" = [ \t\n\r]*
+comma = ","
 ws "whitespace" = [ \t\n\r]*
 char = [A-Za-z0-9_$]

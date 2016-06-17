@@ -215,8 +215,6 @@ module.exports = Switch;
             matcher: 'render'
           }
         }]
-
-
       }];
 
       let { code } = cq(reactCreateClass, query);

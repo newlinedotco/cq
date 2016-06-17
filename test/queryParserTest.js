@@ -8,16 +8,6 @@ import fs from 'fs';
 let grammar = fs.readFileSync(__dirname + '/../query.pegjs').toString();
 let parser = peg.buildParser(grammar);
 
-// .Switch
-// .Switch .render
-// .hello
-// .farm:-2,+2
-// .hello-.Farm
-// .hello-.Farm:-2,+2
-// 10-12
-// .Switch .renderOtherStuff-.render
-// .Polygon .distance-.area
-
 
 describe('queryParserTest', () => {
   describe('parsing', () => {
@@ -101,18 +91,26 @@ describe('queryParserTest', () => {
           value: 12
         }
       };
-
       assert.deepEqual(actual, expected);
     });
- 
- 
-   
 
-
+    it('should parse modifiers', () => {
+      let actual = parser.parse('.Switch:-2,+2');
+      let expected = {
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'Switch',
+        modifiers: [{
+          type: NodeTypes.EXTRA_LINES,
+          amount: -2
+        }, {
+          type: NodeTypes.EXTRA_LINES,
+          amount: 2
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
 
   });
 });
-
-
 
 // TODO should actually return an array and support that

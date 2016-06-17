@@ -1,15 +1,16 @@
 {
-  "name": "cq",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@eigenjoy/cq",
+  "version": "0.1.0",
+  "description": "query code with selectors",
   "main": "index.js",
+  "repository": "jashmenn/cq",
   "scripts": {
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
-    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch",
+    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
     "generate-parser": "./node_modules/.bin/pegjs query.pegjs query-parser.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Nate Murray <nate@fullstack.io>",
+  "license": "MIT",
   "dependencies": {
     "babel-core": "^6.9.1",
     "babel-plugin-react-transform": "^2.0.2",
@@ -20,8 +21,11 @@
     "babel-preset-syntax-from-presets": "^1.0.1",
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
+    "pegjs": "^0.9.0",
+    "yargs": "^4.7.1"
+  },
+  "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^2.5.3",
-    "pegjs": "^0.9.0"
+    "mocha": "^2.5.3"
   }
 }

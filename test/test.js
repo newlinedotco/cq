@@ -10,26 +10,6 @@ function lines(str, startLine, endLine) {
 }
 
 describe('cq', () => {
-  const parserConfig = {
-    sourceType: "module",
-    plugins: [
-      'jsx',
-      'flow',
-      'asyncFunctions',
-      'classConstructorCall',
-      'doExpressions',
-      'trailingFunctionCommas',
-      'objectRestSpread',
-      'decorators',
-      'classProperties',
-      'exportExtensions',
-      'exponentiationOperator',
-      'asyncGenerators',
-      'functionBind',
-      'functionSent'
-    ]
-  };
-
   describe('createClass', () => {
     const reactCreateClass = `
 import React, { PropTypes } from 'react';
@@ -49,7 +29,7 @@ module.exports = Switch;
         matcher: 'Switch'
       }];
 
-      let { code } = cq(reactCreateClass, query, { parserOpts: parserConfig });
+      let { code } = cq(reactCreateClass, query);
       const wanted = lines(reactCreateClass, 3, 7);
       assert.equal(code, wanted);
     });
@@ -64,7 +44,7 @@ module.exports = Switch;
         }]
       }];
 
-      let { code } = cq(reactCreateClass, query, { parserOpts: parserConfig });
+      let { code } = cq(reactCreateClass, query);
       const wanted = lines(reactCreateClass, 4, 6);
       assert.equal(code, wanted);
     });
@@ -91,7 +71,7 @@ bye(); // -> 'bye'
         matcher: 'hello'
       }];
 
-      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
+      let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 1, 3);
       assert.equal(code, wanted);
     })
@@ -102,7 +82,7 @@ bye(); // -> 'bye'
         matcher: 'bye'
       }];
 
-      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
+      let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 5, 7);
       assert.equal(code, wanted);
     })
@@ -113,7 +93,7 @@ bye(); // -> 'bye'
         matcher: 'Farm'
       }];
 
-      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
+      let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 9, 9);
       assert.equal(code, wanted);
     })
@@ -131,7 +111,7 @@ bye(); // -> 'bye'
         }]
       }];
 
-      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
+      let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 7, 11);
       assert.equal(code, wanted);
     })
@@ -149,7 +129,7 @@ bye(); // -> 'bye'
         }
       }];
 
-      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
+      let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 1, 9);
       assert.equal(code, wanted);
     })
@@ -174,7 +154,7 @@ bye(); // -> 'bye'
         }]
       }];
 
-      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
+      let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 3, 11);
       assert.equal(code, wanted);
     })
@@ -192,7 +172,7 @@ bye(); // -> 'bye'
         }
       }];
 
-      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
+      let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 9, 11);
       assert.equal(code, wanted);
     })
@@ -239,7 +219,7 @@ module.exports = Switch;
 
       }];
 
-      let { code } = cq(reactCreateClass, query, { parserOpts: parserConfig });
+      let { code } = cq(reactCreateClass, query);
       const wanted = lines(reactCreateClass, 8, 14);
       // console.log('actual', code, 'wanted', wanted);
 
@@ -281,7 +261,7 @@ console.log(square.area);
         matcher: 'Polygon',
        }];
 
-      let { code } = cq(es6Class, query, { parserOpts: parserConfig });
+      let { code } = cq(es6Class, query);
       const wanted = lines(es6Class, 1, 20);
 
       assert.equal(code, wanted);
@@ -304,7 +284,7 @@ console.log(square.area);
         }]
        }];
 
-      let { code } = cq(es6Class, query, { parserOpts: parserConfig });
+      let { code } = cq(es6Class, query);
       const wanted = lines(es6Class, 2, 15);
 
       assert.equal(code, wanted);

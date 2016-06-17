@@ -18,16 +18,6 @@ function getNodeCodeRange(node) {
   }
 
   switch(node.type) {
-  // case 'VariableDeclaration':
-  // case 'Identifier':
-  //   return { start: node.start, end: node.end };
-  // case 'FunctionExpression':
-  //   return { start: node.body.start, end: node.body.end };
-  // case 'VariableDeclarator':
-    // console.log(node.id)
-    // console.log(node.init)
-    
-    // return { start: node.body.start, end: node.body.end };
   case 'ObjectProperty':
     return { start: getNodeCodeRange(node.key).start, end: getNodeCodeRange(node.value).end };
   default:
@@ -38,7 +28,6 @@ function getNodeCodeRange(node) {
 }
 
 function adjustRangeWithModifiers(code, modifiers, {start, end}) {
-
   // get any extra lines, if requested
   let numPreviousLines = 0;
   let numFollowingLines = 0;
@@ -88,13 +77,10 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
     let nextRoot;
     let range;
 
-    // if the identifier exists in the scope, this is the easiest way to fetch
-    // it
+    // if the identifier exists in the scope, this is the easiest way to fetch it
     if(root.scope && root.scope.getBinding(query.matcher)) {
-      // console.log("its in scope");
       let binding = root.scope.getBinding(query.matcher)
       let parent = binding.path.node; // binding.path.parent ?
-      // console.log('binding.path', binding.path);
 
       range = getNodeCodeRange(parent);
       nextRoot = parent;
@@ -105,7 +91,6 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
           if(_path.node.name === query.matcher) {
             if(!path) {
               path = _path;
-              // console.log(path);
             }
             _path.stop();
           }
@@ -201,8 +186,28 @@ function resolveListOfQueries(ast, root, code, query, opts) {
   })
 }
 
-export default function cq(code, query, opts) {
-  let ast = babylon.parse(code, opts.parserOpts);
+const defaultBabylonConfig = {
+  sourceType: "module",
+  plugins: [
+    'jsx',
+    'flow',
+    'asyncFunctions',
+    'classConstructorCall',
+    'doExpressions',
+    'trailingFunctionCommas',
+    'objectRestSpread',
+    'decorators',
+    'classProperties',
+    'exportExtensions',
+    'exponentiationOperator',
+    'asyncGenerators',
+    'functionBind',
+    'functionSent'
+  ]
+};
+
+export default function cq(code, query, opts={}) {
+  let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts.parserOpts));
   let program = getProgram(ast);
   return resolveListOfQueries(ast, program, code, query, opts);
 }

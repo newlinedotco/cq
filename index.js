@@ -1,6 +1,13 @@
-let babel = require("babel-core");
+/**
+ * cq Query Resolver
+ *
+ * This file takes input code and a parsed query and extracts portions of the
+ * code based on that query
+ *
+ */
 let babylon = require("babylon");
 import traverse from 'babel-traverse';
+import parser from './query-parser';
 
 export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
@@ -209,5 +216,8 @@ const defaultBabylonConfig = {
 export default function cq(code, query, opts={}) {
   let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts.parserOpts));
   let program = getProgram(ast);
+  if(typeof query === 'string') {
+    query = [ parser.parse(query) ]; // parser returns single object for now, but eventually an array
+  }
   return resolveListOfQueries(ast, program, code, query, opts);
 }

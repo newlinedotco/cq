@@ -48,6 +48,13 @@ module.exports = Switch;
       const wanted = lines(reactCreateClass, 4, 6);
       assert.equal(code, wanted);
     });
+
+    it('should parse string queries', () => {
+      let query = '.Switch .render';
+      let { code } = cq(reactCreateClass, query);
+      const wanted = lines(reactCreateClass, 4, 6);
+      assert.equal(code, wanted);
+    });
   });
 
   describe('top level functions', () => {

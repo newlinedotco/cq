@@ -25,6 +25,7 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.10.1",
     "chai": "^3.5.0",
     "mocha": "^2.5.3"
   }

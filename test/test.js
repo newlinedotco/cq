@@ -58,9 +58,11 @@ function hello() {
 
 const bye = function() {
   return 'bye';
-}
+} // -> 'bye'
 
 let Farm = () => 'cow';
+bye(); // -> 'bye'
+// never say goodbye
     `;
 
     it('should return a function definition', () => {
@@ -95,6 +97,30 @@ let Farm = () => 'cow';
       const wanted = lines(someFunctions, 9, 9);
       assert.equal(code, wanted);
     })
+
+    it('should include extra lines given a modifier', () => {
+      let query = [{
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'Farm',
+        modifiers: [{
+          type: NodeTypes.EXTRA_LINES,
+          amount: -2
+        }, {
+          type: NodeTypes.EXTRA_LINES,
+          amount: 2
+        }]
+      }];
+
+      let { code } = cq(someFunctions, query, { babel: babelConfig });
+      const wanted = lines(someFunctions, 7, 11);
+      assert.equal(code, wanted);
+    })
+
+
+    // modifier to plus lines on the end
+    // ranges 
+    // ranges and modifiers
+
   })
 
 });

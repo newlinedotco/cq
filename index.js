@@ -2,7 +2,8 @@ let babel = require("babel-core");
 import traverse from 'babel-traverse';
 
 export const NodeTypes = {
-  IDENTIFIER: 'IDENTIFIER'
+  IDENTIFIER: 'IDENTIFIER',
+  EXTRA_LINES: 'EXTRA_LINES'
 };
 
 function getRange(node) {
@@ -73,11 +74,54 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
     }
     start++; // don't include the newline
 
+    // we also want to read to the end of the line for the node we found
     let end = range.end;
-    // this is completely a hack b/c a node won't always incl the semicolon, 
-    // todo revisit - this might be better by parsing a CST vs. AST
-    if(code[end] === ';') end++;
-   
+    while(end < code.length && code[end] !== '\n') {
+      end++;
+    }
+
+    if(query.modifiers) {
+      // get any extra lines, if requested
+      let numPreviousLines = 0;
+      let numFollowingLines = 0;
+      let hasPreviousLines = false;
+      let hasFollowingLines = false;;
+
+      query.modifiers.forEach((modifier) => {
+        if(modifier.type == NodeTypes.EXTRA_LINES) {
+          if(modifier.amount < 0) {
+            numPreviousLines = (modifier.amount * -1);
+            hasPreviousLines = true;
+          }
+          if(modifier.amount > 0) {
+            numFollowingLines = modifier.amount + 1;
+            hasFollowingLines = true;
+          }
+        }
+      })
+
+      if(hasPreviousLines) {
+        while(start > 0 && numPreviousLines >= 0) {
+          start--;
+          if(code[start] === '\n') {
+            numPreviousLines--;
+          }
+        }
+        start++; // don't include prior newline
+      }
+
+      if(hasFollowingLines) {
+        while(end < code.length && numFollowingLines > 0) {
+          if(code[end] === '\n') {
+            numFollowingLines--;
+          }
+          end++;
+        }
+        end--; // don't include the last newline
+      }
+
+    }
+
     let codeSlice = code.substring(start, end);
 
     if(query.children) {

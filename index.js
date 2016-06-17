@@ -3,10 +3,12 @@ import traverse from 'babel-traverse';
 
 export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
+  RANGE: 'RANGE',
+  LINE_NUMBER: 'LINE_NUMBER',
   EXTRA_LINES: 'EXTRA_LINES'
 };
 
-function getRange(node) {
+function getNodeCodeRange(node) {
   if(node.start && node.end) {
     return { start: node.start, end: node.end };
   }
@@ -21,10 +23,10 @@ function getRange(node) {
   // case 'FunctionExpression':
   //   return { start: node.body.start, end: node.body.end };
   case 'ObjectProperty':
-    return { start: getRange(node.key).start, end: getRange(node.value).end };
+    return { start: getNodeCodeRange(node.key).start, end: getNodeCodeRange(node.value).end };
   default:
     console.log("unknown", node);
-    throw new Error('getRange of unknown type: ' + node.type);
+    throw new Error('getNodeCodeRange of unknown type: ' + node.type);
     break;
   }
 }
@@ -32,7 +34,7 @@ function getRange(node) {
 function resolveIndividualQuery(ast, root, code, query, opts) {
 
   switch(query.type) {
-  case NodeTypes.IDENTIFIER: 
+  case NodeTypes.IDENTIFIER: {
     let nextRoot;
     let range;
 
@@ -48,7 +50,7 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
       // let parent = binding.path.parent;
       let parent = binding.path.node;
 
-      range = getRange(parent);
+      range = getNodeCodeRange(parent);
       nextRoot = parent;
     } else {
       let path;
@@ -62,7 +64,7 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
       });
 
       let parent = path.parent;
-      range = getRange(parent);
+      range = getNodeCodeRange(parent);
       nextRoot = parent;
     }
 
@@ -127,10 +129,15 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
     if(query.children) {
       return resolveListOfQueries(ast, nextRoot, code, query.children, opts);
     } else {
-      return { code: codeSlice };
+      return { code: codeSlice, start, end };
     }
-
-    break;
+  }
+  case NodeTypes.RANGE: {
+    let rangeStart = resolveIndividualQuery(ast, root, code, query.start, opts);
+    let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, opts);
+    let codeSlice = code.substring(rangeStart.start, rangeEnd.end);
+    return { code: codeSlice, start: rangeStart.start, end: rangeEnd.end };
+  }
   default:
     break;
   }

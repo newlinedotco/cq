@@ -116,6 +116,25 @@ bye(); // -> 'bye'
       assert.equal(code, wanted);
     })
 
+    it('should get a range', () => {
+      let query = [{
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'hello'
+        },
+        end: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'Farm'
+        }
+      }];
+
+      let { code } = cq(someFunctions, query, { babel: babelConfig });
+      const wanted = lines(someFunctions, 1, 9);
+      assert.equal(code, wanted);
+    })
+
+
 
     // modifier to plus lines on the end
     // ranges 

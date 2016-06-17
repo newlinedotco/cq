@@ -134,12 +134,48 @@ bye(); // -> 'bye'
       assert.equal(code, wanted);
     })
 
+    it('should get a range with modifiers', () => {
+      let query = [{
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'bye'
+        },
+        end: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'Farm'
+        },
+        modifiers: [{
+          type: NodeTypes.EXTRA_LINES,
+          amount: -2
+        }, {
+          type: NodeTypes.EXTRA_LINES,
+          amount: 2
+        }]
+      }];
 
+      let { code } = cq(someFunctions, query, { babel: babelConfig });
+      const wanted = lines(someFunctions, 3, 11);
+      assert.equal(code, wanted);
+    })
 
-    // modifier to plus lines on the end
-    // ranges 
-    // ranges and modifiers
+    it('should get a range with line numbers', () => {
+      let query = [{
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.LINE_NUMBER,
+          value: 10
+        },
+        end: {
+          type: NodeTypes.LINE_NUMBER,
+          value: 12
+        }
+      }];
 
+      let { code } = cq(someFunctions, query, { babel: babelConfig });
+      const wanted = lines(someFunctions, 9, 11);
+      assert.equal(code, wanted);
+    })
   })
 
 });

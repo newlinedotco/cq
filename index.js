@@ -31,6 +31,50 @@ function getNodeCodeRange(node) {
   }
 }
 
+function adjustRangeWithModifiers(code, modifiers, {start, end}) {
+
+  // get any extra lines, if requested
+  let numPreviousLines = 0;
+  let numFollowingLines = 0;
+  let hasPreviousLines = false;
+  let hasFollowingLines = false;;
+
+  modifiers.forEach((modifier) => {
+    if(modifier.type == NodeTypes.EXTRA_LINES) {
+      if(modifier.amount < 0) {
+        numPreviousLines = (modifier.amount * -1);
+        hasPreviousLines = true;
+      }
+      if(modifier.amount > 0) {
+        numFollowingLines = modifier.amount + 1;
+        hasFollowingLines = true;
+      }
+    }
+  })
+
+  if(hasPreviousLines) {
+    while(start > 0 && numPreviousLines >= 0) {
+      start--;
+      if(code[start] === '\n') {
+        numPreviousLines--;
+      }
+    }
+    start++; // don't include prior newline
+  }
+
+  if(hasFollowingLines) {
+    while(end < code.length && numFollowingLines > 0) {
+      if(code[end] === '\n') {
+        numFollowingLines--;
+      }
+      end++;
+    }
+    end--; // don't include the last newline
+  }
+
+  return {start, end};
+}
+
 function resolveIndividualQuery(ast, root, code, query, opts) {
 
   switch(query.type) {
@@ -41,14 +85,8 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
     // if the identifier exists in the scope, this is the easiest way to fetch
     // it
     if(root.scope && root.scope.getBinding(query.matcher)) {
-
-
       let binding = root.scope.getBinding(query.matcher)
-
-      // console.log('got the thing via scope', binding);
-
-      // let parent = binding.path.parent;
-      let parent = binding.path.node;
+      let parent = binding.path.node; // binding.path.parent ?
 
       range = getNodeCodeRange(parent);
       nextRoot = parent;
@@ -83,45 +121,7 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
     }
 
     if(query.modifiers) {
-      // get any extra lines, if requested
-      let numPreviousLines = 0;
-      let numFollowingLines = 0;
-      let hasPreviousLines = false;
-      let hasFollowingLines = false;;
-
-      query.modifiers.forEach((modifier) => {
-        if(modifier.type == NodeTypes.EXTRA_LINES) {
-          if(modifier.amount < 0) {
-            numPreviousLines = (modifier.amount * -1);
-            hasPreviousLines = true;
-          }
-          if(modifier.amount > 0) {
-            numFollowingLines = modifier.amount + 1;
-            hasFollowingLines = true;
-          }
-        }
-      })
-
-      if(hasPreviousLines) {
-        while(start > 0 && numPreviousLines >= 0) {
-          start--;
-          if(code[start] === '\n') {
-            numPreviousLines--;
-          }
-        }
-        start++; // don't include prior newline
-      }
-
-      if(hasFollowingLines) {
-        while(end < code.length && numFollowingLines > 0) {
-          if(code[end] === '\n') {
-            numFollowingLines--;
-          }
-          end++;
-        }
-        end--; // don't include the last newline
-      }
-
+      ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
     }
 
     let codeSlice = code.substring(start, end);
@@ -135,8 +135,28 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
   case NodeTypes.RANGE: {
     let rangeStart = resolveIndividualQuery(ast, root, code, query.start, opts);
     let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, opts);
-    let codeSlice = code.substring(rangeStart.start, rangeEnd.end);
-    return { code: codeSlice, start: rangeStart.start, end: rangeEnd.end };
+    let start = rangeStart.start;
+    let end = rangeEnd.end;
+    if(query.modifiers) {
+      ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
+    }
+    let codeSlice = code.substring(start, end);
+    return { code: codeSlice, start, end };
+  }
+  case NodeTypes.LINE_NUMBER: {
+    let lines = code.split('\n');
+    let line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER 
+
+    // to get the starting index of this line...
+    // we take the sum of all prior lines:
+    let charIdx = lines.slice(0, query.value - 1).reduce(
+      // + 1 b/c of the (now missing) newline
+      (sum, line) => (sum + line.length + 1), 0);
+
+    let start = charIdx;
+    let end = charIdx + line.length;
+    let codeSlice = code.substring(start, end);
+    return { code: codeSlice, start, end };
   }
   default:
     break;

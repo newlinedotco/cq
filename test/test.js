@@ -3,7 +3,7 @@ import chai from 'chai';
 let babel = require("babel-core");
 let babylon = require("babylon");
 const assert = chai.assert;
-import cq, { NodeTypes } from '../index';
+import cq, { NodeTypes } from '../src/index';
 
 function lines(str, startLine, endLine) {
   return str.split('\n').slice(startLine, endLine + 1).join('\n');

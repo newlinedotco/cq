@@ -7,7 +7,7 @@
   "scripts": {
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
-    "generate-parser": "./node_modules/.bin/pegjs query.pegjs query-parser.js"
+    "generate-parser": "./node_modules/.bin/pegjs src/query.pegjs src/query-parser.js"
   },
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",

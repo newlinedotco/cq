@@ -1,11 +1,11 @@
 import 'babel-polyfill'
 import chai from 'chai';
 const assert = chai.assert;
-import cq, { NodeTypes } from '../index';
+import cq, { NodeTypes } from '../src/index';
 import peg from 'pegjs';
 import fs from 'fs';
 
-let grammar = fs.readFileSync(__dirname + '/../query.pegjs').toString();
+let grammar = fs.readFileSync(__dirname + '/../src/query.pegjs').toString();
 let parser = peg.buildParser(grammar);
 
 

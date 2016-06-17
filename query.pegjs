@@ -17,8 +17,13 @@
  */
 
 {
-  let cq = require(__dirname + "/../../../index");
-  let NodeTypes = cq.NodeTypes;
+  // ideally we would load this from the other cq code, but this is less hassle for now
+  const NodeTypes = {
+    IDENTIFIER: 'IDENTIFIER',
+    RANGE: 'RANGE',
+    LINE_NUMBER: 'LINE_NUMBER',
+    EXTRA_LINES: 'EXTRA_LINES'
+  };
 }
 
 start

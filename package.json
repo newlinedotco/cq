@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
-    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch"
+    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch",
+    "generate-parser": "./node_modules/.bin/pegjs query.pegjs query-parser.js"
   },
   "author": "",
   "license": "ISC",

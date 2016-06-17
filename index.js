@@ -23,7 +23,7 @@ function getNodeCodeRange(node) {
   //   return { start: node.start, end: node.end };
   // case 'FunctionExpression':
   //   return { start: node.body.start, end: node.body.end };
-  case 'VariableDeclarator':
+  // case 'VariableDeclarator':
     // console.log(node.id)
     // console.log(node.init)
     
@@ -99,8 +99,6 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
       range = getNodeCodeRange(parent);
       nextRoot = parent;
     } else {
-      console.log("its traversed");
-
       let path;
       traverse(ast, {
         Identifier: function (_path) {
@@ -204,10 +202,7 @@ function resolveListOfQueries(ast, root, code, query, opts) {
 }
 
 export default function cq(code, query, opts) {
-  // let result = babel.transform(code, opts.babel);
-  let result = babylon.parse(code, opts.babel);
-  let ast = result.ast;
+  let ast = babylon.parse(code, opts.parserOpts);
   let program = getProgram(ast);
-
   return resolveListOfQueries(ast, program, code, query, opts);
 }

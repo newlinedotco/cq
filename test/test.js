@@ -10,16 +10,8 @@ function lines(str, startLine, endLine) {
 }
 
 describe('cq', () => {
-  const oldbabelConfig = { 
-    babelrc: false,
-    presets: [
-      "es2015", 
-      "stage-0",
-      "react"
-    ]
-  };
-
   const parserConfig = {
+    sourceType: "module",
     plugins: [
       'jsx',
       'flow',
@@ -57,7 +49,7 @@ module.exports = Switch;
         matcher: 'Switch'
       }];
 
-      let { code } = cq(reactCreateClass, query, { babel: parserConfig });
+      let { code } = cq(reactCreateClass, query, { parserOpts: parserConfig });
       const wanted = lines(reactCreateClass, 3, 7);
       assert.equal(code, wanted);
     });
@@ -72,7 +64,7 @@ module.exports = Switch;
         }]
       }];
 
-      let { code } = cq(reactCreateClass, query, { babel: parserConfig });
+      let { code } = cq(reactCreateClass, query, { parserOpts: parserConfig });
       const wanted = lines(reactCreateClass, 4, 6);
       assert.equal(code, wanted);
     });
@@ -99,7 +91,7 @@ bye(); // -> 'bye'
         matcher: 'hello'
       }];
 
-      let { code } = cq(someFunctions, query, { babel: parserConfig });
+      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
       const wanted = lines(someFunctions, 1, 3);
       assert.equal(code, wanted);
     })
@@ -110,7 +102,7 @@ bye(); // -> 'bye'
         matcher: 'bye'
       }];
 
-      let { code } = cq(someFunctions, query, { babel: parserConfig });
+      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
       const wanted = lines(someFunctions, 5, 7);
       assert.equal(code, wanted);
     })
@@ -121,7 +113,7 @@ bye(); // -> 'bye'
         matcher: 'Farm'
       }];
 
-      let { code } = cq(someFunctions, query, { babel: parserConfig });
+      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
       const wanted = lines(someFunctions, 9, 9);
       assert.equal(code, wanted);
     })
@@ -139,7 +131,7 @@ bye(); // -> 'bye'
         }]
       }];
 
-      let { code } = cq(someFunctions, query, { babel: parserConfig });
+      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
       const wanted = lines(someFunctions, 7, 11);
       assert.equal(code, wanted);
     })
@@ -157,7 +149,7 @@ bye(); // -> 'bye'
         }
       }];
 
-      let { code } = cq(someFunctions, query, { babel: parserConfig });
+      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
       const wanted = lines(someFunctions, 1, 9);
       assert.equal(code, wanted);
     })
@@ -182,7 +174,7 @@ bye(); // -> 'bye'
         }]
       }];
 
-      let { code } = cq(someFunctions, query, { babel: parserConfig });
+      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
       const wanted = lines(someFunctions, 3, 11);
       assert.equal(code, wanted);
     })
@@ -200,7 +192,7 @@ bye(); // -> 'bye'
         }
       }];
 
-      let { code } = cq(someFunctions, query, { babel: parserConfig });
+      let { code } = cq(someFunctions, query, { parserOpts: parserConfig });
       const wanted = lines(someFunctions, 9, 11);
       assert.equal(code, wanted);
     })
@@ -247,7 +239,7 @@ module.exports = Switch;
 
       }];
 
-      let { code } = cq(reactCreateClass, query, { babel: parserConfig });
+      let { code } = cq(reactCreateClass, query, { parserOpts: parserConfig });
       const wanted = lines(reactCreateClass, 8, 14);
       // console.log('actual', code, 'wanted', wanted);
 
@@ -278,35 +270,44 @@ class Polygon {
   }
 }
 
-// const square = new Polygon(10, 10);
+const square = new Polygon(10, 10);
 
-// console.log(square.area);
+console.log(square.area);
     `;
 
-    it.skip('should return an inner range function', () => {
+    it('return an ES6 class', () => {
       let query = [{
         type: NodeTypes.IDENTIFIER,
         matcher: 'Polygon',
        }];
 
-      let { code } = cq(es6Class, query, { babel: parserConfig });
+      let { code } = cq(es6Class, query, { parserOpts: parserConfig });
       const wanted = lines(es6Class, 1, 20);
 
       assert.equal(code, wanted);
     });
 
-    it('should class', () => {
-      let code = `
-      class Cat {
-      }
-      `
-      // let result = babel.transform(code, parserConfig);
-      // let ast = result.ast;
-      // console.log(ast.program.body);
+    it('return functions from within a class', () => {
+      let query = [{
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'Polygon',
+        children: [{
+          type: NodeTypes.RANGE,
+          start: {
+            type: NodeTypes.IDENTIFIER,
+            matcher: 'distance'
+          },
+          end: {
+            type: NodeTypes.IDENTIFIER,
+            matcher: 'area'
+          }
+        }]
+       }];
 
-      // let ast = babylon.parse(code, {plugins});
-      // console.log(ast.program.body)
+      let { code } = cq(es6Class, query, { parserOpts: parserConfig });
+      const wanted = lines(es6Class, 2, 15);
 
+      assert.equal(code, wanted);
     });
   });
 });

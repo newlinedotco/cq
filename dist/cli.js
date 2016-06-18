@@ -17,7 +17,7 @@ var _fs2 = _interopRequireDefault(_fs);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var argv = _yargs2.default.usage('Usage: $0 <command> [options]').example("$0 '.foo .bar'", "show foo bar").help('h').alias('h', 'help').argv;
+var argv = _yargs2.default.usage('Usage: $0 <query> <file>').example("$0 '.MyClass .fooFunction'", "show code for fooFunction() in MyClass").help('h').alias('h', 'help').argv;
 
 var _argv$_ = _slicedToArray(argv._, 2);
 
@@ -25,17 +25,22 @@ var query = _argv$_[0];
 var filename = _argv$_[1];
 
 
+if (!query) {
+  _yargs2.default.showHelp();
+  process.exit();
+}
+
 var inputStream = filename ? _fs2.default.createReadStream(filename) : process.stdin;
 
 var content = '';
 inputStream.resume();
 inputStream.on('data', function (buf) {
-    content += buf.toString();
+  content += buf.toString();
 });
 inputStream.on('end', function () {
-    var _cq = (0, _index2.default)(content, query);
+  var _cq = (0, _index2.default)(content, query);
 
-    var code = _cq.code;
+  var code = _cq.code;
 
-    console.log(code);
+  console.log(code);
 });

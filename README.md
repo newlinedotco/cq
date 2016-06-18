@@ -92,8 +92,9 @@ $ cq '.Barn .constructor-.calcArea' examples/basics.js
 
 ## Features
 
-- Parses ES6 & JSX using [babylon](https://github.com/babel/babylon)
-- Extract ranges
+- Extract chunks of code from text using robust selectors (vs. brittle line numbers)
+- Locate ranges of code using identifiers
+- Parses ES6 & JSX (with [babylon](https://github.com/babel/babylon))
 
 ## Motivation
 
@@ -107,10 +108,104 @@ The problem with the code-on-disk approach is how to designate the ranges of cod
 
 `cq` is a tool that lets you specify selectors to extract portions of code. Rather than using brittle line numbers, instead `cq` lets you query your code. It uses `babylon` to understand the semantics of your code and will extract the appropriate lines.
 
+## Query Grammar
+
+### _.Identifier_
+
+**Examples**:
+
+- `.Simple`
+- `.render`
+
+A dot `.` preceding JavaScript identifier characters represents an identifier.
+
+In this code:
+
+```
+const Simple = React.createClass({
+  render() {
+    return (
+      <div>
+        {this.renderName()}
+      </div>
+    )
+  }
+});
+```
+
+The query `.Simple` would find the whole `const Simple = ...` variable declaration.
+
+Searches for identifiers traverse the whole tree, relative to the parent, and return the first match. This means that you do _not_ have to start at the root. In this case you could query for `.render` and would receive the `render()` function. That said, creating more specific queries can help in the case where you want to disambiguate.
+
+### _[space]_
+
+**Examples**:
+
+- `.Simple .render`
+- `.foo .bar .baz`
+
+The space in a query selection expression designates a parent for the next identifier. For instance, the query `.Simple .render` will first look for the identifier `Simple` and then find the `render` function that is a child of `Simple`.
+
+The space indicates to search for the next identifier anywhere within the parent. That is, it does **not** require that the child identifier be a _direct child_ the parent. 
+
+> In this way the space is analogous to the space in a CSS selector. E.g. search for any child that matches.
+> `cq` does not yet support the `>` notation (which would require the identifier to be a direct child), but we may in the future.
+
+### _Range_
+
+**Examples**:
+
+- `.constructor-.calcArea`
+- `.Barn .constructor-.calcArea`
+
+Given:
+
+```
+class Barn {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+  
+  calcArea() {
+    return this.height * this.width;
+  }
+}
+```
+
+A pair of identifiers joined by a dash `-` form a _range_. A range will emit the code from the beginning of the match of the first identifier to the end of the match of the last. 
+
+You can use a parent identifier to limit the scope of the search of the range as in the query: `.Barn .constructor-.calcArea`
+
+### _Modifiers_
+
+
+**Examples**:
+
+- `.bye:+1`
+- `.bye:+1,-1`
+
+Given:
+
+```
+// here is the bye function (emitted with -1)
+const bye = function() {
+  return 'bye';
+}
+bye(); // -> 'bye' (emitted with +1)
+```
+
+After the selection expression you pass additional query modifiers. Query modifiers follow a colon and are comma separated. The two modifiers currently supported are:
+
+* adding additional lines following an identifier (or range) 
+* adding additional lines preceding an identifier (or range) 
+
+Lines following the identifier are designated by `+n` whereas lines preceding are specified by `-n`, where `n` is the number of lines desired.
+
 ## Related
 
- - [GraspJS](http://www.graspjs.com/)
- - [Pygments](http://pygments.org/)
+ - [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
+ - [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the commandline
 
 ## Fullstack React Book
 

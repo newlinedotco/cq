@@ -26,6 +26,10 @@ const Simple = React.createClass({
     return <div>Nate</div>
   },
 
+  foobar() {
+    /// 
+  },
+
   // here's the render function
   render() {
     return (

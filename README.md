@@ -205,7 +205,8 @@ Lines following the identifier are designated by `+n` whereas lines preceding ar
 ## Related
 
  - [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
- - [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the commandline
+ - [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the command line
+ - [ASTExplorer](https://astexplorer.net/) - an online tool to explore the AST of your code
 
 ## Fullstack React Book
 

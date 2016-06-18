@@ -17,21 +17,22 @@
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",
   "dependencies": {
-    "babel-core": "^6.9.1",
-    "babel-plugin-react-transform": "^2.0.2",
     "babel-polyfill": "^6.9.1",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-react": "^6.5.0",
-    "babel-preset-stage-0": "^6.5.0",
-    "babel-preset-syntax-from-presets": "^1.0.1",
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
-    "pegjs": "^0.9.0",
+    "babylon": "^6.8.1",
     "yargs": "^4.7.1"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
+    "babel-core": "^6.9.1",
+    "babel-plugin-react-transform": "^2.0.2",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-preset-syntax-from-presets": "^1.0.1",
     "chai": "^3.5.0",
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "pegjs": "^0.9.0"
   }
 }

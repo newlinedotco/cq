@@ -202,6 +202,14 @@ After the selection expression you pass additional query modifiers. Query modifi
 
 Lines following the identifier are designated by `+n` whereas lines preceding are specified by `-n`, where `n` is the number of lines desired.
 
+## Library Usage
+
+```javascript
+var cq = require('@eigenjoy/cq');
+var results = cq(codeString, query);
+console.log(results.code);
+```
+
 ## Related
 
  - [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
@@ -211,7 +219,7 @@ Lines following the identifier are designated by `+n` whereas lines preceding ar
 ## Fullstack React Book
 
 <a href="https://fullstackreact.com">
-<img align="right" src="doc/readme/fullstack-react-hero-book.png" alt="Fullstack React Book" width="155" height="250" />
+<img align="right" src="https://cdn.rawgit.com/fullstackreact/google-maps-react/master/resources/readme/fullstack-react-hero-book.png" alt="Fullstack React Book" width="155" height="250" />
 </a>
 
 This repo was written and is maintained by the [Fullstack React](https://fullstackreact.com) team. If you're looking to learn React, there's no faster way than by spending a few hours with the Fullstack React book.

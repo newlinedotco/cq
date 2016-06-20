@@ -224,6 +224,7 @@ console.log(results.code);
 * Add the ability to extract several sections in a single query
 * Add TypeScript support (but keep the same query language)
 * Add `BOF` and `EOF` tokens for selecting the range from beginning and end of file 
+* Create a [remark](https://github.com/wooorm/remark) plugin to pull code into Markdown using queries
 
 ## Limitations
 

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="doc/readme/code-query-image.png" alt="Code Query - extract code snippets using selectors" />
+</p>
+
 # cq: Code Query [![Dolpins](https://cdn.rawgit.com/fullstackreact/google-maps-react/master/resources/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
 
 > A tool to extract code snippets using selectors (instead of line numbers)

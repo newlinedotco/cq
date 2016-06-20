@@ -173,12 +173,14 @@ class Barn {
 }
 ```
 
-A pair of identifiers joined by a dash `-` form a _range_. A range will emit the code from the beginning of the match of the first identifier to the end of the match of the last. 
+A pair of selections (e.g. identifiers) joined by a dash `-` form a _range_. A range will emit the code from the beginning of the match of the first identifier to the end of the match of the last. 
 
 You can use a parent identifier to limit the scope of the search of the range as in the query: `.Barn .constructor-.calcArea`
 
-### _Modifiers_
+If you'd like to specify a line number, you can use a number (instead of an identifier) in a range. For example the query: `30-35` will give lines 30 through 35, inclusive.
 
+
+### _Modifiers_
 
 **Examples**:
 
@@ -205,10 +207,36 @@ Lines following the identifier are designated by `+n` whereas lines preceding ar
 ## Library Usage
 
 ```javascript
-var cq = require('@eigenjoy/cq');
+var cq = require('@eigenjoy/cq').default;
 var results = cq(codeString, query);
 console.log(results.code);
 ```
+
+## Future
+
+* Add queries for header information such as comments, `import`s, and `require`s
+* Add the ability to extract several sections in a single query
+* Add TypeScript support (but keep the same query language)
+* Add `BOF` and `EOF` tokens for selecting the range from beginning and end of file 
+
+## Limitations
+
+* It's possible to specify invalid queries and the error messages are not helpful
+* Only one selector is possible per query
+* Some sections of code are not directly selectable (because the query language is not yet expressive enough)
+* You can only select whole lines (e.g. comments on the same line after an expression are captured) - this is by design, but it should be configurable
+
+## Query API Stability
+
+The query API early is likely to change for version 1.0.0 (see [Future](#future)). Any breaking API changes (query or otherwise) will result in a major version bump.q
+
+## Contributing
+
+Please feel free to submit pull requests!
+
+## Authors
+
+Originally written by [Nate Murray](https://twitter.com/eigenjoy).
 
 ## Related
 

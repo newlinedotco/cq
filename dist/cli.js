@@ -17,7 +17,11 @@ var _fs2 = _interopRequireDefault(_fs);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var argv = _yargs2.default.usage('Usage: $0 <query> <file>').example("$0 '.MyClass .fooFunction'", "show code for fooFunction() in MyClass").help('h').alias('h', 'help').argv;
+var argv = _yargs2.default.usage('Usage: $0 [options] <query> <file>').example("$0 '.MyClass .fooFunction'", "show code for fooFunction() in MyClass").help('help').alias('help', 'h').option('json', {
+  alias: 'j',
+  type: 'boolean',
+  describe: 'Output results in machine-readable format'
+}).argv;
 
 var _argv$_ = _slicedToArray(argv._, 2);
 
@@ -38,9 +42,12 @@ inputStream.on('data', function (buf) {
   content += buf.toString();
 });
 inputStream.on('end', function () {
-  var _cq = (0, _index2.default)(content, query);
+  var result = (0, _index2.default)(content, query);
 
-  var code = _cq.code;
-
-  console.log(code);
+  if (argv.json === true) {
+    delete result['nodes'];
+    console.log(JSON.stringify(result, null, 2));
+  } else {
+    console.log(result.code);
+  }
 });

@@ -211,6 +211,13 @@ function getProgram(ast) {
   return path;
 }
 
+// given character index idx in code, returns the 1-indexed line number
+function lineNumberOfCharacterIndex(code, idx) {
+  var everythingUpUntilTheIndex = code.substring(0, idx);
+  // computer science!
+  return everythingUpUntilTheIndex.split('\n').length;
+}
+
 function resolveListOfQueries(ast, root, code, query, opts) {
   return query.reduce(function (acc, q) {
     var resolved = resolveIndividualQuery(ast, root, code, q, opts);
@@ -218,10 +225,18 @@ function resolveListOfQueries(ast, root, code, query, opts) {
     // the queries aren't contiguous
     acc.code = acc.code + resolved.code;
     acc.nodes = [].concat(_toConsumableArray(acc.nodes), [resolved.node]);
+    acc.start = Math.min(acc.start, resolved.start);
+    acc.end = Math.max(acc.end, resolved.end);
+    acc.start_line = Math.min(acc.start_line, lineNumberOfCharacterIndex(code, resolved.start));
+    acc.end_line = Math.max(acc.end_line, lineNumberOfCharacterIndex(code, resolved.end));
     return acc;
   }, {
     code: '',
-    nodes: []
+    nodes: [],
+    start: Number.MAX_VALUE,
+    end: Number.MIN_VALUE,
+    start_line: Number.MAX_VALUE,
+    end_line: Number.MIN_VALUE
   });
 }
 

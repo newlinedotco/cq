@@ -69,6 +69,20 @@ const bye = function() {
 bye(); // -> 'bye'
 ```
 
+If you pass `--json` you'll get the results in JSON, which can be useful for further processing:
+
+```javascript
+$ cq --json '.bye:+1' examples/basics.js
+
+    {
+      "code": "const bye = function() {\n  return 'bye';\n}\nbye(); // -> 'bye'",
+      "start": 598,
+      "end": 659,
+      "start_line": 25,
+      "end_line": 28
+    }
+```
+
 Get the `calcArea` function on the `Barn` class:
 
 ```javascript

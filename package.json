@@ -1,9 +1,9 @@
 {
-  "name": "@eigenjoy/cq",
+  "name": "@fullstackio/cq",
   "version": "0.1.1",
   "description": "query code with selectors",
   "main": "dist/index.js",
-  "repository": "jashmenn/cq",
+  "repository": "fullstackio/cq",
   "scripts": {
     "compile": "babel -d dist/ src/",
     "prepublish": "npm run generate-parser && npm run compile",

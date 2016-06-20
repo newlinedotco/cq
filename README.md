@@ -58,7 +58,7 @@ const bye = function() {
 }
 ```
 
-Get the `bye()` function plus the invocation line after using a _modifier_:
+Get the `bye()` function plus the invocation line after:
 
 ```javascript
 $ cq '.bye:+1' examples/basics.js
@@ -93,6 +93,8 @@ $ cq '.Barn .constructor-.calcArea' examples/basics.js
     return this.height * this.width;
   }
 ```
+
+> See more examples in the [`/examples`](./examples) directory
 
 ## Features
 

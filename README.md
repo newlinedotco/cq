@@ -46,7 +46,7 @@ class Barn {
 
 Get the `bye()` function:
 
-```
+```javascript
 $ cq '.bye' examples/basics.js
 
 const bye = function() {
@@ -56,7 +56,7 @@ const bye = function() {
 
 Get the `bye()` function plus the invocation line after using a _modifier_:
 
-```
+```javascript
 $ cq '.bye:+1' examples/basics.js
 
 const bye = function() {
@@ -67,7 +67,7 @@ bye(); // -> 'bye'
 
 Get the `calcArea` function on the `Barn` class:
 
-```
+```javascript
 $ cq '.Barn .calcArea' examples/basics.js
 
   calcArea() {
@@ -77,7 +77,7 @@ $ cq '.Barn .calcArea' examples/basics.js
 
 Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` class
 
-```
+```javascript
 $ cq '.Barn .constructor-.calcArea' examples/basics.js
 
   constructor(height, width) {
@@ -121,7 +121,7 @@ A dot `.` preceding JavaScript identifier characters represents an identifier.
 
 In this code:
 
-```
+```jsx
 const Simple = React.createClass({
   render() {
     return (
@@ -160,7 +160,7 @@ The space indicates to search for the next identifier anywhere within the parent
 
 Given:
 
-```
+```javascript
 class Barn {
   constructor(height, width) {
     this.height = height;
@@ -189,7 +189,7 @@ If you'd like to specify a line number, you can use a number (instead of an iden
 
 Given:
 
-```
+```javascript
 // here is the bye function (emitted with -1)
 const bye = function() {
   return 'bye';

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="doc/readme/code-query-image.png" alt="Code Query - extract code snippets using selectors" />
+  <img src="https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/code-query-image.png" alt="Code Query - extract code snippets using selectors" />
 </p>
 
-# cq: Code Query [![Dolpins](https://cdn.rawgit.com/fullstackreact/google-maps-react/master/resources/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
+# cq: Code Query [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
 
 > A tool to extract code snippets using selectors (instead of line numbers)
 
@@ -251,7 +251,7 @@ Originally written by [Nate Murray](https://twitter.com/eigenjoy).
 ## Fullstack React Book
 
 <a href="https://fullstackreact.com">
-<img align="right" src="https://cdn.rawgit.com/fullstackreact/google-maps-react/master/resources/readme/fullstack-react-hero-book.png" alt="Fullstack React Book" width="155" height="250" />
+<img align="right" src="https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/fullstack-react-hero-book.png" alt="Fullstack React Book" width="155" height="250" />
 </a>
 
 This repo was written and is maintained by the [Fullstack React](https://fullstackreact.com) team. If you're looking to learn React, there's no faster way than by spending a few hours with the Fullstack React book.

@@ -9,7 +9,7 @@
 ## Install
 
 ```
-$ npm install --global @eigenjoy/cq
+$ npm install --global @fullstackio/cq
 ```
 
 ## Usage
@@ -211,7 +211,7 @@ Lines following the identifier are designated by `+n` whereas lines preceding ar
 ## Library Usage
 
 ```javascript
-var cq = require('@eigenjoy/cq').default;
+var cq = require('@fullstackio/cq').default;
 var results = cq(codeString, query);
 console.log(results.code);
 ```

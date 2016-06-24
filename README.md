@@ -239,6 +239,8 @@ console.log(results.code);
 * Add TypeScript support (but keep the same query language)
 * Add `BOF` and `EOF` tokens for selecting the range from beginning and end of file 
 * Create a [remark](https://github.com/wooorm/remark) plugin to pull code into Markdown using queries
+* Get trailing and leading comments - [see here in ASTExplorer](https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L68)
+* Add operators like `upto(.identifier)` to include ranges up to, but not including, an identifier
 
 ## Limitations
 

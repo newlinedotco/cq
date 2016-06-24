@@ -5,9 +5,10 @@
  * code based on that query
  *
  */
-let babylon = require("babylon");
 import traverse from 'babel-traverse';
 import parser from './query-parser';
+
+import babylonEngine from './engines/babylon';
 
 export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
@@ -15,24 +16,6 @@ export const NodeTypes = {
   LINE_NUMBER: 'LINE_NUMBER',
   EXTRA_LINES: 'EXTRA_LINES'
 };
-
-function getNodeCodeRange(node) {
-  if(node.start && node.end) {
-    return { start: node.start, end: node.end };
-  }
-  if(node.body && node.body.start && node.body.end) {
-    return { start: node.body.start, end: node.body.end };
-  }
-
-  switch(node.type) {
-  case 'ObjectProperty':
-    return { start: getNodeCodeRange(node.key).start, end: getNodeCodeRange(node.value).end };
-  default:
-    console.log("unknown", node);
-    throw new Error('getNodeCodeRange of unknown type: ' + node.type);
-    break;
-  }
-}
 
 function adjustRangeWithModifiers(code, modifiers, {start, end}) {
   // get any extra lines, if requested
@@ -77,37 +60,11 @@ function adjustRangeWithModifiers(code, modifiers, {start, end}) {
   return {start, end};
 }
 
-function resolveIndividualQuery(ast, root, code, query, opts) {
-
+function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch(query.type) {
   case NodeTypes.IDENTIFIER: {
-    let nextRoot;
-    let range;
-
-    // if the identifier exists in the scope, this is the easiest way to fetch it
-    if(root.scope && root.scope.getBinding(query.matcher)) {
-      let binding = root.scope.getBinding(query.matcher)
-      let parent = binding.path.node; // binding.path.parent ?
-
-      range = getNodeCodeRange(parent);
-      nextRoot = parent;
-    } else {
-      let path;
-      traverse(ast, {
-        Identifier: function (_path) {
-          if(_path.node.name === query.matcher) {
-            if(!path) {
-              path = _path;
-            }
-            _path.stop();
-          }
-        }
-      });
-
-      let parent = path.parent;
-      range = getNodeCodeRange(parent);
-      nextRoot = parent;
-    }
+    let nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+    let range = engine.nodeToRange(nextRoot);
 
     // we want to keep starting indentation, so search back to the previous
     // newline
@@ -130,14 +87,14 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
     let codeSlice = code.substring(start, end);
 
     if(query.children) {
-      return resolveListOfQueries(ast, nextRoot, code, query.children, opts);
+      return resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
     } else {
       return { code: codeSlice, start, end };
     }
   }
   case NodeTypes.RANGE: {
-    let rangeStart = resolveIndividualQuery(ast, root, code, query.start, opts);
-    let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, opts);
+    let rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
+    let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, opts);
     let start = rangeStart.start;
     let end = rangeEnd.end;
     if(query.modifiers) {
@@ -167,18 +124,6 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
 
 }
 
-function getProgram(ast) {
-  var path;
-
-  traverse(ast, {
-    Program: function (_path) {
-      path = _path;
-      _path.stop();
-    }
-  });
-  return path;
-}
-
 // given character index idx in code, returns the 1-indexed line number 
 function lineNumberOfCharacterIndex(code, idx) {
   const everythingUpUntilTheIndex = code.substring(0, idx);
@@ -186,9 +131,9 @@ function lineNumberOfCharacterIndex(code, idx) {
   return everythingUpUntilTheIndex.split('\n').length;
 }
 
-function resolveListOfQueries(ast, root, code, query, opts) {
+function resolveListOfQueries(ast, root, code, query, engine, opts) {
   return query.reduce((acc, q) => {
-    let resolved = resolveIndividualQuery(ast, root, code, q, opts);
+    let resolved = resolveIndividualQuery(ast, root, code, q, engine, opts);
     // thought: maybe do something clever here like put in a comment ellipsis if
     // the queries aren't contiguous
     acc.code = acc.code + resolved.code;
@@ -208,31 +153,14 @@ function resolveListOfQueries(ast, root, code, query, opts) {
   })
 }
 
-const defaultBabylonConfig = {
-  sourceType: "module",
-  plugins: [
-    'jsx',
-    'flow',
-    'asyncFunctions',
-    'classConstructorCall',
-    'doExpressions',
-    'trailingFunctionCommas',
-    'objectRestSpread',
-    'decorators',
-    'classProperties',
-    'exportExtensions',
-    'exponentiationOperator',
-    'asyncGenerators',
-    'functionBind',
-    'functionSent'
-  ]
-};
-
 export default function cq(code, query, opts={}) {
-  let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts.parserOpts));
-  let program = getProgram(ast);
+  let engine = opts.engine || babylonEngine();
+
+  let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
+  let root = engine.getInitialRoot(ast);
+
   if(typeof query === 'string') {
     query = [ parser.parse(query) ]; // parser returns single object for now, but eventually an array
   }
-  return resolveListOfQueries(ast, program, code, query, opts);
+  return resolveListOfQueries(ast, root, code, query, engine, opts);
 }

@@ -130,6 +130,45 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
+    it('should parse a string', () => {
+      let actual = parser.parse("'hi mom'");
+      let expected = {
+        type: NodeTypes.STRING,
+        matcher: 'hi mom'
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse a string with children', () => {
+      let actual = parser.parse("'My Test' 'should work'");
+      let expected = {
+        type: NodeTypes.STRING,
+        matcher: 'My Test',
+        children: [{
+          type: NodeTypes.STRING,
+          matcher: 'should work'
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse a string in a range', () => {
+      let actual = parser.parse("1-'foo'");
+      let expected = {
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.LINE_NUMBER,
+          value: 1
+        },
+        end: {
+          type: NodeTypes.STRING,
+          matcher: 'foo'
+        }
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+
   });
 });
 

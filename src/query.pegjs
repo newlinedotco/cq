@@ -23,7 +23,8 @@
     IDENTIFIER: 'IDENTIFIER',
     RANGE: 'RANGE',
     LINE_NUMBER: 'LINE_NUMBER',
-    EXTRA_LINES: 'EXTRA_LINES'
+    EXTRA_LINES: 'EXTRA_LINES',
+    STRING: 'STRING'
   };
 }
 
@@ -75,11 +76,20 @@ Selection
       value: number
     }
   }
+  / String
   / SelectionGroup
 
 SelectionGroup
   = openParen node:SelectionExpression closeParen {
     return node;
+  }
+
+String
+  = singleQuote str:innerString singleQuote {
+    return {
+      type: NodeTypes.STRING,
+      matcher: str.join("")
+    }
   }
 
 Identifier
@@ -127,4 +137,6 @@ openParen = "("
 closeParen = ")"
 eof = "EOF"
 ws "whitespace" = [ \t\n\r]*
+singleQuote = "'"
 char = [A-Za-z0-9_$]
+innerString = [^\n\']*

@@ -15,7 +15,8 @@ export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
   RANGE: 'RANGE',
   LINE_NUMBER: 'LINE_NUMBER',
-  EXTRA_LINES: 'EXTRA_LINES'
+  EXTRA_LINES: 'EXTRA_LINES',
+  STRING: 'STRING'
 };
 
 function adjustRangeWithModifiers(code, modifiers, {start, end}) {

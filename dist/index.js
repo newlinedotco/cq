@@ -14,42 +14,31 @@ var _queryParser = require('./query-parser');
 
 var _queryParser2 = _interopRequireDefault(_queryParser);
 
+var _babylon = require('./engines/babylon');
+
+var _babylon2 = _interopRequireDefault(_babylon);
+
+var _typescript = require('./engines/typescript');
+
+var _typescript2 = _interopRequireDefault(_typescript);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
+                                                                                                                                                                                                     * cq Query Resolver
+                                                                                                                                                                                                     *
+                                                                                                                                                                                                     * This file takes input code and a parsed query and extracts portions of the
+                                                                                                                                                                                                     * code based on that query
+                                                                                                                                                                                                     *
+                                                                                                                                                                                                     */
 
-/**
- * cq Query Resolver
- *
- * This file takes input code and a parsed query and extracts portions of the
- * code based on that query
- *
- */
-var babylon = require("babylon");
+
 var NodeTypes = exports.NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
   RANGE: 'RANGE',
   LINE_NUMBER: 'LINE_NUMBER',
   EXTRA_LINES: 'EXTRA_LINES'
 };
-
-function getNodeCodeRange(node) {
-  if (node.start && node.end) {
-    return { start: node.start, end: node.end };
-  }
-  if (node.body && node.body.start && node.body.end) {
-    return { start: node.body.start, end: node.body.end };
-  }
-
-  switch (node.type) {
-    case 'ObjectProperty':
-      return { start: getNodeCodeRange(node.key).start, end: getNodeCodeRange(node.value).end };
-    default:
-      console.log("unknown", node);
-      throw new Error('getNodeCodeRange of unknown type: ' + node.type);
-      break;
-  }
-}
 
 function adjustRangeWithModifiers(code, modifiers, _ref) {
   var start = _ref.start;
@@ -97,40 +86,12 @@ function adjustRangeWithModifiers(code, modifiers, _ref) {
   return { start: start, end: end };
 }
 
-function resolveIndividualQuery(ast, root, code, query, opts) {
-
+function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch (query.type) {
     case NodeTypes.IDENTIFIER:
       {
-        var nextRoot = void 0;
-        var range = void 0;
-
-        // if the identifier exists in the scope, this is the easiest way to fetch it
-        if (root.scope && root.scope.getBinding(query.matcher)) {
-          var binding = root.scope.getBinding(query.matcher);
-          var parent = binding.path.node; // binding.path.parent ?
-
-          range = getNodeCodeRange(parent);
-          nextRoot = parent;
-        } else {
-          (function () {
-            var path = void 0;
-            (0, _babelTraverse2.default)(ast, {
-              Identifier: function Identifier(_path) {
-                if (_path.node.name === query.matcher) {
-                  if (!path) {
-                    path = _path;
-                  }
-                  _path.stop();
-                }
-              }
-            });
-
-            var parent = path.parent;
-            range = getNodeCodeRange(parent);
-            nextRoot = parent;
-          })();
-        }
+        var nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+        var range = engine.nodeToRange(nextRoot);
 
         // we want to keep starting indentation, so search back to the previous
         // newline
@@ -156,15 +117,15 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
         var codeSlice = code.substring(start, end);
 
         if (query.children) {
-          return resolveListOfQueries(ast, nextRoot, code, query.children, opts);
+          return resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
         } else {
           return { code: codeSlice, start: start, end: end };
         }
       }
     case NodeTypes.RANGE:
       {
-        var rangeStart = resolveIndividualQuery(ast, root, code, query.start, opts);
-        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, opts);
+        var rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
+        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, opts);
         var _start = rangeStart.start;
         var _end = rangeEnd.end;
         if (query.modifiers) {
@@ -199,18 +160,6 @@ function resolveIndividualQuery(ast, root, code, query, opts) {
   }
 }
 
-function getProgram(ast) {
-  var path;
-
-  (0, _babelTraverse2.default)(ast, {
-    Program: function Program(_path) {
-      path = _path;
-      _path.stop();
-    }
-  });
-  return path;
-}
-
 // given character index idx in code, returns the 1-indexed line number
 function lineNumberOfCharacterIndex(code, idx) {
   var everythingUpUntilTheIndex = code.substring(0, idx);
@@ -218,9 +167,9 @@ function lineNumberOfCharacterIndex(code, idx) {
   return everythingUpUntilTheIndex.split('\n').length;
 }
 
-function resolveListOfQueries(ast, root, code, query, opts) {
+function resolveListOfQueries(ast, root, code, query, engine, opts) {
   return query.reduce(function (acc, q) {
-    var resolved = resolveIndividualQuery(ast, root, code, q, opts);
+    var resolved = resolveIndividualQuery(ast, root, code, q, engine, opts);
     // thought: maybe do something clever here like put in a comment ellipsis if
     // the queries aren't contiguous
     acc.code = acc.code + resolved.code;
@@ -240,18 +189,30 @@ function resolveListOfQueries(ast, root, code, query, opts) {
   });
 }
 
-var defaultBabylonConfig = {
-  sourceType: "module",
-  plugins: ['jsx', 'flow', 'asyncFunctions', 'classConstructorCall', 'doExpressions', 'trailingFunctionCommas', 'objectRestSpread', 'decorators', 'classProperties', 'exportExtensions', 'exponentiationOperator', 'asyncGenerators', 'functionBind', 'functionSent']
-};
-
 function cq(code, query) {
   var opts = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-  var ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts.parserOpts));
-  var program = getProgram(ast);
+  var engine = opts.engine || (0, _babylon2.default)();
+
   if (typeof query === 'string') {
     query = [_queryParser2.default.parse(query)]; // parser returns single object for now, but eventually an array
   }
-  return resolveListOfQueries(ast, program, code, query, opts);
+
+  if (typeof engine === 'string') {
+    switch (engine) {
+      case 'typescript':
+        engine = (0, _typescript2.default)();
+        break;
+      case 'babylon':
+        engine = (0, _babylon2.default)();
+        break;
+      default:
+        throw new Error('unknown engine: ' + engine);
+    }
+  }
+
+  var ast = engine.parse(code, Object.assign({}, opts.parserOpts));
+  var root = engine.getInitialRoot(ast);
+
+  return resolveListOfQueries(ast, root, code, query, engine, opts);
 }

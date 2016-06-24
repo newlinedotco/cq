@@ -21,6 +21,15 @@ var argv = _yargs2.default.usage('Usage: $0 [options] <query> <file>').example("
   alias: 'j',
   type: 'boolean',
   describe: 'Output results in machine-readable format'
+}).option('short', {
+  alias: 's',
+  type: 'boolean',
+  describe: 'emit short json result (no code). requires --json'
+}).option('engine', {
+  alias: 'e',
+  describe: 'parsing engine',
+  choices: ['auto', 'babylon', 'typescript'],
+  default: 'auto'
 }).argv;
 
 var _argv$_ = _slicedToArray(argv._, 2);
@@ -34,6 +43,25 @@ if (!query) {
   process.exit();
 }
 
+var engine = void 0;
+
+// pick the parsing engine
+switch (argv.engine) {
+  case 'babylon':
+  case 'typescript':
+    engine = argv.engine;
+    break;
+  case 'auto':
+    if (filename && filename.match(/.tsx?/)) {
+      engine = 'typescript';
+    } else {
+      engine = 'babylon';
+    }
+    break;
+  default:
+    throw new Error('unknown engine: ' + argv.engine);
+}
+
 var inputStream = filename ? _fs2.default.createReadStream(filename) : process.stdin;
 
 var content = '';
@@ -42,10 +70,13 @@ inputStream.on('data', function (buf) {
   content += buf.toString();
 });
 inputStream.on('end', function () {
-  var result = (0, _index2.default)(content, query);
+  var result = (0, _index2.default)(content, query, { engine: engine });
 
   if (argv.json === true) {
     delete result['nodes'];
+    if (argv.short === true) {
+      delete result['code'];
+    }
     console.log(JSON.stringify(result, null, 2));
   } else {
     console.log(result.code);

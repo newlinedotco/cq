@@ -5,6 +5,8 @@
 # cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com) 
 
 > A tool to extract code snippets using selectors (instead of line numbers)
+>
+> Supports JavaScript ES5, ES6, JSX, and TypeScript
 
 ## Install
 
@@ -115,6 +117,7 @@ $ cq '.Barn .constructor-.calcArea' examples/basics.js
 - Extract chunks of code from text using robust selectors (vs. brittle line numbers)
 - Locate ranges of code using identifiers
 - Parses ES6 & JSX (with [babylon](https://github.com/babel/babylon))
+- Parses TypeScript
 
 ## Motivation
 
@@ -177,6 +180,7 @@ The space indicates to search for the next identifier anywhere within the parent
 
 - `.constructor-.calcArea`
 - `.Barn .constructor-.calcArea`
+- `1-(.AuthService .login)`
 
 Given:
 
@@ -198,6 +202,8 @@ A pair of selections (e.g. identifiers) joined by a dash `-` form a _range_. A r
 You can use a parent identifier to limit the scope of the search of the range as in the query: `.Barn .constructor-.calcArea`
 
 If you'd like to specify a line number, you can use a number (instead of an identifier) in a range. For example the query: `30-35` will give lines 30 through 35, inclusive.
+
+If you want to specify a child selector at the end of a range, use parenthesis as in this query: `1-(.AuthService .login)`. The previous query will return the lines from line 1 to the end of the `login()` function on `AuthService`.
 
 
 ### _Modifiers_
@@ -236,8 +242,7 @@ console.log(results.code);
 
 * Add queries for header information such as comments, `import`s, and `require`s
 * Add the ability to extract several sections in a single query
-* Add TypeScript support (but keep the same query language)
-* Add `BOF` and `EOF` tokens for selecting the range from beginning and end of file 
+* Add `EOF` token for selecting to end of file
 * Create a [remark](https://github.com/wooorm/remark) plugin to pull code into Markdown using queries
 * Get trailing and leading comments - [see here in ASTExplorer](https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L68)
 * Add operators like `upto(.identifier)` to include ranges up to, but not including, an identifier

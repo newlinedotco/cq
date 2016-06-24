@@ -303,6 +303,29 @@ console.log(square.area);
     });
   });
 
+  describe('more ES6 Classes', () => {
+    const src = `
+class Square {
+  area() {
+    return this.height * this.width;
+  }
+}
+
+class Circle {
+  area() {
+    return PI * this.radius ** 2;
+  }
+}
+    `;
+
+    it('return disambiguate based on parent', () => {
+      let { code } = cq(src, '.Circle .area');
+      const wanted = lines(src, 8, 10);
+      assert.equal(code, wanted);
+    });
+
+  });
+
   describe('searching for strings', () => {
     const src = `
 import foo from 'bar';
@@ -332,7 +355,7 @@ describe('Other Test', () => {
       assert.equal(code, wanted);
     })
 
-    it.skip('find a child should with the same name', () => {
+    it('find a child should with the same name', () => {
       let { code } = cq(src, "'Other Test' 'should pass'");
       const wanted = lines(src, 10, 12);
       assert.equal(code, wanted);

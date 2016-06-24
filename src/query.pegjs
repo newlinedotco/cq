@@ -14,7 +14,9 @@
  * .Switch .renderOtherStuff-.render
  * .Polygon .distance-.area
  * .Switch-(.parent .child)
- * 
+ * 'My Test'
+ * 'My Test' 'should work'
+ * 1-'foo'
  */
 
 {

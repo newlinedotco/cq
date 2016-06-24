@@ -28,7 +28,6 @@ const defaultBabylonConfig = {
 };
 
 export default function babylonEngine(engineOpts={}) {
-
   return {
     parse(code, opts={}) {
       let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts));

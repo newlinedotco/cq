@@ -3,6 +3,8 @@
  *
  * Parse files with TypeScript
  *
+ * Thanks to astexplorer for some of this code
+ * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
  */
 import 'babel-polyfill'
 import * as ts from "typescript";
@@ -23,7 +25,6 @@ function isNode(node) {
 }
 
 function traverse(node, nodeCbs) {
-
   let nodeName = getNodeName(node);
   if (nodeCbs.hasOwnProperty(nodeName)) {
     (nodeCbs[nodeName])(node);
@@ -37,17 +38,13 @@ function traverse(node, nodeCbs) {
     let propValue = node[prop];
 
     if (Array.isArray(propValue)) {
-
       propValue.filter(v => isNode(v))
         .map(v => traverse(v, nodeCbs))
     } else if (isNode(propValue)) {
       traverse(propValue, nodeCbs);
     }
-
-
   }
 }
-
 
 export default function typescriptEngine(engineOpts={}) {
   return {
@@ -58,7 +55,6 @@ export default function typescriptEngine(engineOpts={}) {
       return ast;
     },
     nodeToRange(node) {
-      // via https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
       if (typeof node.getStart === 'function' &&
           typeof node.getEnd === 'function') {
         return {start: node.getStart(), end: node.getEnd()};

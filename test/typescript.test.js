@@ -98,8 +98,48 @@ export var AUTH_PROVIDERS: Array<any> = [
       const wanted = lines(src, 0, 12);
       assert.equal(code, wanted);
     })
+  });
 
-
+  describe('searching for strings', () => {
+    const src = `
+import foo from 'bar';
+// here is a nice test
+describe('My Test', () => {
+  it('should pass', () => {
+    expect(1).toEqual(1);
   })
+});
+
+describe('Other Test', () => {
+  it('should pass', () => {
+    expect(2).toEqual(2);
+  })
+});
+    `;
+
+    it('find a whole test', () => {
+      let { code } = cq(src, "'My Test'", {engine: 'typescript'});
+      const wanted = lines(src, 3, 7);
+      assert.equal(code, wanted);
+    })
+
+    it('find a child should', () => {
+      let { code } = cq(src, "'My Test' 'should pass'", {engine: 'typescript'});
+      const wanted = lines(src, 4, 6);
+      assert.equal(code, wanted);
+    })
+
+    it('find a child should with the same name', () => {
+      let { code } = cq(src, "'Other Test' 'should pass'", {engine: 'typescript'});
+      const wanted = lines(src, 10, 12);
+      assert.equal(code, wanted);
+    })
+
+    it('find strings in a range', () => {
+      let { code } = cq(src, "1-'My Test'", {engine: 'typescript'});
+      const wanted = lines(src, 0, 7);
+      assert.equal(code, wanted);
+    })
+  });
 
 });

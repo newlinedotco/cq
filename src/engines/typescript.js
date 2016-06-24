@@ -76,6 +76,20 @@ export default function typescriptEngine(engineOpts={}) {
       });
       let parent = path.parent;
       return parent;
+    },
+    findNodeWithString(ast, root, query) {
+      let path;
+      traverse(root, {
+        StringLiteral: function (node) {
+          if(node.text === query.matcher) {
+            if(!path) {
+              path = node;
+            }
+          }
+        }
+      });
+      let parent = path.parent;
+      return parent;
     }
   }
 }

@@ -11,7 +11,7 @@ function lines(str, startLine, endLine) {
 
 describe('cq', () => {
   describe('createClass', () => {
-    const reactCreateClass = `
+    const src = `
 import React, { PropTypes } from 'react';
 
 const Switch = React.createClass({
@@ -29,8 +29,8 @@ module.exports = Switch;
         matcher: 'Switch'
       }];
 
-      let { code } = cq(reactCreateClass, query);
-      const wanted = lines(reactCreateClass, 3, 7);
+      let { code } = cq(src, query);
+      const wanted = lines(src, 3, 7);
       assert.equal(code, wanted);
     });
 
@@ -44,15 +44,22 @@ module.exports = Switch;
         }]
       }];
 
-      let { code } = cq(reactCreateClass, query);
-      const wanted = lines(reactCreateClass, 4, 6);
+      let { code } = cq(src, query);
+      const wanted = lines(src, 4, 6);
       assert.equal(code, wanted);
     });
 
     it('should parse string queries', () => {
       let query = '.Switch .render';
-      let { code } = cq(reactCreateClass, query);
-      const wanted = lines(reactCreateClass, 4, 6);
+      let { code } = cq(src, query);
+      const wanted = lines(src, 4, 6);
+      assert.equal(code, wanted);
+    });
+
+    it('should parse to the EOF', () => {
+      let query = '.Switch-EOF';
+      let { code } = cq(src, query);
+      const wanted = lines(src, 3, 10);
       assert.equal(code, wanted);
     });
   });

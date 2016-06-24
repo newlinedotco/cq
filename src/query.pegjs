@@ -69,7 +69,7 @@ Range
 
 Selection
   = Identifier
-  / number:Integer {
+  / number:LineNumber {
     return {
       type: NodeTypes.LINE_NUMBER,
       value: number
@@ -96,7 +96,7 @@ Modifiers
   }
 
 Modifier
-  = operator:ModifierOperator number:Integer {
+  = operator:ModifierOperator number:LineNumber {
     return {
       type: NodeTypes.EXTRA_LINES,
       amount: operator == '-' ? (number * -1) : number
@@ -107,8 +107,15 @@ ModifierOperator
   = plus
   / minus
 
+LineNumber
+  = Integer
+  / SpecialLineNumber
+
 Integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }
+
+SpecialLineNumber
+  = eof
 
 dot = "."
 dash = "-"
@@ -118,5 +125,6 @@ colon = ":"
 comma = ","
 openParen = "("
 closeParen = ")"
+eof = "EOF"
 ws "whitespace" = [ \t\n\r]*
 char = [A-Za-z0-9_$]

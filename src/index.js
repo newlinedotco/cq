@@ -9,6 +9,7 @@ import traverse from 'babel-traverse';
 import parser from './query-parser';
 
 import babylonEngine from './engines/babylon';
+import typescriptEngine from './engines/typescript';
 
 export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
@@ -156,11 +157,25 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
 export default function cq(code, query, opts={}) {
   let engine = opts.engine || babylonEngine();
 
-  let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
-  let root = engine.getInitialRoot(ast);
-
   if(typeof query === 'string') {
     query = [ parser.parse(query) ]; // parser returns single object for now, but eventually an array
   }
+
+  if(typeof engine === 'string') {
+    switch(engine) {
+    case 'typescript':
+      engine = typescriptEngine();
+      break;
+    case 'babylon':
+      engine = babylonEngine();
+      break;
+    default:
+      throw new Error('unknown engine: ' + engine);
+    }
+  }
+
+  let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
+  let root = engine.getInitialRoot(ast);
+
   return resolveListOfQueries(ast, root, code, query, engine, opts);
 }

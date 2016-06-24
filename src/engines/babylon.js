@@ -87,6 +87,22 @@ export default function babylonEngine(engineOpts={}) {
         nextRoot = parent;
       }
       return nextRoot;
+    },
+    findNodeWithString(ast, root, query) {
+      let path;
+      traverse(ast, { // <--- bug? should be root?
+        Literal: function (_path) {
+          if(_path.node.value === query.matcher) {
+            if(!path) {
+              path = _path;
+            }
+            _path.stop();
+          }
+        }
+      });
+
+      let parent = path.parent;
+      return parent;
     }
   }
 }

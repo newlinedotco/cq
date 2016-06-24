@@ -64,8 +64,19 @@ function adjustRangeWithModifiers(code, modifiers, {start, end}) {
 
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch(query.type) {
-  case NodeTypes.IDENTIFIER: {
-    let nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+  case NodeTypes.IDENTIFIER:
+  case NodeTypes.STRING: {
+    let nextRoot;
+
+    switch(query.type) {
+    case NodeTypes.IDENTIFIER:
+      nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+      break;
+    case NodeTypes.STRING:
+      nextRoot = engine.findNodeWithString(ast, root, query);
+      break;
+    }
+
     let range = engine.nodeToRange(nextRoot);
 
     // we want to keep starting indentation, so search back to the previous

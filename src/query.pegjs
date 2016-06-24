@@ -13,6 +13,7 @@
  * 10-12
  * .Switch .renderOtherStuff-.render
  * .Polygon .distance-.area
+ * .Switch-(.parent .child)
  * 
  */
 
@@ -74,6 +75,12 @@ Selection
       value: number
     }
   }
+  / SelectionGroup
+
+SelectionGroup
+  = openParen node:SelectionExpression closeParen {
+    return node;
+  }
 
 Identifier
   = dot chars:char+ { 
@@ -109,5 +116,7 @@ plus = "+"
 minus = "-"
 colon = ":"
 comma = ","
+openParen = "("
+closeParen = ")"
 ws "whitespace" = [ \t\n\r]*
 char = [A-Za-z0-9_$]

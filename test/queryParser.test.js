@@ -77,6 +77,30 @@ describe('queryParserTest', () => {
 
       assert.deepEqual(actual, expected);
     });
+
+
+    it('should parse ranges with children on the right', () => {
+      let actual = parser.parse('.Switch-(.parent .child)');
+      let expected = {
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'Switch'
+        },
+        end: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'parent',
+          children: [{
+            type: NodeTypes.IDENTIFIER,
+            matcher: 'child'
+          }]
+        }
+      };
+
+      assert.deepEqual(actual, expected);
+    });
+
+
     
     it('should parse line numbers', () => {
       let actual = parser.parse('10-12');

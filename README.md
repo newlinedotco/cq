@@ -320,13 +320,35 @@ bye(); // -> 'bye' (emitted with +1)
 
 Operators allow you to change the result of the inner selection. 
 
-### `context`
+#### `context`
 
 The `context()` operation allows you to take line numbers before and after the selection. The signature is `context(selection, numLinesBefore, numLinesAfter)`.
 
-### `upto`
+#### `upto`
 
 The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines). 
+
+### _'String'_
+
+**Examples**:
+
+- `'My Test'`
+- `'My Test' 'my should'`
+- `2-'My Test'`
+
+You can use a single-quoted string as a selection and `cq` will search for that string. When a string is found, `cq` will emit the statement / block associated with that string.
+
+For instance, given:
+
+```javascript
+describe('My First Test', () => {
+  it('basic assert', () => {
+    assert.equal(1, 1);
+  });
+});
+```
+
+You could search for the strings `'My First Test'` or `'basic assert'` and receive the appropriate selection.
 
 ## Library Usage
 

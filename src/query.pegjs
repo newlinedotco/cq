@@ -14,7 +14,9 @@
  * .Switch .renderOtherStuff-.render
  * .Polygon .distance-.area
  * .Switch-(.parent .child)
- * 
+ * 'My Test'
+ * 'My Test' 'should work'
+ * 1-'foo'
  */
 
 {
@@ -23,7 +25,8 @@
     IDENTIFIER: 'IDENTIFIER',
     RANGE: 'RANGE',
     LINE_NUMBER: 'LINE_NUMBER',
-    EXTRA_LINES: 'EXTRA_LINES'
+    EXTRA_LINES: 'EXTRA_LINES',
+    STRING: 'STRING'
   };
 }
 
@@ -69,17 +72,26 @@ Range
 
 Selection
   = Identifier
-  / number:Integer {
+  / number:LineNumber {
     return {
       type: NodeTypes.LINE_NUMBER,
       value: number
     }
   }
+  / String
   / SelectionGroup
 
 SelectionGroup
   = openParen node:SelectionExpression closeParen {
     return node;
+  }
+
+String
+  = singleQuote str:innerString singleQuote {
+    return {
+      type: NodeTypes.STRING,
+      matcher: str.join("")
+    }
   }
 
 Identifier
@@ -96,7 +108,7 @@ Modifiers
   }
 
 Modifier
-  = operator:ModifierOperator number:Integer {
+  = operator:ModifierOperator number:LineNumber {
     return {
       type: NodeTypes.EXTRA_LINES,
       amount: operator == '-' ? (number * -1) : number
@@ -107,8 +119,15 @@ ModifierOperator
   = plus
   / minus
 
+LineNumber
+  = Integer
+  / SpecialLineNumber
+
 Integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }
+
+SpecialLineNumber
+  = eof
 
 dot = "."
 dash = "-"
@@ -118,5 +137,8 @@ colon = ":"
 comma = ","
 openParen = "("
 closeParen = ")"
+eof = "EOF"
 ws "whitespace" = [ \t\n\r]*
+singleQuote = "'"
 char = [A-Za-z0-9_$]
+innerString = [^\n\']*

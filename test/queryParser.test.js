@@ -8,7 +8,6 @@ import fs from 'fs';
 let grammar = fs.readFileSync(__dirname + '/../src/query.pegjs').toString();
 let parser = peg.buildParser(grammar);
 
-
 describe('queryParserTest', () => {
   describe('parsing', () => {
 
@@ -20,7 +19,6 @@ describe('queryParserTest', () => {
       };
       assert.deepEqual(actual, expected);
     });
-
 
     it('should parse children', () => {
       let actual = parser.parse('.Switch .render .cat');
@@ -78,7 +76,6 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
-
     it('should parse ranges with children on the right', () => {
       let actual = parser.parse('.Switch-(.parent .child)');
       let expected = {
@@ -100,24 +97,6 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
-
-    
-    it('should parse line numbers', () => {
-      let actual = parser.parse('10-12');
-      let expected = {
-        type: NodeTypes.RANGE,
-        start: {
-          type: NodeTypes.LINE_NUMBER,
-          value: 10
-        },
-        end: {
-          type: NodeTypes.LINE_NUMBER,
-          value: 12
-        }
-      };
-      assert.deepEqual(actual, expected);
-    });
-
     it('should parse modifiers', () => {
       let actual = parser.parse('.Switch:-2,+2');
       let expected = {
@@ -133,6 +112,62 @@ describe('queryParserTest', () => {
       };
       assert.deepEqual(actual, expected);
     });
+
+    it('should parse EOF in a range', () => {
+      let actual = parser.parse('1-EOF');
+      let expected = {
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.LINE_NUMBER,
+          value: 1
+        },
+        end: {
+          type: NodeTypes.LINE_NUMBER,
+          value: 'EOF'
+        }
+      };
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse a string', () => {
+      let actual = parser.parse("'hi mom'");
+      let expected = {
+        type: NodeTypes.STRING,
+        matcher: 'hi mom'
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse a string with children', () => {
+      let actual = parser.parse("'My Test' 'should work'");
+      let expected = {
+        type: NodeTypes.STRING,
+        matcher: 'My Test',
+        children: [{
+          type: NodeTypes.STRING,
+          matcher: 'should work'
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse a string in a range', () => {
+      let actual = parser.parse("1-'foo'");
+      let expected = {
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.LINE_NUMBER,
+          value: 1
+        },
+        end: {
+          type: NodeTypes.STRING,
+          matcher: 'foo'
+        }
+      };
+      assert.deepEqual(actual, expected);
+    });
+
 
   });
 });

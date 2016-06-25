@@ -11,7 +11,7 @@ function lines(str, startLine, endLine) {
 
 describe('cq', () => {
   describe('createClass', () => {
-    const reactCreateClass = `
+    const src = `
 import React, { PropTypes } from 'react';
 
 const Switch = React.createClass({
@@ -29,8 +29,8 @@ module.exports = Switch;
         matcher: 'Switch'
       }];
 
-      let { code } = cq(reactCreateClass, query);
-      const wanted = lines(reactCreateClass, 3, 7);
+      let { code } = cq(src, query);
+      const wanted = lines(src, 3, 7);
       assert.equal(code, wanted);
     });
 
@@ -44,15 +44,22 @@ module.exports = Switch;
         }]
       }];
 
-      let { code } = cq(reactCreateClass, query);
-      const wanted = lines(reactCreateClass, 4, 6);
+      let { code } = cq(src, query);
+      const wanted = lines(src, 4, 6);
       assert.equal(code, wanted);
     });
 
     it('should parse string queries', () => {
       let query = '.Switch .render';
-      let { code } = cq(reactCreateClass, query);
-      const wanted = lines(reactCreateClass, 4, 6);
+      let { code } = cq(src, query);
+      const wanted = lines(src, 4, 6);
+      assert.equal(code, wanted);
+    });
+
+    it('should parse to the EOF', () => {
+      let query = '.Switch-EOF';
+      let { code } = cq(src, query);
+      const wanted = lines(src, 3, 10);
       assert.equal(code, wanted);
     });
   });
@@ -295,4 +302,70 @@ console.log(square.area);
       assert.equal(code, wanted);
     });
   });
+
+  describe('more ES6 Classes', () => {
+    const src = `
+class Square {
+  area() {
+    return this.height * this.width;
+  }
+}
+
+class Circle {
+  area() {
+    return PI * this.radius ** 2;
+  }
+}
+    `;
+
+    it('return disambiguate based on parent', () => {
+      let { code } = cq(src, '.Circle .area');
+      const wanted = lines(src, 8, 10);
+      assert.equal(code, wanted);
+    });
+
+  });
+
+  describe('searching for strings', () => {
+    const src = `
+import foo from 'bar';
+// here is a nice test
+describe('My Test', () => {
+  it('should pass', () => {
+    expect(1).toEqual(1);
+  })
+});
+
+describe('Other Test', () => {
+  it('should pass', () => {
+    expect(2).toEqual(2);
+  })
+});
+    `;
+
+    it('find a whole test', () => {
+      let { code } = cq(src, "'My Test'");
+      const wanted = lines(src, 3, 7);
+      assert.equal(code, wanted);
+    })
+
+    it('find a child should', () => {
+      let { code } = cq(src, "'My Test' 'should pass'");
+      const wanted = lines(src, 4, 6);
+      assert.equal(code, wanted);
+    })
+
+    it('find a child should with the same name', () => {
+      let { code } = cq(src, "'Other Test' 'should pass'");
+      const wanted = lines(src, 10, 12);
+      assert.equal(code, wanted);
+    })
+
+    it('find strings in a range', () => {
+      let { code } = cq(src, "1-'My Test'");
+      const wanted = lines(src, 0, 7);
+      assert.equal(code, wanted);
+    })
+  });
+
 });

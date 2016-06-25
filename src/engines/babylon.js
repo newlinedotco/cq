@@ -72,7 +72,7 @@ export default function babylonEngine(engineOpts={}) {
         nextRoot = parent;
       } else {
         let path;
-        traverse(ast, { // <--- bug? should be root?
+        traverse(root, { // <--- bug? should be root?
           Identifier: function (_path) {
             if(_path.node.name === query.matcher) {
               if(!path) {
@@ -80,13 +80,42 @@ export default function babylonEngine(engineOpts={}) {
               }
               _path.stop();
             }
-          }
+          },
+          noScope: true
         });
 
         let parent = path.parent;
         nextRoot = parent;
       }
       return nextRoot;
+    },
+    findNodeWithString(ast, root, query) {
+      let path;
+      let scope;
+
+      let traverseOpts = {
+        Literal: function (_path) {
+          if(_path.node.value === query.matcher) {
+            if(!path) {
+              path = _path;
+            }
+            _path.stop();
+          }
+        },
+      }
+
+      if(!root.scope) {
+        traverseOpts.noScope = true
+      }
+
+      // todo, figure out this .node business
+      traverse(root.node, traverseOpts);
+      if(!path) {
+        traverse(root, traverseOpts);
+      }
+
+      let parent = path.parent;
+      return parent;
     }
   }
 }

@@ -15,7 +15,8 @@ export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
   RANGE: 'RANGE',
   LINE_NUMBER: 'LINE_NUMBER',
-  EXTRA_LINES: 'EXTRA_LINES'
+  EXTRA_LINES: 'EXTRA_LINES',
+  STRING: 'STRING'
 };
 
 function adjustRangeWithModifiers(code, modifiers, {start, end}) {
@@ -63,8 +64,19 @@ function adjustRangeWithModifiers(code, modifiers, {start, end}) {
 
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch(query.type) {
-  case NodeTypes.IDENTIFIER: {
-    let nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+  case NodeTypes.IDENTIFIER:
+  case NodeTypes.STRING: {
+    let nextRoot;
+
+    switch(query.type) {
+    case NodeTypes.IDENTIFIER:
+      nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+      break;
+    case NodeTypes.STRING:
+      nextRoot = engine.findNodeWithString(ast, root, query);
+      break;
+    }
+
     let range = engine.nodeToRange(nextRoot);
 
     // we want to keep starting indentation, so search back to the previous
@@ -105,19 +117,38 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     return { code: codeSlice, start, end };
   }
   case NodeTypes.LINE_NUMBER: {
-    let lines = code.split('\n');
-    let line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER 
 
-    // to get the starting index of this line...
-    // we take the sum of all prior lines:
-    let charIdx = lines.slice(0, query.value - 1).reduce(
-      // + 1 b/c of the (now missing) newline
-      (sum, line) => (sum + line.length + 1), 0);
+    // Parse special line numbers like EOF
+    if(typeof query.value === 'string') {
+      switch(query.value) {
+      case 'EOF': 
+        return { code: '', start: code.length, end: code.length };
+        break;
+      default:
+        throw new Error(`Unknown LINE_NUMBER: ${query.value}`);
+      }
+    } else {
 
-    let start = charIdx;
-    let end = charIdx + line.length;
-    let codeSlice = code.substring(start, end);
-    return { code: codeSlice, start, end };
+      if(query.value === 0) {
+        throw new Error(`Line numbers start at 1, not 0`);
+      }
+
+      // find the acutal line number
+      let lines = code.split('\n');
+      let line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER 
+
+      // to get the starting index of this line...
+      // we take the sum of all prior lines:
+      let charIdx = lines.slice(0, query.value - 1).reduce(
+        // + 1 b/c of the (now missing) newline
+        (sum, line) => (sum + line.length + 1), 0);
+
+      let start = charIdx;
+      let end = charIdx + line.length;
+      let codeSlice = code.substring(start, end);
+      return { code: codeSlice, start, end };
+    }
+
   }
   default:
     break;

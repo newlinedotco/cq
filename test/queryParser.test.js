@@ -227,6 +227,29 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
+    it('should parse functions with child selections in arguments', () => {
+      let actual = parser.parse('context(.foo .bar, 2, 2)');
+      let expected = {
+        type: NodeTypes.CALL_EXPRESSION,
+        callee: 'context',
+        arguments: [{
+          matcher: 'foo',
+          type: NodeTypes.IDENTIFIER,
+          children:[{
+            type: NodeTypes.IDENTIFIER,
+            matcher: 'bar'
+          }]
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: 2
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: 2
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
     it('should parse functions in ranges', () => {
       let actual = parser.parse('upto(.foo)-30');
       let expected =  {

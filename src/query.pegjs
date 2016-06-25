@@ -132,7 +132,7 @@ ArgumentList
     }
 
 FunctionArgument
-  = Term
+  = SelectionExpression
   / CallExpression
 
 CallExpression

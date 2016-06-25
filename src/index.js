@@ -16,7 +16,8 @@ export const NodeTypes = {
   RANGE: 'RANGE',
   LINE_NUMBER: 'LINE_NUMBER',
   EXTRA_LINES: 'EXTRA_LINES',
-  STRING: 'STRING'
+  STRING: 'STRING',
+  CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
 
 function adjustRangeWithModifiers(code, modifiers, {start, end}) {

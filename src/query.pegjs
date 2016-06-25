@@ -26,8 +26,32 @@
     RANGE: 'RANGE',
     LINE_NUMBER: 'LINE_NUMBER',
     EXTRA_LINES: 'EXTRA_LINES',
+    CALL_EXPRESSION: 'CALL_EXPRESSION',
     STRING: 'STRING'
   };
+
+  function extractOptional(optional, index) {
+    return optional ? optional[index] : null;
+  }
+
+  function optionalList(value) {
+    return value !== null ? value : [];
+  }
+
+  function extractList(list, index) {
+    var result = new Array(list.length), i;
+
+    for (i = 0; i < list.length; i++) {
+      result[i] = list[i][index];
+    }
+
+    return result;
+  }
+
+  function buildList(head, tail, index) {
+    return [head].concat(extractList(tail, index));
+  }
+
 }
 
 start
@@ -80,6 +104,7 @@ Selection
   }
   / String
   / SelectionGroup
+  / CallExpression
 
 SelectionGroup
   = openParen node:SelectionExpression closeParen {
@@ -112,6 +137,29 @@ Modifier
     return {
       type: NodeTypes.EXTRA_LINES,
       amount: operator == '-' ? (number * -1) : number
+    }
+  }
+
+Arguments
+  = "(" ws args:(ArgumentList ws)? ")" {
+      return optionalList(extractOptional(args, 0));
+    }
+
+ArgumentList
+  = head:FunctionArgument tail:(ws "," ws FunctionArgument)* {
+      return buildList(head, tail, 3);
+    }
+
+FunctionArgument
+  = Term
+  / CallExpression
+
+CallExpression
+  = callee:char+ args:Arguments {
+    return {
+      type: "CALL_EXPRESSION",
+      callee: callee.join(''),
+      arguments: args
     }
   }
 

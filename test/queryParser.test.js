@@ -97,7 +97,7 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
-    it('should parse modifiers', () => {
+    it('should parse extra line modifiers', () => {
       let actual = parser.parse('.Switch:-2,+2');
       let expected = {
         type: NodeTypes.IDENTIFIER,
@@ -163,6 +163,101 @@ describe('queryParserTest', () => {
         end: {
           type: NodeTypes.STRING,
           matcher: 'foo'
+        }
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse function modifiers', () => {
+      let actual = parser.parse('upto(.foo)');
+      let expected = {
+        type: NodeTypes.CALL_EXPRESSION,
+        callee: 'upto',
+        arguments: [{
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'foo'
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse functions with arguments', () => {
+      let actual = parser.parse('context(.foo, 2, 2)');
+      let expected = {
+        type: NodeTypes.CALL_EXPRESSION,
+        callee: 'context',
+        arguments: [{
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'foo'
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: 2
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: 2
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse functions with ranges as arguments', () => {
+      let actual = parser.parse('context(.foo-.bar, 2, 2)');
+      let expected = {
+        type: NodeTypes.CALL_EXPRESSION,
+        callee: 'context',
+        arguments: [{
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'foo'
+        },
+        end: {
+          type: NodeTypes.IDENTIFIER,
+          matcher: 'bar'
+        }
+      }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: 2
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: 2
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse nested functions', () => {
+      let actual = parser.parse('cats(upto(.foo))');
+      let expected = {
+        type: NodeTypes.CALL_EXPRESSION,
+        callee: 'cats',
+        arguments: [{
+          type: NodeTypes.CALL_EXPRESSION,
+          callee: 'upto',
+          arguments: [{
+            type: NodeTypes.IDENTIFIER,
+            matcher: 'foo'
+          }]
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should parse functions in ranges', () => {
+      let actual = parser.parse('upto(.foo)-30');
+      let expected =  {
+        type: NodeTypes.RANGE,
+        start: {
+          type: NodeTypes.CALL_EXPRESSION,
+          callee: 'upto',
+          arguments: [{
+            type: NodeTypes.IDENTIFIER,
+            matcher: 'foo'
+          }]
+        },
+        end: {
+          type: NodeTypes.LINE_NUMBER,
+          value: 30
         }
       };
       assert.deepEqual(actual, expected);

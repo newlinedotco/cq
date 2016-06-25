@@ -9,7 +9,7 @@ function lines(str, startLine, endLine) {
   return str.split('\n').slice(startLine, endLine + 1).join('\n');
 }
 
-describe('cq', () => {
+describe('babylon', () => {
   describe('createClass', () => {
     const src = `
 import React, { PropTypes } from 'react';
@@ -113,19 +113,7 @@ bye(); // -> 'bye'
     })
 
     it('should include extra lines given a modifier', () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Farm',
-        modifiers: [{
-          type: NodeTypes.EXTRA_LINES,
-          amount: -2
-        }, {
-          type: NodeTypes.EXTRA_LINES,
-          amount: 2
-        }]
-      }];
-
-      let { code } = cq(someFunctions, query);
+      let { code } = cq(someFunctions, '.Farm:-2,+2');
       const wanted = lines(someFunctions, 7, 11);
       assert.equal(code, wanted);
     })
@@ -149,26 +137,7 @@ bye(); // -> 'bye'
     })
 
     it('should get a range with modifiers', () => {
-      let query = [{
-        type: NodeTypes.RANGE,
-        start: {
-          type: NodeTypes.IDENTIFIER,
-          matcher: 'bye'
-        },
-        end: {
-          type: NodeTypes.IDENTIFIER,
-          matcher: 'Farm'
-        },
-        modifiers: [{
-          type: NodeTypes.EXTRA_LINES,
-          amount: -2
-        }, {
-          type: NodeTypes.EXTRA_LINES,
-          amount: 2
-        }]
-      }];
-
-      let { code } = cq(someFunctions, query);
+      let { code } = cq(someFunctions, '.bye-.Farm:-2,+2');
       const wanted = lines(someFunctions, 3, 11);
       assert.equal(code, wanted);
     })

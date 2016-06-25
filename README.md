@@ -158,6 +158,49 @@ export var AUTH_PROVIDERS: Array<any> = [
 ];
 ```
 
+`cq` can search for strings as well as identifiers. Say we have the following test:
+
+```javascript
+import chai from 'chai';
+const assert = chai.assert;
+
+describe('My First Test', () => {
+  it('basic assert', () => {
+    assert.equal(1, 1);
+  });
+});
+
+describe('My Second Test', () => {
+  it('basic assert', () => {
+    // this is the second one
+    assert.equal(2, 2);
+  });
+});
+```
+ 
+We can get the first test:
+
+```javascript
+$ cq "'My First Test'" examples/mocha.test.js
+
+describe('My First Test', () => {
+  it('basic assert', () => {
+    assert.equal(1, 1);
+  });
+});
+```
+
+Or get the `it` block in the second test:
+
+```javascript
+$ cq "'My Second Test' 'basic assert'" examples/mocha.test.js
+
+  it('basic assert', () => {
+    // this is the second one
+    assert.equal(2, 2);
+  });
+```
+
 > See _many_ more examples in the [`/examples`](./examples) directory
 
 ## Features

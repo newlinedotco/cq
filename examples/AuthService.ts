@@ -13,8 +13,10 @@
  *
  * # get the `isLoggedIn()` function through AUTH_PROVIDERS
  * cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
- *
+ * ```
+ * 
  */
+
 
 import {Injectable, provide} from '@angular/core';
 

@@ -63,8 +63,86 @@ function adjustRangeWithModifiers(code, modifiers, {start, end}) {
   return {start, end};
 }
 
+function adjustRangeWithContext(code, linesBefore, linesAfter, {start, end}) {
+  // get any extra lines, if requested
+  let numPreviousLines = 0;
+  let numFollowingLines = 0;
+  let hasPreviousLines = false;
+  let hasFollowingLines = false;
+
+  if(linesBefore > 0) {
+    numPreviousLines = linesBefore;
+    hasPreviousLines = true;
+  }
+
+  if(linesAfter > 0) {
+    numFollowingLines = linesAfter + 1;
+    hasFollowingLines = true;
+  }
+
+  if(hasPreviousLines) {
+    while(start > 0 && numPreviousLines >= 0) {
+      start--;
+      if(code[start] === '\n') {
+        numPreviousLines--;
+      }
+    }
+    start++; // don't include prior newline
+  }
+
+  if(hasFollowingLines) {
+    while(end < code.length && numFollowingLines > 0) {
+      if(code[end] === '\n') {
+        numFollowingLines--;
+      }
+      end++;
+    }
+    end--; // don't include the last newline
+  }
+
+  return {start, end};
+}
+
+const whitespace = new Set([' ', '\n', '\t', '\r']);
+
+function modifyAnswerWithCall(code, callee, args, {start, end}) {
+  switch(callee) {
+  case 'upto':
+    start--;
+    // trim all of the whitespace before. TODO could be to make this optional
+    while(start > 0 && whitespace.has(code[start])) {
+      start--;
+    }
+    start++;
+    return {start: start, end:start};
+    break;
+  case 'context':
+    let [linesBefore, linesAfter] = args;
+    return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, {start, end})
+    break;
+  default:
+    throw new Error(`Unknown function call: ${callee}`);
+  }
+}
+
+
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch(query.type) {
+  case NodeTypes.CALL_EXPRESSION: {
+    let callee = query.callee;
+    // for now, the first argument is always the inner selection
+    let [childQuery, ...args] = query.arguments;
+    let answer = resolveIndividualQuery(ast, root, code, childQuery, engine, opts);
+
+    // whatever the child answer is, now we modify it given our callee
+    answer = modifyAnswerWithCall(code, callee, args, answer);
+
+    // hmm, maybe do this later
+    answer.code = code.substring(answer.start, answer.end);
+
+    // get the rest of the parameters
+    return answer;
+  }
   case NodeTypes.IDENTIFIER:
   case NodeTypes.STRING: {
     let nextRoot;
@@ -94,9 +172,9 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
       end++;
     }
 
-    if(query.modifiers) {
-      ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
-    }
+    // if(query.modifiers) {
+    //   ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
+    // }
 
     let codeSlice = code.substring(start, end);
 
@@ -111,9 +189,9 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, opts);
     let start = rangeStart.start;
     let end = rangeEnd.end;
-    if(query.modifiers) {
-      ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
-    }
+    // if(query.modifiers) {
+    //   ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
+    // }
     let codeSlice = code.substring(start, end);
     return { code: codeSlice, start, end };
   }

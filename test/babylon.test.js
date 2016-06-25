@@ -113,10 +113,17 @@ bye(); // -> 'bye'
     })
 
     it('should include extra lines given a modifier', () => {
-      let { code } = cq(someFunctions, '.Farm:-2,+2');
+      let { code } = cq(someFunctions, 'context(.Farm, 2, 2)');
       const wanted = lines(someFunctions, 7, 11);
       assert.equal(code, wanted);
     })
+
+    it('should include upto something', () => {
+      let { code } = cq(someFunctions, '1-upto(.Farm)');
+      const wanted = lines(someFunctions, 0, 7);
+      assert.equal(code, wanted);
+    })
+
 
     it('should get a range', () => {
       let query = [{
@@ -136,7 +143,7 @@ bye(); // -> 'bye'
       assert.equal(code, wanted);
     })
 
-    it('should get a range with modifiers', () => {
+    it.skip('should get a range with modifiers', () => {
       let { code } = cq(someFunctions, '.bye-.Farm:-2,+2');
       const wanted = lines(someFunctions, 3, 11);
       assert.equal(code, wanted);
@@ -159,6 +166,13 @@ bye(); // -> 'bye'
       const wanted = lines(someFunctions, 9, 11);
       assert.equal(code, wanted);
     })
+
+    it('should allow two modifiers', () => {
+      let { code } = cq(someFunctions, 'context(1-upto(.Farm), 2, 4)');
+      const wanted = lines(someFunctions, 1, 11);
+      assert.equal(code, wanted);
+    })
+
   })
 
 

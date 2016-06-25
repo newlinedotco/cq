@@ -11,8 +11,8 @@
  * # get the `AUTH_PROVIDERS`
  * cq '.AUTH_PROVIDERS' examples/AuthService.ts
  *
- * # get the `isLogged()` function up to AUTH_PROVIDERS
- * cq '(.AuthService .isLogged)-.AUTH_PROVIDERS' examples/AuthService.ts
+ * # get the `isLoggedIn()` function through AUTH_PROVIDERS
+ * cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
  *
  */
 
@@ -37,7 +37,7 @@ export class AuthService {
     return localStorage.getItem('username');
   }
 
-  isLogged(): boolean {
+  isLoggedIn(): boolean {
     return this.getUser() !== null;
   }
 }

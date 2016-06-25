@@ -60,32 +60,7 @@ const bye = function() {
 }
 ```
 
-Get the `bye()` function plus the invocation line after:
-
-```javascript
-$ cq '.bye:+1' examples/basics.js
-
-const bye = function() {
-  return 'bye';
-}
-bye(); // -> 'bye'
-```
-
-If you pass `--json` you'll get the results in JSON, which can be useful for further processing:
-
-```javascript
-$ cq --json '.bye:+1' examples/basics.js
-
-    {
-      "code": "const bye = function() {\n  return 'bye';\n}\nbye(); // -> 'bye'",
-      "start": 598,
-      "end": 659,
-      "start_line": 25,
-      "end_line": 28
-    }
-```
-
-Get the `calcArea` function on the `Barn` class:
+Get the `calcArea()` function on the `Barn` class:
 
 ```javascript
 $ cq '.Barn .calcArea' examples/basics.js
@@ -93,6 +68,18 @@ $ cq '.Barn .calcArea' examples/basics.js
   calcArea() {
     return this.height * this.width;
   }
+```
+
+Get the `bye()` function plus the line after:
+
+```javascript
+// `context(identifier, linesBefore, linesAfter)`
+$ cq 'context(.bye,0,1)' examples/basics.js
+
+const bye = function() {
+  return 'bye';
+}
+bye(); // -> 'bye'
 ```
 
 Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` class
@@ -110,7 +97,68 @@ $ cq '.Barn .constructor-.calcArea' examples/basics.js
   }
 ```
 
-> See more examples in the [`/examples`](./examples) directory
+If you pass `--json` you'll get the results in JSON, which can be useful for further processing:
+
+```javascript
+$ cq --json 'context(.bye,0,1)' examples/basics.js
+
+    {
+      "code": "const bye = function() {\n  return 'bye';\n}\nbye(); // -> 'bye'",
+      "start": 598,
+      "end": 659,
+      "start_line": 25,
+      "end_line": 28
+    }
+```
+
+`cq` works with TypeScript as well. Say we had the following TypeScript File:
+
+```typescript
+// AuthService.ts
+import {Injectable, provide} from '@angular/core';
+
+@Injectable()
+export class AuthService {
+  getUser(): any {
+    return localStorage.getItem('username');
+  }
+
+  isLoggedIn(): boolean {
+    return this.getUser() !== null;
+  }
+}
+
+export var AUTH_PROVIDERS: Array<any> = [
+  provide(AuthService, {useClass: AuthService})
+];
+```
+
+Get the `AUTH_PROVIDERS` export:
+
+```typescript
+$ cq '.AUTH_PROVIDERS' examples/AuthService.ts
+
+export var AUTH_PROVIDERS: Array<any> = [
+  provide(AuthService, {useClass: AuthService})
+];
+```
+
+Get the `isLoggedIn()` function through `AUTH_PROVIDERS`
+
+```typescript
+$ cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
+
+  isLoggedIn(): boolean {
+    return this.getUser() !== null;
+  }
+}
+
+export var AUTH_PROVIDERS: Array<any> = [
+  provide(AuthService, {useClass: AuthService})
+];
+```
+
+> See _many_ more examples in the [`/examples`](./examples) directory
 
 ## Features
 
@@ -174,6 +222,8 @@ The space indicates to search for the next identifier anywhere within the parent
 > In this way the space is analogous to the space in a CSS selector. E.g. search for any child that matches.
 > `cq` does not yet support the `>` notation (which would require the identifier to be a direct child), but we may in the future.
 
+You can write child selection in parenthesis `()` if there is ambiguity. E.g.: `(.foo .bar)` .
+
 ### _Range_
 
 **Examples**:
@@ -208,12 +258,12 @@ If you want to specify a child selector at the end of a range, use parenthesis a
 
 You can use the special line number `EOF` to select until the end-of-file.
 
-### _Modifiers_
+### _Operators_
 
 **Examples**:
 
-- `.bye:+1`
-- `.bye:+1,-1`
+- `context(.bye,1,1)`
+- `upto(.bye)`
 
 Given:
 
@@ -225,12 +275,15 @@ const bye = function() {
 bye(); // -> 'bye' (emitted with +1)
 ```
 
-After the selection expression you pass additional query modifiers. Query modifiers follow a colon and are comma separated. The two modifiers currently supported are:
+Operators allow you to change the result of the inner selection. 
 
-* adding additional lines following an identifier (or range) 
-* adding additional lines preceding an identifier (or range) 
+### `context`
 
-Lines following the identifier are designated by `+n` whereas lines preceding are specified by `-n`, where `n` is the number of lines desired.
+The `context()` operation allows you to take line numbers before and after the selection. The signature is `context(selection, numLinesBefore, numLinesAfter)`.
+
+### `upto`
+
+The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines). 
 
 ## Library Usage
 
@@ -246,7 +299,6 @@ console.log(results.code);
 * Add the ability to extract several sections in a single query
 * Create a [remark](https://github.com/wooorm/remark) plugin to pull code into Markdown using queries
 * Get trailing and leading comments - [see here in ASTExplorer](https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L68)
-* Add operators like `upto(.identifier)` to include ranges up to, but not including, an identifier
 
 ## Limitations
 
@@ -257,7 +309,7 @@ console.log(results.code);
 
 ## Query API Stability
 
-The query API early is likely to change for version 1.0.0 (see [Future](#future)). Any breaking API changes (query or otherwise) will result in a major version bump.q
+The query API may change (see [Future](#future)). Any breaking API changes (query or otherwise) will result in a major version bump.
 
 ## Contributing
 

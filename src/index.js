@@ -128,6 +128,11 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         throw new Error(`Unknown LINE_NUMBER: ${query.value}`);
       }
     } else {
+
+      if(query.value === 0) {
+        throw new Error(`Line numbers start at 1, not 0`);
+      }
+
       // find the acutal line number
       let lines = code.split('\n');
       let line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER 

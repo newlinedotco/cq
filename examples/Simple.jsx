@@ -15,7 +15,10 @@
  * cq '.Simple .renderName-.render' examples/Simple.jsx
  *
  * # get the range between `renderName` and `render`, plus context
- * cq '.Simple .renderName-.render:+4,-5' examples/Simple.jsx
+ * cq 'context(.Simple .renderName-.render, 1, 1)' examples/Simple.jsx
+
+ * # get the range upto render 
+ * cq '.Simple-upto(.Simple .render)' examples/Simple.jsx
  * ```
  *
  */

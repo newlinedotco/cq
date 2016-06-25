@@ -9,7 +9,8 @@
  * cq '.Switch' examples/Switch.jsx
  * cq '.Switch .select' examples/Switch.jsx
  * cq '.Switch .select-.render' examples/Switch.jsx
- * cq '.Switch .select-.render:+4,-4' examples/Switch.jsx
+ * cq 'context(.Switch .select, 2, 2)' examples/Switch.jsx
+ * cq 'context(.Switch .select-.render, 4, 4)' examples/Switch.jsx
  * ```
  *
  * Fwiw, this partifular component is an excerpt from the book "Fullstack React".

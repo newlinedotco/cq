@@ -5,8 +5,8 @@
  * # get the `bye()` function
  * cq '.bye' examples/basics.js
  *
- * # get the `bye()` function plus the invocation line after
- * cq '.bye:+1' examples/basics.js
+ * # get the `bye()` function plus the line after
+ * cq 'context(.bye, 0, 1)' examples/basics.js
  *
  * # get the `Farm` arrow function
  * cq '.Farm' examples/basics.js

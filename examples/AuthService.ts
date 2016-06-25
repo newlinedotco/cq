@@ -1,3 +1,21 @@
+/**
+ * Here are some queries to try:
+ *
+ * ```
+ * # get the `AuthService()` class
+ * cq '.AuthService' examples/AuthService.ts
+ *
+ * # get the `login()` function plus two lines after
+ * cq 'context(.login, 0, 2)' examples/AuthService.ts
+ *
+ * # get the `AUTH_PROVIDERS`
+ * cq '.AUTH_PROVIDERS' examples/AuthService.ts
+ *
+ * # get the `isLogged()` function up to AUTH_PROVIDERS
+ * cq '(.AuthService .isLogged)-.AUTH_PROVIDERS' examples/AuthService.ts
+ *
+ */
+
 import {Injectable, provide} from '@angular/core';
 
 @Injectable()

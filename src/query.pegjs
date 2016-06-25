@@ -25,7 +25,6 @@
     IDENTIFIER: 'IDENTIFIER',
     RANGE: 'RANGE',
     LINE_NUMBER: 'LINE_NUMBER',
-    EXTRA_LINES: 'EXTRA_LINES',
     CALL_EXPRESSION: 'CALL_EXPRESSION',
     STRING: 'STRING'
   };
@@ -74,12 +73,7 @@ SelectionExpression
   }
 
 TermWithModifiers 
-  = term:Term colon? modifiers:Modifiers? {
-    if(modifiers) {
-      term.modifiers = modifiers;
-    }
-    return term;
-  }
+  = Term
 
 Term
   = Range
@@ -127,19 +121,6 @@ Identifier
       };
   }
 
-Modifiers
-  = head:Modifier tail:(comma Modifier)* {
-    return [head, ...tail.map((t) => t[1])];
-  }
-
-Modifier
-  = operator:ModifierOperator number:LineNumber {
-    return {
-      type: NodeTypes.EXTRA_LINES,
-      amount: operator == '-' ? (number * -1) : number
-    }
-  }
-
 Arguments
   = "(" ws args:(ArgumentList ws)? ")" {
       return optionalList(extractOptional(args, 0));
@@ -162,10 +143,6 @@ CallExpression
       arguments: args
     }
   }
-
-ModifierOperator
-  = plus
-  / minus
 
 LineNumber
   = Integer

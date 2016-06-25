@@ -97,22 +97,6 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
-    it('should parse extra line modifiers', () => {
-      let actual = parser.parse('.Switch:-2,+2');
-      let expected = {
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Switch',
-        modifiers: [{
-          type: NodeTypes.EXTRA_LINES,
-          amount: -2
-        }, {
-          type: NodeTypes.EXTRA_LINES,
-          amount: 2
-        }]
-      };
-      assert.deepEqual(actual, expected);
-    });
-
     it('should parse EOF in a range', () => {
       let actual = parser.parse('1-EOF');
       let expected = {

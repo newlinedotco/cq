@@ -143,12 +143,6 @@ bye(); // -> 'bye'
       assert.equal(code, wanted);
     })
 
-    it.skip('should get a range with modifiers', () => {
-      let { code } = cq(someFunctions, '.bye-.Farm:-2,+2');
-      const wanted = lines(someFunctions, 3, 11);
-      assert.equal(code, wanted);
-    })
-
     it('should get a range with line numbers', () => {
       let query = [{
         type: NodeTypes.RANGE,

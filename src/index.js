@@ -15,53 +15,9 @@ export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
   RANGE: 'RANGE',
   LINE_NUMBER: 'LINE_NUMBER',
-  EXTRA_LINES: 'EXTRA_LINES',
   STRING: 'STRING',
   CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
-
-function adjustRangeWithModifiers(code, modifiers, {start, end}) {
-  // get any extra lines, if requested
-  let numPreviousLines = 0;
-  let numFollowingLines = 0;
-  let hasPreviousLines = false;
-  let hasFollowingLines = false;;
-
-  modifiers.forEach((modifier) => {
-    if(modifier.type == NodeTypes.EXTRA_LINES) {
-      if(modifier.amount < 0) {
-        numPreviousLines = (modifier.amount * -1);
-        hasPreviousLines = true;
-      }
-      if(modifier.amount > 0) {
-        numFollowingLines = modifier.amount + 1;
-        hasFollowingLines = true;
-      }
-    }
-  })
-
-  if(hasPreviousLines) {
-    while(start > 0 && numPreviousLines >= 0) {
-      start--;
-      if(code[start] === '\n') {
-        numPreviousLines--;
-      }
-    }
-    start++; // don't include prior newline
-  }
-
-  if(hasFollowingLines) {
-    while(end < code.length && numFollowingLines > 0) {
-      if(code[end] === '\n') {
-        numFollowingLines--;
-      }
-      end++;
-    }
-    end--; // don't include the last newline
-  }
-
-  return {start, end};
-}
 
 function adjustRangeWithContext(code, linesBefore, linesAfter, {start, end}) {
   // get any extra lines, if requested
@@ -172,10 +128,6 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
       end++;
     }
 
-    // if(query.modifiers) {
-    //   ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
-    // }
-
     let codeSlice = code.substring(start, end);
 
     if(query.children) {
@@ -189,9 +141,6 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, opts);
     let start = rangeStart.start;
     let end = rangeEnd.end;
-    // if(query.modifiers) {
-    //   ({start, end} = adjustRangeWithModifiers(code, query.modifiers, {start, end}));
-    // }
     let codeSlice = code.substring(start, end);
     return { code: codeSlice, start, end };
   }

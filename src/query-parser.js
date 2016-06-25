@@ -685,7 +685,7 @@ module.exports = (function() {
     function peg$parseFunctionArgument() {
       var s0;
 
-      s0 = peg$parseTerm();
+      s0 = peg$parseSelectionExpression();
       if (s0 === peg$FAILED) {
         s0 = peg$parseCallExpression();
       }

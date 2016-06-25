@@ -85,7 +85,7 @@ function babylonEngine() {
       } else {
         (function () {
           var path = void 0;
-          (0, _babelTraverse2.default)(ast, { // <--- bug? should be root?
+          (0, _babelTraverse2.default)(root, { // <--- bug? should be root?
             Identifier: function Identifier(_path) {
               if (_path.node.name === query.matcher) {
                 if (!path) {
@@ -93,7 +93,8 @@ function babylonEngine() {
                 }
                 _path.stop();
               }
-            }
+            },
+            noScope: true
           });
 
           var parent = path.parent;
@@ -101,6 +102,34 @@ function babylonEngine() {
         })();
       }
       return nextRoot;
+    },
+    findNodeWithString: function findNodeWithString(ast, root, query) {
+      var path = void 0;
+      var scope = void 0;
+
+      var traverseOpts = {
+        Literal: function Literal(_path) {
+          if (_path.node.value === query.matcher) {
+            if (!path) {
+              path = _path;
+            }
+            _path.stop();
+          }
+        }
+      };
+
+      if (!root.scope) {
+        traverseOpts.noScope = true;
+      }
+
+      // todo, figure out this .node business
+      (0, _babelTraverse2.default)(root.node, traverseOpts);
+      if (!path) {
+        (0, _babelTraverse2.default)(root, traverseOpts);
+      }
+
+      var parent = path.parent;
+      return parent;
     }
   };
 }

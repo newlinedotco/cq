@@ -92,6 +92,20 @@ function typescriptEngine() {
       });
       var parent = path.parent;
       return parent;
+    },
+    findNodeWithString: function findNodeWithString(ast, root, query) {
+      var path = void 0;
+      traverse(root, {
+        StringLiteral: function StringLiteral(node) {
+          if (node.text === query.matcher) {
+            if (!path) {
+              path = node;
+            }
+          }
+        }
+      });
+      var parent = path.parent;
+      return parent;
     }
   };
 }

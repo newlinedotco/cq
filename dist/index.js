@@ -4,6 +4,16 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.NodeTypes = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * cq Query Resolver
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * This file takes input code and a parsed query and extracts portions of the
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * code based on that query
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */
+
+
 exports.default = cq;
 
 var _babelTraverse = require('babel-traverse');
@@ -24,23 +34,19 @@ var _typescript2 = _interopRequireDefault(_typescript);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
-                                                                                                                                                                                                     * cq Query Resolver
-                                                                                                                                                                                                     *
-                                                                                                                                                                                                     * This file takes input code and a parsed query and extracts portions of the
-                                                                                                                                                                                                     * code based on that query
-                                                                                                                                                                                                     *
-                                                                                                                                                                                                     */
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
 var NodeTypes = exports.NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
   RANGE: 'RANGE',
   LINE_NUMBER: 'LINE_NUMBER',
-  EXTRA_LINES: 'EXTRA_LINES'
+  STRING: 'STRING',
+  CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
 
-function adjustRangeWithModifiers(code, modifiers, _ref) {
+function adjustRangeWithContext(code, linesBefore, linesAfter, _ref) {
   var start = _ref.start;
   var end = _ref.end;
 
@@ -48,20 +54,17 @@ function adjustRangeWithModifiers(code, modifiers, _ref) {
   var numPreviousLines = 0;
   var numFollowingLines = 0;
   var hasPreviousLines = false;
-  var hasFollowingLines = false;;
+  var hasFollowingLines = false;
 
-  modifiers.forEach(function (modifier) {
-    if (modifier.type == NodeTypes.EXTRA_LINES) {
-      if (modifier.amount < 0) {
-        numPreviousLines = modifier.amount * -1;
-        hasPreviousLines = true;
-      }
-      if (modifier.amount > 0) {
-        numFollowingLines = modifier.amount + 1;
-        hasFollowingLines = true;
-      }
-    }
-  });
+  if (linesBefore > 0) {
+    numPreviousLines = linesBefore;
+    hasPreviousLines = true;
+  }
+
+  if (linesAfter > 0) {
+    numFollowingLines = linesAfter + 1;
+    hasFollowingLines = true;
+  }
 
   if (hasPreviousLines) {
     while (start > 0 && numPreviousLines >= 0) {
@@ -86,11 +89,73 @@ function adjustRangeWithModifiers(code, modifiers, _ref) {
   return { start: start, end: end };
 }
 
+var whitespace = new Set([' ', '\n', '\t', '\r']);
+
+function modifyAnswerWithCall(code, callee, args, _ref2) {
+  var start = _ref2.start;
+  var end = _ref2.end;
+
+  switch (callee) {
+    case 'upto':
+      start--;
+      // trim all of the whitespace before. TODO could be to make this optional
+      while (start > 0 && whitespace.has(code[start])) {
+        start--;
+      }
+      start++;
+      return { start: start, end: start };
+      break;
+    case 'context':
+      var _args = _slicedToArray(args, 2);
+
+      var linesBefore = _args[0];
+      var linesAfter = _args[1];
+
+      return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, { start: start, end: end });
+      break;
+    default:
+      throw new Error('Unknown function call: ' + callee);
+  }
+}
+
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch (query.type) {
-    case NodeTypes.IDENTIFIER:
+    case NodeTypes.CALL_EXPRESSION:
       {
-        var nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+        var callee = query.callee;
+        // for now, the first argument is always the inner selection
+
+        var _query$arguments = _toArray(query.arguments);
+
+        var childQuery = _query$arguments[0];
+
+        var args = _query$arguments.slice(1);
+
+        var answer = resolveIndividualQuery(ast, root, code, childQuery, engine, opts);
+
+        // whatever the child answer is, now we modify it given our callee
+        answer = modifyAnswerWithCall(code, callee, args, answer);
+
+        // hmm, maybe do this later
+        answer.code = code.substring(answer.start, answer.end);
+
+        // get the rest of the parameters
+        return answer;
+      }
+    case NodeTypes.IDENTIFIER:
+    case NodeTypes.STRING:
+      {
+        var nextRoot = void 0;
+
+        switch (query.type) {
+          case NodeTypes.IDENTIFIER:
+            nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+            break;
+          case NodeTypes.STRING:
+            nextRoot = engine.findNodeWithString(ast, root, query);
+            break;
+        }
+
         var range = engine.nodeToRange(nextRoot);
 
         // we want to keep starting indentation, so search back to the previous
@@ -107,13 +172,6 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
           end++;
         }
 
-        if (query.modifiers) {
-          var _adjustRangeWithModif = adjustRangeWithModifiers(code, query.modifiers, { start: start, end: end });
-
-          start = _adjustRangeWithModif.start;
-          end = _adjustRangeWithModif.end;
-        }
-
         var codeSlice = code.substring(start, end);
 
         if (query.children) {
@@ -128,32 +186,44 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, opts);
         var _start = rangeStart.start;
         var _end = rangeEnd.end;
-        if (query.modifiers) {
-          var _adjustRangeWithModif2 = adjustRangeWithModifiers(code, query.modifiers, { start: _start, end: _end });
-
-          _start = _adjustRangeWithModif2.start;
-          _end = _adjustRangeWithModif2.end;
-        }
         var _codeSlice = code.substring(_start, _end);
         return { code: _codeSlice, start: _start, end: _end };
       }
     case NodeTypes.LINE_NUMBER:
       {
-        var lines = code.split('\n');
-        var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER
 
-        // to get the starting index of this line...
-        // we take the sum of all prior lines:
-        var charIdx = lines.slice(0, query.value - 1).reduce(
-        // + 1 b/c of the (now missing) newline
-        function (sum, line) {
-          return sum + line.length + 1;
-        }, 0);
+        // Parse special line numbers like EOF
+        if (typeof query.value === 'string') {
+          switch (query.value) {
+            case 'EOF':
+              return { code: '', start: code.length, end: code.length };
+              break;
+            default:
+              throw new Error('Unknown LINE_NUMBER: ' + query.value);
+          }
+        } else {
 
-        var _start2 = charIdx;
-        var _end2 = charIdx + line.length;
-        var _codeSlice2 = code.substring(_start2, _end2);
-        return { code: _codeSlice2, start: _start2, end: _end2 };
+          if (query.value === 0) {
+            throw new Error('Line numbers start at 1, not 0');
+          }
+
+          // find the acutal line number
+          var lines = code.split('\n');
+          var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER
+
+          // to get the starting index of this line...
+          // we take the sum of all prior lines:
+          var charIdx = lines.slice(0, query.value - 1).reduce(
+          // + 1 b/c of the (now missing) newline
+          function (sum, line) {
+            return sum + line.length + 1;
+          }, 0);
+
+          var _start2 = charIdx;
+          var _end2 = charIdx + line.length;
+          var _codeSlice2 = code.substring(_start2, _end2);
+          return { code: _codeSlice2, start: _start2, end: _end2 };
+        }
       }
     default:
       break;

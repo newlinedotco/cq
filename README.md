@@ -311,11 +311,11 @@ You can use the special line number `EOF` to select until the end-of-file.
 Given:
 
 ```javascript
-// here is the bye function (emitted with -1)
+// here is the bye function
 const bye = function() {
   return 'bye';
 }
-bye(); // -> 'bye' (emitted with +1)
+bye(); // -> 'bye'
 ```
 
 Operators allow you to change the result of the inner selection. 

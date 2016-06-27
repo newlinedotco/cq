@@ -134,6 +134,7 @@ ArgumentList
 FunctionArgument
   = SelectionExpression
   / CallExpression
+  / Boolean
 
 CallExpression
   = callee:char+ args:Arguments {
@@ -151,6 +152,10 @@ LineNumber
 Integer "integer"
   = [0-9]+ { return parseInt(text(), 10); }
 
+Boolean "boolean"
+  = true 
+  / false
+
 SpecialLineNumber
   = eof
 
@@ -163,6 +168,8 @@ comma = ","
 openParen = "("
 closeParen = ")"
 eof = "EOF"
+true = "true" { return true; }
+false = "false" { return false; }
 ws "whitespace" = [ \t\n\r]*
 singleQuote = "'"
 char = [A-Za-z0-9_$]

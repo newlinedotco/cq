@@ -201,6 +201,38 @@ $ cq "'My Second Test' 'basic assert'" examples/mocha.test.js
   });
 ```
 
+Sometimes we want to pull the comments before a selection. `cq` supports this using the `comments()` operator:
+
+```javascript
+// comments.js
+function hello() {
+  return 'hi';
+}
+
+/*
+ * @function bye
+ */
+function bye() {
+  return 'see ya';
+}
+```
+
+Get the `bye()` function with comments:
+
+```javascript
+$ cq 'comments(.bye)' comments.js
+
+/*
+ * @function bye
+ */
+const bye = function() {
+  return 'bye';
+}
+```
+
+
+
+
 > See _many_ more examples in the [`/examples`](./examples) directory
 
 ## Features
@@ -307,6 +339,7 @@ You can use the special line number `EOF` to select until the end-of-file.
 
 - `context(.bye,1,1)`
 - `upto(.bye)`
+- `comments(.bye)`
 
 Given:
 
@@ -320,13 +353,17 @@ bye(); // -> 'bye'
 
 Operators allow you to change the result of the inner selection. 
 
-#### `context`
+#### `context()`
 
 The `context()` operation allows you to take line numbers before and after the selection. The signature is `context(selection, numLinesBefore, numLinesAfter)`.
 
-#### `upto`
+#### `upto()`
 
 The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines). 
+
+#### `comments()`
+
+The `comments()` operation will return the selection plus the leading comments before the selection.
 
 ### _'String'_
 

@@ -6,6 +6,7 @@
  */
 let babylon = require("babylon");
 import traverse from 'babel-traverse';
+import { rangeExtents } from './util';
 
 const defaultBabylonConfig = {
   sourceType: "module",
@@ -27,6 +28,28 @@ const defaultBabylonConfig = {
   ]
 };
 
+function nodeToRange(node) {
+  if(node.start && node.end) {
+    return { start: node.start, end: node.end };
+  }
+  if(node.body && node.body.start && node.body.end) {
+    return { start: node.body.start, end: node.body.end };
+  }
+
+  switch(node.type) {
+  case 'ObjectProperty':
+    return { 
+      start: nodeToRange(node.key).start, 
+      end: nodeToRange(node.value).end 
+    };
+  default:
+    console.log("unknown", node);
+    throw new Error('nodeToRange of unknown type: ' + node.type);
+    break;
+  }
+}
+
+
 export default function babylonEngine(engineOpts={}) {
   return {
     parse(code, opts={}) {
@@ -43,25 +66,19 @@ export default function babylonEngine(engineOpts={}) {
       });
       return path;
     },
-    nodeToRange(node) {
-      if(node.start && node.end) {
-        return { start: node.start, end: node.end };
-      }
-      if(node.body && node.body.start && node.body.end) {
-        return { start: node.body.start, end: node.body.end };
-      }
-
-      switch(node.type) {
-      case 'ObjectProperty':
-        return { 
-          start: nodeToRange(node.key).start, 
-          end: nodeToRange(node.value).end 
-        };
-      default:
-        console.log("unknown", node);
-        throw new Error('nodeToRange of unknown type: ' + node.type);
-        break;
-      }
+    nodeToRange,
+    commentRange(node, code, getLeading, getTrailing) {
+      let start = node.start;
+      let end = node.end;
+      if (getLeading && node.leadingComments) {
+        let commentRange = rangeExtents(node.leadingComments.map(n => nodeToRange(n)));
+        start = Math.min(start, commentRange.start);
+      } 
+      if (getTrailing && node.trailingComments) {
+        let commentRange = rangeExtents(node.trailingComments.map(n => nodeToRange(n)));
+        end = Math.max(end, commentRange.end);
+      } 
+      return {nodes: [node], start, end};
     },
     findNodeWithIdentifier(ast, root, query) {
       let nextRoot;

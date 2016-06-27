@@ -142,4 +142,44 @@ describe('Other Test', () => {
     })
   });
 
+  describe('getting comments', () => {
+    const src = `
+// hello says hello
+// it's the best
+function hello() {
+  return 'hi';
+}
+
+/*
+ * @function bye
+ */
+function bye() {
+  return 'see ya';
+}
+
+function noComments() {
+  return 'nothing to see here';
+}
+`;
+
+    it('find a group of single-line comments preceeding', () => {
+      let { code } = cq(src, "comments(.hello)", {engine: 'typescript'});
+      const wanted = lines(src, 1, 5);
+      assert.equal(code, wanted);
+    })
+
+    it('find a block comment preceeding', () => {
+      let { code } = cq(src, "comments(.bye)");
+      const wanted = lines(src, 7, 12);
+      assert.equal(code, wanted);
+    })
+
+    it('shouldnt fail if you try to get comments where there are none', () => {
+      let { code } = cq(src, "comments(.noComments)");
+      const wanted = lines(src, 14, 16);
+      assert.equal(code, wanted);
+    })
+
+  });
+
 });

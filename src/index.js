@@ -61,7 +61,19 @@ function adjustRangeWithContext(code, linesBefore, linesAfter, {start, end}) {
 
 const whitespace = new Set([' ', '\n', '\t', '\r']);
 
-function modifyAnswerWithCall(code, callee, args, {start, end}) {
+function adjustRangeForComments(ast, code, leading, trailing, engine, {start, end, nodes}) {
+  // this is going to be part of the engine
+  
+  nodes.map((node) => {
+    let commentRange = engine.commentRange(node, code, leading, trailing);
+    start = commentRange.start ? Math.min(commentRange.start, start) : start;
+    end = commentRange.end ? Math.max(commentRange.end, end) : end;
+  });
+
+  return {start, end, nodes};
+}
+
+function modifyAnswerWithCall(ast, code, callee, args, engine, {start, end, nodes}) {
   switch(callee) {
   case 'upto':
     start--;
@@ -76,11 +88,14 @@ function modifyAnswerWithCall(code, callee, args, {start, end}) {
     let [linesBefore, linesAfter] = args;
     return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, {start, end})
     break;
+  case 'comments':
+    let leading = true, trailing = false;
+    return adjustRangeForComments(ast, code, leading, trailing, engine, {start, end, nodes})
+    break;
   default:
     throw new Error(`Unknown function call: ${callee}`);
   }
 }
-
 
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch(query.type) {
@@ -91,9 +106,10 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     let answer = resolveIndividualQuery(ast, root, code, childQuery, engine, opts);
 
     // whatever the child answer is, now we modify it given our callee
-    answer = modifyAnswerWithCall(code, callee, args, answer);
+    // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end 
+    answer = modifyAnswerWithCall(ast, code, callee, args, engine, answer);
 
-    // hmm, maybe do this later
+    // hmm, maybe do this later in the pipeline?
     answer.code = code.substring(answer.start, answer.end);
 
     // get the rest of the parameters
@@ -133,7 +149,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     if(query.children) {
       return resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
     } else {
-      return { code: codeSlice, start, end };
+      return { code: codeSlice, nodes: [ nextRoot ], start, end };
     }
   }
   case NodeTypes.RANGE: {
@@ -142,7 +158,8 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     let start = rangeStart.start;
     let end = rangeEnd.end;
     let codeSlice = code.substring(start, end);
-    return { code: codeSlice, start, end };
+    let nodes = [...(rangeStart.nodes || []), ...(rangeEnd.nodes || [])]
+    return { code: codeSlice, nodes, start, end };
   }
   case NodeTypes.LINE_NUMBER: {
 
@@ -174,7 +191,8 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
       let start = charIdx;
       let end = charIdx + line.length;
       let codeSlice = code.substring(start, end);
-      return { code: codeSlice, start, end };
+      let nodes = []; // TODO - find the node that applies to this line number
+      return { code: codeSlice, nodes, start, end };
     }
 
   }

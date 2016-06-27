@@ -8,6 +8,7 @@
  */
 import 'babel-polyfill'
 import * as ts from "typescript";
+import { rangeExtents } from './util';
 
 const ignoredProperties = new Set([
   'constructor',
@@ -46,6 +47,16 @@ function traverse(node, nodeCbs) {
   }
 }
 
+function nodeToRange(node) {
+  if (typeof node.getStart === 'function' &&
+      typeof node.getEnd === 'function') {
+    return {start: node.getStart(), end: node.getEnd()};
+  } else if (typeof node.pos !== 'undefined' &&
+             typeof node.end !== 'undefined') {
+    return {start: node.pos, end: node.end};
+  }
+}
+
 export default function typescriptEngine(engineOpts={}) {
   return {
     parse(code, opts={}) {
@@ -54,14 +65,21 @@ export default function typescriptEngine(engineOpts={}) {
     getInitialRoot(ast) {
       return ast;
     },
-    nodeToRange(node) {
-      if (typeof node.getStart === 'function' &&
-          typeof node.getEnd === 'function') {
-        return {start: node.getStart(), end: node.getEnd()};
-      } else if (typeof node.pos !== 'undefined' &&
-                 typeof node.end !== 'undefined') {
-        return {start: node.pos, end: node.end};
+    nodeToRange,
+    commentRange(node, code, getLeading, getTrailing) {
+      let {start,end} = nodeToRange(node);
+
+      if(getLeading) {
+        let nodePos = node.pos;
+        let parentPos = node.parent.pos;
+        let comments = ts.getLeadingCommentRanges(code, nodePos);
+        let commentRanges = comments.map(c => ({start: c.pos, end: c.end}))
+        let commentRange = rangeExtents(commentRanges);
+        start = Math.min(start, commentRange.start);
       }
+      // TODO trailing
+
+      return {nodes: [node], start, end};
     },
     findNodeWithIdentifier(ast, root, query) {
       let path;

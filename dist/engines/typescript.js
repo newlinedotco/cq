@@ -11,19 +11,19 @@ var _typescript = require('typescript');
 
 var ts = _interopRequireWildcard(_typescript);
 
+var _util = require('./util');
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-/**
- * cq TypeScript Engine
- *
- * Parse files with TypeScript
- *
- * Thanks to astexplorer for some of this code
- * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
- */
+var ignoredProperties = new Set(['constructor', 'parent']); /**
+                                                             * cq TypeScript Engine
+                                                             *
+                                                             * Parse files with TypeScript
+                                                             *
+                                                             * Thanks to astexplorer for some of this code
+                                                             * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
+                                                             */
 
-
-var ignoredProperties = new Set(['constructor', 'parent']);
 
 function getNodeName(node) {
   if (node.kind) {
@@ -60,6 +60,14 @@ function traverse(node, nodeCbs) {
   }
 }
 
+function nodeToRange(node) {
+  if (typeof node.getStart === 'function' && typeof node.getEnd === 'function') {
+    return { start: node.getStart(), end: node.getEnd() };
+  } else if (typeof node.pos !== 'undefined' && typeof node.end !== 'undefined') {
+    return { start: node.pos, end: node.end };
+  }
+}
+
 function typescriptEngine() {
   var engineOpts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -72,12 +80,28 @@ function typescriptEngine() {
     getInitialRoot: function getInitialRoot(ast) {
       return ast;
     },
-    nodeToRange: function nodeToRange(node) {
-      if (typeof node.getStart === 'function' && typeof node.getEnd === 'function') {
-        return { start: node.getStart(), end: node.getEnd() };
-      } else if (typeof node.pos !== 'undefined' && typeof node.end !== 'undefined') {
-        return { start: node.pos, end: node.end };
+
+    nodeToRange: nodeToRange,
+    commentRange: function commentRange(node, code, getLeading, getTrailing) {
+      var _nodeToRange = nodeToRange(node);
+
+      var start = _nodeToRange.start;
+      var end = _nodeToRange.end;
+
+
+      if (getLeading) {
+        var nodePos = node.pos;
+        var parentPos = node.parent.pos;
+        var comments = ts.getLeadingCommentRanges(code, nodePos);
+        var commentRanges = comments.map(function (c) {
+          return { start: c.pos, end: c.end };
+        });
+        var commentRange = (0, _util.rangeExtents)(commentRanges);
+        start = Math.min(start, commentRange.start);
       }
+      // TODO trailing
+
+      return { nodes: [node], start: start, end: end };
     },
     findNodeWithIdentifier: function findNodeWithIdentifier(ast, root, query) {
       var path = void 0;

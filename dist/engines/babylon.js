@@ -1,13 +1,15 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = babylonEngine;
 
-var _babelTraverse = require("babel-traverse");
+var _babelTraverse = require('babel-traverse');
 
 var _babelTraverse2 = _interopRequireDefault(_babelTraverse);
+
+var _util = require('./util');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24,6 +26,27 @@ var defaultBabylonConfig = {
   sourceType: "module",
   plugins: ['jsx', 'flow', 'asyncFunctions', 'classConstructorCall', 'doExpressions', 'trailingFunctionCommas', 'objectRestSpread', 'decorators', 'classProperties', 'exportExtensions', 'exponentiationOperator', 'asyncGenerators', 'functionBind', 'functionSent']
 };
+
+function nodeToRange(node) {
+  if (node.start && node.end) {
+    return { start: node.start, end: node.end };
+  }
+  if (node.body && node.body.start && node.body.end) {
+    return { start: node.body.start, end: node.body.end };
+  }
+
+  switch (node.type) {
+    case 'ObjectProperty':
+      return {
+        start: nodeToRange(node.key).start,
+        end: nodeToRange(node.value).end
+      };
+    default:
+      console.log("unknown", node);
+      throw new Error('nodeToRange of unknown type: ' + node.type);
+      break;
+  }
+}
 
 function babylonEngine() {
   var engineOpts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -45,36 +68,25 @@ function babylonEngine() {
       });
       return path;
     },
-    nodeToRange: function (_nodeToRange) {
-      function nodeToRange(_x3) {
-        return _nodeToRange.apply(this, arguments);
-      }
 
-      nodeToRange.toString = function () {
-        return _nodeToRange.toString();
-      };
-
-      return nodeToRange;
-    }(function (node) {
-      if (node.start && node.end) {
-        return { start: node.start, end: node.end };
+    nodeToRange: nodeToRange,
+    commentRange: function commentRange(node, code, getLeading, getTrailing) {
+      var start = node.start;
+      var end = node.end;
+      if (getLeading && node.leadingComments) {
+        var commentRange = (0, _util.rangeExtents)(node.leadingComments.map(function (n) {
+          return nodeToRange(n);
+        }));
+        start = Math.min(start, commentRange.start);
       }
-      if (node.body && node.body.start && node.body.end) {
-        return { start: node.body.start, end: node.body.end };
+      if (getTrailing && node.trailingComments) {
+        var _commentRange = (0, _util.rangeExtents)(node.trailingComments.map(function (n) {
+          return nodeToRange(n);
+        }));
+        end = Math.max(end, _commentRange.end);
       }
-
-      switch (node.type) {
-        case 'ObjectProperty':
-          return {
-            start: nodeToRange(node.key).start,
-            end: nodeToRange(node.value).end
-          };
-        default:
-          console.log("unknown", node);
-          throw new Error('nodeToRange of unknown type: ' + node.type);
-          break;
-      }
-    }),
+      return { nodes: [node], start: start, end: end };
+    },
     findNodeWithIdentifier: function findNodeWithIdentifier(ast, root, query) {
       var nextRoot = void 0;
       // if the identifier exists in the scope, this is the easiest way to fetch it
@@ -133,4 +145,4 @@ function babylonEngine() {
     }
   };
 }
-module.exports = exports["default"];
+module.exports = exports['default'];

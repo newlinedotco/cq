@@ -46,44 +46,46 @@ var NodeTypes = exports.NodeTypes = {
   CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
 
+function movePositionByLines(code, numLines, position) {
+  var opts = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+
+  if (numLines < 0) {
+    var numPreviousLines = numLines * -1;
+    position--;
+    while (position > 0 && numPreviousLines > 0) {
+      position--;
+      if (code[position] === '\n') {
+        numPreviousLines--;
+      }
+    }
+    if (opts.trimNewline) position++; // don't include prior newline
+  } else if (numLines > 0) {
+      var numFollowingLines = numLines;
+      position++;
+      while (position < code.length && numFollowingLines > 0) {
+        if (code[position] === '\n') {
+          numFollowingLines--;
+        }
+        position++;
+      }
+      if (opts.trimNewline) position--; // don't include the last newline
+    }
+
+  return position;
+}
+
 function adjustRangeWithContext(code, linesBefore, linesAfter, _ref) {
   var start = _ref.start;
   var end = _ref.end;
 
-  // get any extra lines, if requested
-  var numPreviousLines = 0;
-  var numFollowingLines = 0;
-  var hasPreviousLines = false;
-  var hasFollowingLines = false;
-
-  if (linesBefore > 0) {
-    numPreviousLines = linesBefore;
-    hasPreviousLines = true;
+  if (linesBefore && linesBefore !== 0) {
+    var trimNewline = linesBefore > 0 ? true : false;
+    start = movePositionByLines(code, -1 * linesBefore, start, { trimNewline: trimNewline });
   }
 
-  if (linesAfter > 0) {
-    numFollowingLines = linesAfter + 1;
-    hasFollowingLines = true;
-  }
-
-  if (hasPreviousLines) {
-    while (start > 0 && numPreviousLines >= 0) {
-      start--;
-      if (code[start] === '\n') {
-        numPreviousLines--;
-      }
-    }
-    start++; // don't include prior newline
-  }
-
-  if (hasFollowingLines) {
-    while (end < code.length && numFollowingLines > 0) {
-      if (code[end] === '\n') {
-        numFollowingLines--;
-      }
-      end++;
-    }
-    end--; // don't include the last newline
+  if (linesAfter && linesAfter !== 0) {
+    var _trimNewline = linesAfter > 0 ? true : false;
+    end = movePositionByLines(code, linesAfter, end, { trimNewline: _trimNewline });
   }
 
   return { start: start, end: end };

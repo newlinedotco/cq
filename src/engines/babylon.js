@@ -5,7 +5,6 @@
  *
  */
 let babylon = require("babylon");
-import traverse from 'babel-traverse';
 import { rangeExtents } from './util';
 
 const defaultBabylonConfig = {
@@ -28,6 +27,52 @@ const defaultBabylonConfig = {
   ]
 };
 
+/*
+ * TODO
+ *   * remove babel-traverse
+ *   * figure out if we should unify `traverse` w/ typescript's
+ */ 
+
+const ignoredProperties = new Set([
+  'constructor',
+  'parent'
+]);
+
+function getNodeName(node) {
+  if (node.type) {
+    return node.type;
+  }
+}
+
+function isNode(node) {
+  return node && node.type ? true : false;
+}
+
+function traverse(node, nodeCbs) {
+  let nodeName = getNodeName(node);
+
+  if (nodeCbs.hasOwnProperty(nodeName)) {
+    (nodeCbs[nodeName])(node);
+  };
+
+  for (let prop in node) {
+    if (ignoredProperties.has(prop) || prop.charAt(0) === '_') {
+      continue;
+    }
+
+    let propValue = node[prop];
+
+    if (Array.isArray(propValue)) {
+      propValue.filter(v => isNode(v))
+        .map(v => { v.parent = node; return v; })
+        .map(v => traverse(v, nodeCbs))
+    } else if (isNode(propValue)) {
+      propValue.parent = node;
+      traverse(propValue, nodeCbs);
+    }
+  }
+}
+
 function nodeToRange(node) {
   if(node.start && node.end) {
     return { start: node.start, end: node.end };
@@ -49,7 +94,6 @@ function nodeToRange(node) {
   }
 }
 
-
 export default function babylonEngine(engineOpts={}) {
   return {
     parse(code, opts={}) {
@@ -57,14 +101,7 @@ export default function babylonEngine(engineOpts={}) {
       return ast;
     },
     getInitialRoot(ast) {
-      var path;
-      traverse(ast, {
-        Program: function (_path) {
-          path = _path;
-          _path.stop();
-        }
-      });
-      return path;
+      return ast.program
     },
     nodeToRange,
     commentRange(node, code, getLeading, getTrailing) {
@@ -81,56 +118,30 @@ export default function babylonEngine(engineOpts={}) {
       return {nodes: [node], start, end};
     },
     findNodeWithIdentifier(ast, root, query) {
-      let nextRoot;
-      // if the identifier exists in the scope, this is the easiest way to fetch it
-      if(root.scope && root.scope.getBinding(query.matcher)) {
-        let binding = root.scope.getBinding(query.matcher)
-        let parent = binding.path.node; // binding.path.parent ?
-        nextRoot = parent;
-      } else {
-        let path;
-        traverse(root, { // <--- bug? should be root?
-          Identifier: function (_path) {
-            if(_path.node.name === query.matcher) {
-              if(!path) {
-                path = _path;
-              }
-              _path.stop();
+      let path;
+      traverse(root, {
+        Identifier: function (node) {
+          if(node.name === query.matcher) {
+            if(!path) {
+              path = node;
             }
-          },
-          noScope: true
-        });
-
-        let parent = path.parent;
-        nextRoot = parent;
-      }
-      return nextRoot;
+          }
+        }
+      });
+      let parent = path.parent;
+      return parent;
     },
     findNodeWithString(ast, root, query) {
       let path;
-      let scope;
-
-      let traverseOpts = {
-        Literal: function (_path) {
-          if(_path.node.value === query.matcher) {
+      traverse(root, {
+        StringLiteral: function (node) {
+          if(node.value === query.matcher) {
             if(!path) {
-              path = _path;
+              path = node;
             }
-            _path.stop();
           }
-        },
-      }
-
-      if(!root.scope) {
-        traverseOpts.noScope = true
-      }
-
-      // todo, figure out this .node business
-      traverse(root.node, traverseOpts);
-      if(!path) {
-        traverse(root, traverseOpts);
-      }
-
+        }
+      });
       let parent = path.parent;
       return parent;
     }

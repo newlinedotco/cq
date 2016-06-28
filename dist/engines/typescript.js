@@ -15,15 +15,17 @@ var _util = require('./util');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var ignoredProperties = new Set(['constructor', 'parent']); /**
-                                                             * cq TypeScript Engine
-                                                             *
-                                                             * Parse files with TypeScript
-                                                             *
-                                                             * Thanks to astexplorer for some of this code
-                                                             * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
-                                                             */
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
+                                                                                                                                                                                                     * cq TypeScript Engine
+                                                                                                                                                                                                     *
+                                                                                                                                                                                                     * Parse files with TypeScript
+                                                                                                                                                                                                     *
+                                                                                                                                                                                                     * Thanks to astexplorer for some of this code
+                                                                                                                                                                                                     * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
+                                                                                                                                                                                                     */
 
+
+var ignoredProperties = new Set(['constructor', 'parent']);
 
 function getNodeName(node) {
   if (node.kind) {
@@ -100,36 +102,29 @@ function typescriptEngine() {
         start = Math.min(start, commentRange.start);
       }
       // TODO trailing
-
       return { nodes: [node], start: start, end: end };
     },
-    findNodeWithIdentifier: function findNodeWithIdentifier(ast, root, query) {
-      var path = void 0;
+    findNodesWithIdentifier: function findNodesWithIdentifier(ast, root, query) {
+      var paths = [];
       traverse(root, {
         Identifier: function Identifier(node) {
           if (node.text === query.matcher) {
-            if (!path) {
-              path = node;
-            }
+            paths = [].concat(_toConsumableArray(paths), [node.parent]);
           }
         }
       });
-      var parent = path.parent;
-      return parent;
+      return paths;
     },
-    findNodeWithString: function findNodeWithString(ast, root, query) {
-      var path = void 0;
+    findNodesWithString: function findNodesWithString(ast, root, query) {
+      var paths = [];
       traverse(root, {
         StringLiteral: function StringLiteral(node) {
           if (node.text === query.matcher) {
-            if (!path) {
-              path = node;
-            }
+            paths = [].concat(_toConsumableArray(paths), [node.parent]);
           }
         }
       });
-      var parent = path.parent;
-      return parent;
+      return paths;
     }
   };
 }

@@ -1,17 +1,13 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = babylonEngine;
 
-var _babelTraverse = require('babel-traverse');
+var _util = require("./util");
 
-var _babelTraverse2 = _interopRequireDefault(_babelTraverse);
-
-var _util = require('./util');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /**
  * cq Babylon Engine
@@ -26,6 +22,53 @@ var defaultBabylonConfig = {
   sourceType: "module",
   plugins: ['jsx', 'flow', 'asyncFunctions', 'classConstructorCall', 'doExpressions', 'trailingFunctionCommas', 'objectRestSpread', 'decorators', 'classProperties', 'exportExtensions', 'exponentiationOperator', 'asyncGenerators', 'functionBind', 'functionSent']
 };
+
+/*
+ * TODO
+ *   * remove babel-traverse
+ *   * figure out if we should unify `traverse` w/ typescript's
+ */
+
+var ignoredProperties = new Set(['constructor', 'parent']);
+
+function getNodeName(node) {
+  if (node.type) {
+    return node.type;
+  }
+}
+
+function isNode(node) {
+  return node && node.type ? true : false;
+}
+
+function traverse(node, nodeCbs) {
+  var nodeName = getNodeName(node);
+
+  if (nodeCbs.hasOwnProperty(nodeName)) {
+    nodeCbs[nodeName](node);
+  };
+
+  for (var prop in node) {
+    if (ignoredProperties.has(prop) || prop.charAt(0) === '_') {
+      continue;
+    }
+
+    var propValue = node[prop];
+
+    if (Array.isArray(propValue)) {
+      propValue.filter(function (v) {
+        return isNode(v);
+      }).map(function (v) {
+        v.parent = node;return v;
+      }).map(function (v) {
+        return traverse(v, nodeCbs);
+      });
+    } else if (isNode(propValue)) {
+      propValue.parent = node;
+      traverse(propValue, nodeCbs);
+    }
+  }
+}
 
 function nodeToRange(node) {
   if (node.start && node.end) {
@@ -59,14 +102,7 @@ function babylonEngine() {
       return ast;
     },
     getInitialRoot: function getInitialRoot(ast) {
-      var path;
-      (0, _babelTraverse2.default)(ast, {
-        Program: function Program(_path) {
-          path = _path;
-          _path.stop();
-        }
-      });
-      return path;
+      return ast.program;
     },
 
     nodeToRange: nodeToRange,
@@ -87,62 +123,28 @@ function babylonEngine() {
       }
       return { nodes: [node], start: start, end: end };
     },
-    findNodeWithIdentifier: function findNodeWithIdentifier(ast, root, query) {
-      var nextRoot = void 0;
-      // if the identifier exists in the scope, this is the easiest way to fetch it
-      if (root.scope && root.scope.getBinding(query.matcher)) {
-        var binding = root.scope.getBinding(query.matcher);
-        var parent = binding.path.node; // binding.path.parent ?
-        nextRoot = parent;
-      } else {
-        (function () {
-          var path = void 0;
-          (0, _babelTraverse2.default)(root, { // <--- bug? should be root?
-            Identifier: function Identifier(_path) {
-              if (_path.node.name === query.matcher) {
-                if (!path) {
-                  path = _path;
-                }
-                _path.stop();
-              }
-            },
-            noScope: true
-          });
-
-          var parent = path.parent;
-          nextRoot = parent;
-        })();
-      }
-      return nextRoot;
-    },
-    findNodeWithString: function findNodeWithString(ast, root, query) {
-      var path = void 0;
-      var scope = void 0;
-
-      var traverseOpts = {
-        Literal: function Literal(_path) {
-          if (_path.node.value === query.matcher) {
-            if (!path) {
-              path = _path;
-            }
-            _path.stop();
+    findNodesWithIdentifier: function findNodesWithIdentifier(ast, root, query) {
+      var paths = [];
+      traverse(root, {
+        Identifier: function Identifier(node) {
+          if (node.name === query.matcher) {
+            paths = [].concat(_toConsumableArray(paths), [node.parent]);
           }
         }
-      };
-
-      if (!root.scope) {
-        traverseOpts.noScope = true;
-      }
-
-      // todo, figure out this .node business
-      (0, _babelTraverse2.default)(root.node, traverseOpts);
-      if (!path) {
-        (0, _babelTraverse2.default)(root, traverseOpts);
-      }
-
-      var parent = path.parent;
-      return parent;
+      });
+      return paths;
+    },
+    findNodesWithString: function findNodesWithString(ast, root, query) {
+      var paths = [];
+      traverse(root, {
+        StringLiteral: function StringLiteral(node) {
+          if (node.value === query.matcher) {
+            paths = [].concat(_toConsumableArray(paths), [node.parent]);
+          }
+        }
+      });
+      return paths;
     }
   };
 }
-module.exports = exports['default'];
+module.exports = exports["default"];

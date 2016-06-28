@@ -169,14 +169,32 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     case NodeTypes.STRING:
       {
         var nextRoot = void 0;
+        var matchingNodes = void 0;
 
         switch (query.type) {
           case NodeTypes.IDENTIFIER:
-            nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+            matchingNodes = engine.findNodesWithIdentifier(ast, root, query);
             break;
           case NodeTypes.STRING:
-            nextRoot = engine.findNodeWithString(ast, root, query);
+            matchingNodes = engine.findNodesWithString(ast, root, query);
             break;
+        }
+
+        if (opts.after) {
+          for (var i = 0; i < matchingNodes.length; i++) {
+            var node = matchingNodes[i];
+            var nodeRange = engine.nodeToRange(node);
+            if (nodeRange.start >= opts.after) {
+              nextRoot = node;
+              break;
+            }
+          }
+        } else {
+          nextRoot = matchingNodes[0];
+        }
+
+        if (!nextRoot) {
+          throw new Error('Cannot find node for query: ' + query.matcher);
         }
 
         var range = engine.nodeToRange(nextRoot);
@@ -206,8 +224,8 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     case NodeTypes.RANGE:
       {
         var rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
-        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, opts);
         var _start = rangeStart.start;
+        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, Object.assign({}, opts, { after: rangeStart.end }));
         var _end = rangeEnd.end;
         var _codeSlice = code.substring(_start, _end);
         var nodes = [].concat(_toConsumableArray(rangeStart.nodes || []), _toConsumableArray(rangeEnd.nodes || []));

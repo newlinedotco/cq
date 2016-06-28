@@ -150,7 +150,7 @@ LineNumber
   / SpecialLineNumber
 
 Integer "integer"
-  = [0-9]+ { return parseInt(text(), 10); }
+  = dash? [0-9]+ { return parseInt(text(), 10); }
 
 Boolean "boolean"
   = true 

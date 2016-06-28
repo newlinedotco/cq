@@ -250,6 +250,25 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
+    it('should parse functions with negative numbers as arguments', () => {
+      let actual = parser.parse('context(.foo, -2, -3)');
+      let expected = {
+        type: NodeTypes.CALL_EXPRESSION,
+        callee: 'context',
+        arguments: [{
+          matcher: 'foo',
+          type: NodeTypes.IDENTIFIER,
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: -2 
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: -3 
+        }]
+      };
+      assert.deepEqual(actual, expected);
+    });
+
     it('should parse functions in ranges', () => {
       let actual = parser.parse('upto(.foo)-30');
       let expected =  {

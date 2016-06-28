@@ -19,41 +19,41 @@ export const NodeTypes = {
   CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
 
-function adjustRangeWithContext(code, linesBefore, linesAfter, {start, end}) {
-  // get any extra lines, if requested
-  let numPreviousLines = 0;
-  let numFollowingLines = 0;
-  let hasPreviousLines = false;
-  let hasFollowingLines = false;
-
-  if(linesBefore > 0) {
-    numPreviousLines = linesBefore;
-    hasPreviousLines = true;
-  }
-
-  if(linesAfter > 0) {
-    numFollowingLines = linesAfter + 1;
-    hasFollowingLines = true;
-  }
-
-  if(hasPreviousLines) {
-    while(start > 0 && numPreviousLines >= 0) {
-      start--;
-      if(code[start] === '\n') {
+function movePositionByLines(code, numLines, position, opts={}) {
+  if(numLines < 0) {
+    let numPreviousLines = numLines * -1;
+    position--;
+    while(position > 0 && numPreviousLines > 0) {
+      position--;
+      if(code[position] === '\n') {
         numPreviousLines--;
       }
     }
-    start++; // don't include prior newline
-  }
-
-  if(hasFollowingLines) {
-    while(end < code.length && numFollowingLines > 0) {
-      if(code[end] === '\n') {
+    if(opts.trimNewline) position++; // don't include prior newline
+  } else if(numLines > 0) {
+    let numFollowingLines = numLines;
+    position++;
+    while(position < code.length && numFollowingLines > 0) {
+      if(code[position] === '\n') {
         numFollowingLines--;
       }
-      end++;
+      position++;
     }
-    end--; // don't include the last newline
+    if(opts.trimNewline) position--; // don't include the last newline
+  }
+
+  return position;
+}
+
+function adjustRangeWithContext(code, linesBefore, linesAfter, {start, end}) {
+  if(linesBefore && linesBefore !== 0) {
+    let trimNewline = linesBefore > 0 ? true : false;
+    start = movePositionByLines(code, -1 * linesBefore, start, {trimNewline});
+  }
+
+  if(linesAfter && linesAfter !== 0) {
+    let trimNewline = linesAfter > 0 ? true : false;
+    end = movePositionByLines(code, linesAfter, end, {trimNewline});
   }
 
   return {start, end};

@@ -74,7 +74,7 @@ const bye = function() {
   return 'bye';
 } // -> 'bye'
 
-let Farm = () => 'cow';
+let Farm = () => 'cow'; 
 bye(); // -> 'bye'
 // never say goodbye
     `;
@@ -109,6 +109,12 @@ bye(); // -> 'bye'
 
       let { code } = cq(someFunctions, query);
       const wanted = lines(someFunctions, 9, 9);
+      assert.equal(code, wanted);
+    })
+
+    it('should include extra lines after given a modifier', () => {
+      let { code } = cq(someFunctions, 'context(.Farm, 0, 1)');
+      const wanted = lines(someFunctions, 9, 10);
       assert.equal(code, wanted);
     })
 
@@ -163,7 +169,7 @@ bye(); // -> 'bye'
 
     it('should allow two modifiers', () => {
       let { code } = cq(someFunctions, 'context(1-upto(.Farm), 2, 4)');
-      const wanted = lines(someFunctions, 1, 11);
+      const wanted = lines(someFunctions, 0, 11);
       assert.equal(code, wanted);
     })
 
@@ -278,6 +284,20 @@ console.log(square.area);
 
       assert.equal(code, wanted);
     });
+
+    it('should allow negative context first', () => {
+      let { code } = cq(es6Class, 'context(.distance, -1, -1)');
+      console.log(code);
+      const wanted = lines(es6Class, 3, 5);
+      assert.equal(code, wanted);
+    });
+
+    it('should allow negative context', () => {
+      let { code } = cq(es6Class, 'context(.Polygon, -4, -4)');
+      const wanted = lines(es6Class, 5, 16);
+      assert.equal(code, wanted);
+    });
+
   });
 
   describe('more ES6 Classes', () => {

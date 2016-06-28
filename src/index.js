@@ -118,14 +118,32 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   case NodeTypes.IDENTIFIER:
   case NodeTypes.STRING: {
     let nextRoot;
+    let matchingNodes;
 
     switch(query.type) {
     case NodeTypes.IDENTIFIER:
-      nextRoot = engine.findNodeWithIdentifier(ast, root, query);
+      matchingNodes = engine.findNodesWithIdentifier(ast, root, query);
       break;
     case NodeTypes.STRING:
-      nextRoot = engine.findNodeWithString(ast, root, query);
+      matchingNodes = engine.findNodesWithString(ast, root, query);
       break;
+    }
+
+    if(opts.after) {
+      for(let i=0; i<matchingNodes.length; i++) {
+        let node = matchingNodes[i];
+        let nodeRange = engine.nodeToRange(node);
+        if(nodeRange.start >= opts.after) {
+          nextRoot = node;
+          break;
+        }
+      }
+    } else {
+      nextRoot = matchingNodes[0];
+    }
+
+    if(!nextRoot) {
+      throw new Error(`Cannot find node for query: ${query.matcher}`);
     }
 
     let range = engine.nodeToRange(nextRoot);
@@ -154,8 +172,9 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   }
   case NodeTypes.RANGE: {
     let rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
-    let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, opts);
     let start = rangeStart.start;
+    let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, 
+                                          Object.assign({}, opts, {after: rangeStart.end}));
     let end = rangeEnd.end;
     let codeSlice = code.substring(start, end);
     let nodes = [...(rangeStart.nodes || []), ...(rangeEnd.nodes || [])]

@@ -182,4 +182,47 @@ function noComments() {
 
   });
 
+  describe('ranges', () => {
+    const src = `
+import { bootstrap } from 'frobular';
+
+class DemoApp {
+}   
+
+let greeting = 'hi';
+
+const routes = [ 
+  { path: '', component: DemoApp },
+  { path: '/home' }
+];
+
+say('hi');
+
+bootstrap(DemoApp, [
+  provideRoutes(routes)
+]);
+`;
+
+    it('should find ranges for identifiers only if they are beyond the start of the range', () => {
+      let { code } = cq(src, ".routes-.bootstrap");
+      const wanted = lines(src, 8, 17);
+      assert.equal(code, wanted);
+    })
+
+    it('should find ranges for strings only if they are beyond the start of the range', () => {
+      {
+        let { code } = cq(src, "'hi'");
+        const wanted = lines(src, 6, 6);
+        assert.equal(code, wanted);
+      }
+
+      {
+        let { code } = cq(src, ".routes-'hi'");
+        const wanted = lines(src, 8, 13);
+        assert.equal(code, wanted);
+      }
+    })
+  });
+
+
 });

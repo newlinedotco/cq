@@ -117,33 +117,27 @@ export default function babylonEngine(engineOpts={}) {
       } 
       return {nodes: [node], start, end};
     },
-    findNodeWithIdentifier(ast, root, query) {
-      let path;
+    findNodesWithIdentifier(ast, root, query) {
+      let paths = [];
       traverse(root, {
         Identifier: function (node) {
           if(node.name === query.matcher) {
-            if(!path) {
-              path = node;
-            }
+            paths = [...paths, node.parent];
           }
         }
       });
-      let parent = path.parent;
-      return parent;
+      return paths;
     },
-    findNodeWithString(ast, root, query) {
-      let path;
+    findNodesWithString(ast, root, query) {
+      let paths = [];
       traverse(root, {
         StringLiteral: function (node) {
           if(node.value === query.matcher) {
-            if(!path) {
-              path = node;
-            }
+            paths = [...paths, node.parent];
           }
         }
       });
-      let parent = path.parent;
-      return parent;
+      return paths;
     }
   }
 }

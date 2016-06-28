@@ -78,36 +78,29 @@ export default function typescriptEngine(engineOpts={}) {
         start = Math.min(start, commentRange.start);
       }
       // TODO trailing
-
       return {nodes: [node], start, end};
     },
-    findNodeWithIdentifier(ast, root, query) {
-      let path;
+    findNodesWithIdentifier(ast, root, query) {
+      let paths = [];
       traverse(root, {
         Identifier: function (node) {
           if(node.text === query.matcher) {
-            if(!path) {
-              path = node;
-            }
+            paths = [...paths, node.parent];
           }
         }
       });
-      let parent = path.parent;
-      return parent;
+      return paths;
     },
-    findNodeWithString(ast, root, query) {
-      let path;
+    findNodesWithString(ast, root, query) {
+      let paths = [];
       traverse(root, {
         StringLiteral: function (node) {
           if(node.text === query.matcher) {
-            if(!path) {
-              path = node;
-            }
+            paths = [...paths, node.parent];
           }
         }
       });
-      let parent = path.parent;
-      return parent;
+      return paths;
     }
   }
 }

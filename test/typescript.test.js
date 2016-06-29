@@ -75,11 +75,18 @@ export var AUTH_PROVIDERS: Array<any> = [
   provide(AuthService, {useClass: AuthService})
 ];
 `
-    it('should extract a whole class', () => {
+    it('should extract a class', () => {
       let { code } = cq(src, '.AuthService', {engine: 'typescript'});
+      const wanted = lines(src, 4, 25);
+      assert.equal(code, wanted);
+    })
+
+    it('should extract a class with decorator', () => {
+      let { code } = cq(src, 'decorators(.AuthService)', {engine: 'typescript'});
       const wanted = lines(src, 3, 25);
       assert.equal(code, wanted);
     })
+
 
     it('should extract a specific method', () => {
       let { code } = cq(src, '.AuthService .login', {engine: 'typescript'});
@@ -318,6 +325,9 @@ bootstrap(RoutesDemoApp, [
 
   describe('Decorators', () => {
     const src = `
+/*
+ * My thing is a decorated class
+ */
 @Component({
   foo: 'bar',
   baz: 'bam
@@ -326,15 +336,58 @@ class FooBar {
 }
 `;
 
-    it('should get decorator annotations', () => {
+    it('should get the decorator alone as a child of the class', () => {
       let { code } = cq(src, ".FooBar .Component", {engine: 'typescript'});
-      const wanted = lines(src, 1, 4);
+      const wanted = lines(src, 4, 7);
       assert.equal(code, wanted);
     })
 
-    it('should get decorator annotations as an identifier', () => {
+    it('should get decorator alone as an identifier', () => {
       let { code } = cq(src, ".Component", {engine: 'typescript'});
-      const wanted = lines(src, 1, 4);
+      const wanted = lines(src, 4, 7);
+      assert.equal(code, wanted);
+    })
+
+    it('should get the class alone as an identifier', () => {
+      let { code } = cq(src, ".FooBar", {engine: 'typescript'});
+      const wanted = lines(src, 8, 9);
+      assert.equal(code, wanted);
+    })
+
+    it('should get the class with decorator when using decorators()', () => {
+      let { code } = cq(src, "decorators(.FooBar)", {engine: 'typescript'});
+      const wanted = lines(src, 4, 9);
+      assert.equal(code, wanted);
+    })
+
+    it('should get the class with decorator and comments with operations', () => {
+      let { code } = cq(src, "comments(decorators(.FooBar))", {engine: 'typescript'});
+      const wanted = lines(src, 1, 9);
+      assert.equal(code, wanted);
+    })
+
+    const src2 = `
+@Foobarable()
+class FooBar {
+}
+`;
+
+    it('should get a single-line decorator', () => {
+      let { code } = cq(src2, "decorators(.FooBar)", {engine: 'typescript'});
+      const wanted = lines(src2, 1, 3);
+      assert.equal(code, wanted);
+    })
+
+    const src3 = `
+@Foobarable()
+@Bambazable()
+class FooBar {
+}
+`;
+
+    it('should get all decorators', () => {
+      let { code } = cq(src3, "decorators(.FooBar)", {engine: 'typescript'});
+      const wanted = lines(src3, 1, 4);
       assert.equal(code, wanted);
     })
 

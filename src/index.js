@@ -10,6 +10,7 @@ import parser from './query-parser';
 
 import babylonEngine from './engines/babylon';
 import typescriptEngine from './engines/typescript';
+import { rangeExtents } from './engines/util';
 
 export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
@@ -109,6 +110,16 @@ function adjustRangeForComments(ast, code, leading, trailing, engine, {start, en
   return {start, end, nodes};
 }
 
+function adjustRangeForDecorators(ast, code, leading, trailing, engine, {start, end, nodes}) {
+  nodes.map((node) => {
+    let decoratorsRange = rangeExtents(node.decorators.map(d => engine.nodeToRange(d)));
+    start = decoratorsRange.start ? Math.min(decoratorsRange.start, start) : start;
+    end = decoratorsRange.end ? Math.max(decoratorsRange.end, end) : end;
+  });
+
+  return {start, end, nodes};
+}
+
 function modifyAnswerWithCall(ast, code, callee, args, engine, {start, end, nodes}) {
   switch(callee) {
   case 'upto':
@@ -132,6 +143,8 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, {start, end, node
     let leading = true, trailing = false;
     return adjustRangeForComments(ast, code, leading, trailing, engine, {start, end, nodes})
     break;
+  case 'decorators':
+    return adjustRangeForDecorators(ast, code, leading, trailing, engine, {start, end, nodes})
   default:
     throw new Error(`Unknown function call: ${callee}`);
   }

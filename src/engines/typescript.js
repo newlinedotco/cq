@@ -48,13 +48,26 @@ function traverse(node, nodeCbs) {
 }
 
 function nodeToRange(node) {
+  // decorators are a bit odd in that they're children of the class they're
+  // attached to by default we don't want to include the decorators in the range
+  // of a node. We'll handle this manually if the decorators() operation is
+  // specified
+  let range;
+
   if (typeof node.getStart === 'function' &&
       typeof node.getEnd === 'function') {
-    return {start: node.getStart(), end: node.getEnd()};
+    range = {start: node.getStart(), end: node.getEnd()};
   } else if (typeof node.pos !== 'undefined' &&
              typeof node.end !== 'undefined') {
-    return {start: node.pos, end: node.end};
+    range = {start: node.pos, end: node.end};
   }
+
+  if(node.decorators) {
+    let decoratorsRange = rangeExtents(node.decorators.map(d => nodeToRange(d)));
+    range.start = decoratorsRange.end + 1;
+  }
+
+  return range;
 }
 
 export default function typescriptEngine(engineOpts={}) {

@@ -230,9 +230,6 @@ const bye = function() {
 }
 ```
 
-
-
-
 > See _many_ more examples in the [`/examples`](./examples) directory
 
 ## Features
@@ -241,6 +238,17 @@ const bye = function() {
 - Locate ranges of code using identifiers
 - Parses ES6 & JSX (with [babylon](https://github.com/babel/babylon))
 - Parses TypeScript
+
+## Operators
+
+`cq` supports a number of operators that modify the selection:
+
+- [`context`](#context)
+- [`window`](#window)
+- [`upto`](#upto)
+- [`after`](#after)
+- [`comments`](#comments)
+- [`decorators`](#decorators)
 
 ## Motivation
 

@@ -413,6 +413,12 @@ class Barn {
       assert.equal(code, wanted);
     })
 
+    it('should get a constructor as part of a child range', () => {
+      let { code } = cq(src, ".Barn-(.Barn .constructor)", {engine: 'typescript'});
+      const wanted = lines(src, 4, 9);
+      assert.equal(code, wanted);
+    })
+
   });
 
 

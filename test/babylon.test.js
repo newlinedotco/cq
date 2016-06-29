@@ -465,4 +465,34 @@ bootstrap(DemoApp, [
     })
   });
 
+  describe('disambiguation', () => {
+    const src = `
+/*
+ * Shows the photos
+ */
+export class PhotosComponent {
+  refresh() {
+    this.search();
+  }
+
+  search() {
+    // performs search
+  }
+}
+`;
+
+    it('choose should pick the right element', () => {
+      let { code } = cq(src, "choose(.search, 1)");
+      const wanted = lines(src, 9, 11);
+      assert.equal(code, wanted);
+    })
+
+    it('choose should pick the right child selection', () => {
+      let { code } = cq(src, "choose(.PhotosComponent .search, 1)");
+      const wanted = lines(src, 9, 11);
+      assert.equal(code, wanted);
+    })
+  })
+
+
 });

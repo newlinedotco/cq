@@ -298,6 +298,12 @@ console.log(square.area);
       assert.equal(code, wanted);
     });
 
+    it('should get a constructor', () => {
+      let { code } = cq(es6Class, '.constructor');
+      const wanted = lines(es6Class, 8, 11);
+      assert.equal(code, wanted);
+    });
+
   });
 
   describe('more ES6 Classes', () => {

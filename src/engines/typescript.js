@@ -100,6 +100,14 @@ export default function typescriptEngine(engineOpts={}) {
           if(node.text === query.matcher) {
             paths = [...paths, node.parent];
           }
+        },
+        Constructor: function (node) {
+          // `constructor` is a special node in TypeScript (vs. babylon where
+          // it's an Identifier) If the query is looking for a constructor by
+          // identifier, then we will accept this Constructor node
+          if('constructor' === query.matcher && 'IDENTIFIER' === query.type) {
+            paths = [...paths, node];
+          }
         }
       });
       return paths;

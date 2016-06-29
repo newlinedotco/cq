@@ -393,4 +393,27 @@ class FooBar {
 
   });
 
+  describe('special identifiers', () => {
+    const src = `
+/*
+ * A Barn is where you keep animals
+ */
+class Barn {
+  color: string;
+
+  constructor() {
+    color = 'red';
+  }
+}
+`;
+
+    it('should get a constructor', () => {
+      let { code } = cq(src, ".Barn .constructor", {engine: 'typescript'});
+      const wanted = lines(src, 7, 9);
+      assert.equal(code, wanted);
+    })
+
+  });
+
+
 });

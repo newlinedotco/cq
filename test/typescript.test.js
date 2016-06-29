@@ -224,9 +224,9 @@ bootstrap(DemoApp, [
     })
   });
 
-  describe('from operator', () => {
+  describe('window operator', () => {
     const src = `
-import { bootstrap } from 'frobular';
+import { bootstrap, provideRouter } from 'frobular';
 
 let config = {
   template: \`
@@ -246,11 +246,6 @@ let config = {
   \`
   </div>
 }
-
-bootstrap(RoutesDemoApp, [
-  provideRouter(routes),
-  provide(LocationStrategy, {useClass: HashLocationStrategy})
-]);
 `;
 
     it('should get lines that are close below', () => {
@@ -284,5 +279,22 @@ bootstrap(RoutesDemoApp, [
 
   });
 
+  describe('disambiguation', () => {
+    const src = `
+import { bootstrap, provideRouter } from 'frobular';
+
+bootstrap(RoutesDemoApp, [
+  provideRouter(routes),
+  provide(LocationStrategy, {useClass: HashLocationStrategy})
+]);
+`;
+
+    it('should disambiguate children identifiers', () => {
+      let { code } = cq(src, ".bootstrap .RoutesDemoApp", {engine: 'typescript'});
+      const wanted = lines(src, 22, 25);
+      assert.equal(code, wanted);
+    })
+
+  });
 
 });

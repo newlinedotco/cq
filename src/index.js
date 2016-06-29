@@ -183,7 +183,9 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     }
 
     if(!nextRoot) {
-      throw new Error(`Cannot find node for query: ${query.matcher}`);
+      let unknownQueryError = new Error(`Cannot find node for query: ${query.matcher}`);
+      unknownQueryError.query = query;
+      throw unknownQueryError;
     }
 
     let range = engine.nodeToRange(nextRoot);
@@ -205,7 +207,18 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     let codeSlice = code.substring(start, end);
 
     if(query.children) {
-      return resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
+      let resolvedChildren;
+      try {
+        resolvedChildren = resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
+      } catch (e) {
+        if(e.query) {
+          console.log('got a query error');
+          throw e
+        } else {
+          throw e
+        }
+      }
+      return resolvedChildren;
     } else {
       return { code: codeSlice, nodes: [ nextRoot ], start, end };
     }

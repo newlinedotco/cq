@@ -234,7 +234,11 @@ function nodeToRangeLines(node, code, engine) {
 
 function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, opts) {
   var nextRoot = void 0;
-  var nodeIdx = isNumeric(opts.nodeIdx) ? opts.nodeIdx : 0;
+
+  // nodeIdx doesn't apply until there are no children e.g. if the parent is
+  // specifying a nodeIdx, the idea is to apply to the childmost node, so pick
+  // zero in the case where we have a child and pass on the opt
+  var nodeIdx = isNumeric(opts.nodeIdx) && !query.children ? opts.nodeIdx : 0;
 
   if (opts.after) {
     for (var i = 0; i < nodes.length; i++) {
@@ -250,7 +254,7 @@ function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, op
   }
 
   if (!nextRoot) {
-    var unknownQueryError = new Error('Cannot find node for query: ' + query.matcher);
+    var unknownQueryError = new Error('Cannot find node for query: ' + query.matcher + ' (match ' + nodeIdx + ')');
     unknownQueryError.query = query;
     throw unknownQueryError;
   }

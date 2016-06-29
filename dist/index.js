@@ -32,6 +32,8 @@ var _typescript = require('./engines/typescript');
 
 var _typescript2 = _interopRequireDefault(_typescript);
 
+var _util = require('./engines/util');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -147,10 +149,26 @@ function adjustRangeForComments(ast, code, leading, trailing, engine, _ref3) {
   return { start: start, end: end, nodes: nodes };
 }
 
-function modifyAnswerWithCall(ast, code, callee, args, engine, _ref4) {
+function adjustRangeForDecorators(ast, code, leading, trailing, engine, _ref4) {
   var start = _ref4.start;
   var end = _ref4.end;
   var nodes = _ref4.nodes;
+
+  nodes.map(function (node) {
+    var decoratorsRange = (0, _util.rangeExtents)(node.decorators.map(function (d) {
+      return engine.nodeToRange(d);
+    }));
+    start = decoratorsRange.start ? Math.min(decoratorsRange.start, start) : start;
+    end = decoratorsRange.end ? Math.max(decoratorsRange.end, end) : end;
+  });
+
+  return { start: start, end: end, nodes: nodes };
+}
+
+function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
+  var start = _ref5.start;
+  var end = _ref5.end;
+  var nodes = _ref5.nodes;
 
   switch (callee) {
     case 'upto':
@@ -183,6 +201,8 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref4) {
           trailing = false;
       return adjustRangeForComments(ast, code, leading, trailing, engine, { start: start, end: end, nodes: nodes });
       break;
+    case 'decorators':
+      return adjustRangeForDecorators(ast, code, leading, trailing, engine, { start: start, end: end, nodes: nodes });
     default:
       throw new Error('Unknown function call: ' + callee);
   }

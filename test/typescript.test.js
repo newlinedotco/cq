@@ -291,7 +291,7 @@ bootstrap(RoutesDemoApp, [
 
     it('should disambiguate children identifiers', () => {
       let { code } = cq(src, ".bootstrap .RoutesDemoApp", {engine: 'typescript'});
-      const wanted = lines(src, 22, 25);
+      const wanted = lines(src, 3, 6);
       assert.equal(code, wanted);
     })
 

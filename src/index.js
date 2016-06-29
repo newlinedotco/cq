@@ -137,6 +137,79 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, {start, end, node
   }
 }
 
+/*
+ * Gets the range from a node and extends it to the preceeding and following
+ * newlines
+ */
+function nodeToRangeLines(node, code, engine) {
+  let range = engine.nodeToRange(node);
+
+  // we want to keep starting indentation, so search back to the previous
+  // newline
+  let start = range.start;
+  while(start > 0 && code[start] !== '\n') {
+    start--;
+  }
+  start++; // don't include the newline
+
+  // we also want to read to the end of the line for the node we found
+  let end = range.end;
+  while(end < code.length && code[end] !== '\n') {
+    end++;
+  }
+
+  return {start,end};
+}
+
+function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, opts) {
+  let nextRoot;
+
+  if(opts.after) {
+    for(let i=0; i<nodes.length; i++) {
+      let node = nodes[i];
+      let nodeRange = engine.nodeToRange(node);
+      if(nodeRange.start >= opts.after) {
+        nextRoot = node;
+        break;
+      }
+    }
+  } else {
+    nextRoot = nodes[0];
+  }
+
+  if(!nextRoot) {
+    let unknownQueryError = new Error(`Cannot find node for query: ${query.matcher}`);
+    unknownQueryError.query = query;
+    throw unknownQueryError;
+  }
+
+  if(query.children) {
+    let resolvedChildren;
+    let lastError;
+
+    // search through all possible nodes for children that would result in a valid query
+    for(let i=0; i<nodes.length; i++) {
+      try {
+        nextRoot = nodes[i];
+        resolvedChildren = resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
+        return resolvedChildren;
+      } catch (e) {
+        if(e.query) { // keep this error but try the next node, if we have one
+          lastError = e
+        } else { // we don't recognize this error, throw it
+          throw e
+        }
+      }
+    }
+    throw lastError; // really couldn't find one
+
+  } else {
+    let { start, end } = nodeToRangeLines(nextRoot, code, engine);
+    let codeSlice = code.substring(start, end);
+    return { code: codeSlice, nodes: [ nextRoot ], start, end };
+  }
+}
+
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch(query.type) {
   case NodeTypes.CALL_EXPRESSION: {
@@ -157,7 +230,6 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   }
   case NodeTypes.IDENTIFIER:
   case NodeTypes.STRING: {
-    let nextRoot;
     let matchingNodes;
 
     switch(query.type) {
@@ -169,59 +241,8 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
       break;
     }
 
-    if(opts.after) {
-      for(let i=0; i<matchingNodes.length; i++) {
-        let node = matchingNodes[i];
-        let nodeRange = engine.nodeToRange(node);
-        if(nodeRange.start >= opts.after) {
-          nextRoot = node;
-          break;
-        }
-      }
-    } else {
-      nextRoot = matchingNodes[0];
-    }
+    return resolveSearchedQueryWithNodes(ast, root, code, query, engine, matchingNodes, opts);
 
-    if(!nextRoot) {
-      let unknownQueryError = new Error(`Cannot find node for query: ${query.matcher}`);
-      unknownQueryError.query = query;
-      throw unknownQueryError;
-    }
-
-    let range = engine.nodeToRange(nextRoot);
-
-    // we want to keep starting indentation, so search back to the previous
-    // newline
-    let start = range.start;
-    while(start > 0 && code[start] !== '\n') {
-      start--;
-    }
-    start++; // don't include the newline
-
-    // we also want to read to the end of the line for the node we found
-    let end = range.end;
-    while(end < code.length && code[end] !== '\n') {
-      end++;
-    }
-
-    let codeSlice = code.substring(start, end);
-
-    if(query.children) {
-      let resolvedChildren;
-      try {
-        resolvedChildren = resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
-      } catch (e) {
-        if(e.query) {
-          console.log('got a query error');
-          throw e
-        } else {
-          throw e
-        }
-      }
-      return resolvedChildren;
-    } else {
-      return { code: codeSlice, nodes: [ nextRoot ], start, end };
-    }
   }
   case NodeTypes.RANGE: {
     let rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);

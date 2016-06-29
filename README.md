@@ -400,7 +400,7 @@ console.log(results.code);
 * Add queries for header information such as comments, `import`s, and `require`s
 * Add the ability to extract several sections in a single query
 * Create a [remark](https://github.com/wooorm/remark) plugin to pull code into Markdown using queries
-* Get trailing and leading comments - [see here in ASTExplorer](https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L68)
+* Support extracting lines of HTML (using regular CSS selectors)
 
 ## Limitations
 

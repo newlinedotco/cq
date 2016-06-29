@@ -224,5 +224,65 @@ bootstrap(DemoApp, [
     })
   });
 
+  describe('from operator', () => {
+    const src = `
+import { bootstrap } from 'frobular';
+
+let config = {
+  template: \`
+  <h1>Search</h1>
+  // hi
+  <p>
+    <input type="text" #newquery
+      [value]="query"
+      (keydown.enter)="submit(newquery.value)">
+    <button (click)="submit(newquery.value)">Search</button>
+  </p>
+
+  <div *ngIf="results">
+    <div *ngIf="!results.length">
+      No tracks were found with the term '{{ query }}'
+    </div>
+  \`
+  </div>
+}
+
+bootstrap(RoutesDemoApp, [
+  provideRouter(routes),
+  provide(LocationStrategy, {useClass: HashLocationStrategy})
+]);
+`;
+
+    it('should get lines that are close below', () => {
+      {
+        let { code } = cq(src, "window(.template, 0, 0)", {engine: 'typescript'});
+        const wanted = lines(src, 4, 4);
+        assert.equal(code, wanted);
+      }
+      {
+        let { code } = cq(src, "window(.template, 0, 2)", {engine: 'typescript'});
+        const wanted = lines(src, 4, 6);
+        assert.equal(code, wanted);
+      }
+      {
+        let { code } = cq(src, "window(.template, 1, 2)", {engine: 'typescript'});
+        const wanted = lines(src, 5, 6);
+        assert.equal(code, wanted);
+      }
+      {
+        let { code } = cq(src, "window(.template, 3, 8)", {engine: 'typescript'});
+        const wanted = lines(src, 7, 12);
+        assert.equal(code, wanted);
+      }
+    })
+
+    it('should get lines that are close around', () => {
+      let { code } = cq(src, "window(.template, -1, 1)", {engine: 'typescript'});
+      const wanted = lines(src, 3, 5);
+      assert.equal(code, wanted);
+    })
+
+  });
+
 
 });

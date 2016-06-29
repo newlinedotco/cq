@@ -19,6 +19,20 @@ export const NodeTypes = {
   CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
 
+const whitespace = new Set([' ', '\n', '\t', '\r']);
+
+function nextNewlinePos(code, start) {
+  let pos = start;
+  while(pos < code.length && code[pos] !== '\n') {
+    pos++;
+  }
+  return pos;
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 function movePositionByLines(code, numLines, position, opts={}) {
   if(numLines < 0) {
     let numPreviousLines = numLines * -1;
@@ -59,7 +73,29 @@ function adjustRangeWithContext(code, linesBefore, linesAfter, {start, end}) {
   return {start, end};
 }
 
-const whitespace = new Set([' ', '\n', '\t', '\r']);
+function adjustRangeWithWindow(code, startingLine, endingLine, {start, end}) {
+  // start, end are the range for the whole node
+  let originalStart = start;
+
+  if(isNumeric(startingLine)) {
+    let trimNewline = startingLine > 0 ? false : true;
+    start = movePositionByLines(code, startingLine, start, {trimNewline});
+  }
+
+  if(endingLine === 0) {
+    end = nextNewlinePos(code, start);
+    return {start, end};
+  }
+
+  if(isNumeric(endingLine)) {
+    let trimNewline = endingLine > 0 ? true : false;
+    let eol = nextNewlinePos(code, originalStart);
+    end = movePositionByLines(code, endingLine, eol /* <- notice */, {trimNewline});
+  }
+
+  return {start, end};
+}
+
 
 function adjustRangeForComments(ast, code, leading, trailing, engine, {start, end, nodes}) {
   // this is going to be part of the engine
@@ -87,6 +123,10 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, {start, end, node
   case 'context':
     let [linesBefore, linesAfter] = args;
     return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, {start, end})
+    break;
+  case 'window':
+    let [startingLine, endingLine] = args;
+    return adjustRangeWithWindow(code, startingLine.value, endingLine.value, {start, end})
     break;
   case 'comments':
     let leading = true, trailing = false;

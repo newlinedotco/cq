@@ -126,6 +126,14 @@ function typescriptEngine() {
           if (node.text === query.matcher) {
             paths = [].concat(_toConsumableArray(paths), [node.parent]);
           }
+        },
+        Constructor: function Constructor(node) {
+          // `constructor` is a special node in TypeScript (vs. babylon where
+          // it's an Identifier) If the query is looking for a constructor by
+          // identifier, then we will accept this Constructor node
+          if ('constructor' === query.matcher && 'IDENTIFIER' === query.type) {
+            paths = [].concat(_toConsumableArray(paths), [node]);
+          }
         }
       });
       return paths;

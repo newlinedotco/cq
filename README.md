@@ -423,19 +423,11 @@ It's possible for a `selection` to match more than one node. While you can often
 
 The `comments()` operation will return the selection plus the leading comments before the selection.
 
-## Library Usage
+#### `decorators()`
 
-```javascript
-var cq = require('@fullstackio/cq').default;
-var results = cq(codeString, query);
-console.log(results.code);
-```
+- `decorators(selection)`
 
-## Tips
-
-### Decorators (Annotations)
-
-Decorations are part of the range of the selection. 
+The `decorators()` operation will return the selection plus the decorators.
 
 Say we have the following code:
 
@@ -450,10 +442,19 @@ export class HomeComponent {
 }
 ```
 
-When we grab the selection `.HomeComponent` we'll get the decoration as well:
+When we grab the selection `.HomeComponent` we'll get just the class
 
 ```typescript
 $ cq '.HomeComponent' examples/HomeComponent.ts
+
+export class HomeComponent {
+}
+```
+
+We use `decorators()` to get the whole thing:
+
+```typescript
+$ cq 'decorators(.HomeComponent)' examples/HomeComponent.ts
 
 @Component({
   selector: 'home',
@@ -463,9 +464,7 @@ export class HomeComponent {
 }
 ```
 
-It's important to keep this in mind if you're using other operators like `context()` that the line number will start at the beginning of the decorations, not at the constant `HomeComponent`. 
-
-Decorations are actually considered children of the node they are attached to. The `@Component` decoration is also an identifier. This means we could get the `@Component` decoration by itself like this:
+One thing to keep in mind is that decorations are actually considered children of the node they are attached to. The `@Component` decoration is also an identifier. This means we get the `@Component` decoration by itself like this:
 
 ```typescript
 $ cq '.HomeComponent .Component' examples/HomeComponent.ts
@@ -474,6 +473,14 @@ $ cq '.HomeComponent .Component' examples/HomeComponent.ts
   selector: 'home',
   template: `<h1>Welcome!</h1>`
 })
+```
+
+## Library Usage
+
+```javascript
+var cq = require('@fullstackio/cq').default;
+var results = cq(codeString, query);
+console.log(results.code);
 ```
 
 ## Future

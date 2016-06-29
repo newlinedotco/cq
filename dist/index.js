@@ -214,6 +214,7 @@ function nodeToRangeLines(node, code, engine) {
 
 function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, opts) {
   var nextRoot = void 0;
+  var nodeIdx = isNumeric(opts.nodeIdx) ? opts.nodeIdx : 0;
 
   if (opts.after) {
     for (var i = 0; i < nodes.length; i++) {
@@ -225,7 +226,7 @@ function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, op
       }
     }
   } else {
-    nextRoot = nodes[0];
+    nextRoot = nodes[nodeIdx];
   }
 
   if (!nextRoot) {
@@ -293,6 +294,15 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
 
             var goalpostNode = resolveIndividualQuery(ast, root, code, goalpostQuery, engine, opts);
             opts.after = goalpostNode.end;
+            break;
+          case 'choose':
+            handled = true;
+
+            var _args4 = _slicedToArray(args, 1);
+
+            var nodeIdx = _args4[0];
+
+            opts.nodeIdx = nodeIdx.value;
             break;
         }
 

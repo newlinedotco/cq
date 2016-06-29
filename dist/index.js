@@ -46,6 +46,20 @@ var NodeTypes = exports.NodeTypes = {
   CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
 
+var whitespace = new Set([' ', '\n', '\t', '\r']);
+
+function nextNewlinePos(code, start) {
+  var pos = start;
+  while (pos < code.length && code[pos] !== '\n') {
+    pos++;
+  }
+  return pos;
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 function movePositionByLines(code, numLines, position) {
   var opts = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
 
@@ -91,12 +105,36 @@ function adjustRangeWithContext(code, linesBefore, linesAfter, _ref) {
   return { start: start, end: end };
 }
 
-var whitespace = new Set([' ', '\n', '\t', '\r']);
-
-function adjustRangeForComments(ast, code, leading, trailing, engine, _ref2) {
+function adjustRangeWithWindow(code, startingLine, endingLine, _ref2) {
   var start = _ref2.start;
   var end = _ref2.end;
-  var nodes = _ref2.nodes;
+
+  // start, end are the range for the whole node
+  var originalStart = start;
+
+  if (isNumeric(startingLine)) {
+    var trimNewline = startingLine > 0 ? false : true;
+    start = movePositionByLines(code, startingLine, start, { trimNewline: trimNewline });
+  }
+
+  if (endingLine === 0) {
+    end = nextNewlinePos(code, start);
+    return { start: start, end: end };
+  }
+
+  if (isNumeric(endingLine)) {
+    var _trimNewline2 = endingLine > 0 ? true : false;
+    var eol = nextNewlinePos(code, originalStart);
+    end = movePositionByLines(code, endingLine, eol /* <- notice */, { trimNewline: _trimNewline2 });
+  }
+
+  return { start: start, end: end };
+}
+
+function adjustRangeForComments(ast, code, leading, trailing, engine, _ref3) {
+  var start = _ref3.start;
+  var end = _ref3.end;
+  var nodes = _ref3.nodes;
 
   // this is going to be part of the engine
 
@@ -109,10 +147,10 @@ function adjustRangeForComments(ast, code, leading, trailing, engine, _ref2) {
   return { start: start, end: end, nodes: nodes };
 }
 
-function modifyAnswerWithCall(ast, code, callee, args, engine, _ref3) {
-  var start = _ref3.start;
-  var end = _ref3.end;
-  var nodes = _ref3.nodes;
+function modifyAnswerWithCall(ast, code, callee, args, engine, _ref4) {
+  var start = _ref4.start;
+  var end = _ref4.end;
+  var nodes = _ref4.nodes;
 
   switch (callee) {
     case 'upto':
@@ -131,6 +169,14 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref3) {
       var linesAfter = _args[1];
 
       return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, { start: start, end: end });
+      break;
+    case 'window':
+      var _args2 = _slicedToArray(args, 2);
+
+      var startingLine = _args2[0];
+      var endingLine = _args2[1];
+
+      return adjustRangeWithWindow(code, startingLine.value, endingLine.value, { start: start, end: end });
       break;
     case 'comments':
       var leading = true,

@@ -188,6 +188,84 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref4) {
   }
 }
 
+/*
+ * Gets the range from a node and extends it to the preceeding and following
+ * newlines
+ */
+function nodeToRangeLines(node, code, engine) {
+  var range = engine.nodeToRange(node);
+
+  // we want to keep starting indentation, so search back to the previous
+  // newline
+  var start = range.start;
+  while (start > 0 && code[start] !== '\n') {
+    start--;
+  }
+  start++; // don't include the newline
+
+  // we also want to read to the end of the line for the node we found
+  var end = range.end;
+  while (end < code.length && code[end] !== '\n') {
+    end++;
+  }
+
+  return { start: start, end: end };
+}
+
+function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, opts) {
+  var nextRoot = void 0;
+
+  if (opts.after) {
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      var nodeRange = engine.nodeToRange(node);
+      if (nodeRange.start >= opts.after) {
+        nextRoot = node;
+        break;
+      }
+    }
+  } else {
+    nextRoot = nodes[0];
+  }
+
+  if (!nextRoot) {
+    var unknownQueryError = new Error('Cannot find node for query: ' + query.matcher);
+    unknownQueryError.query = query;
+    throw unknownQueryError;
+  }
+
+  if (query.children) {
+    var resolvedChildren = void 0;
+    var lastError = void 0;
+
+    // search through all possible nodes for children that would result in a valid query
+    for (var _i = 0; _i < nodes.length; _i++) {
+      try {
+        nextRoot = nodes[_i];
+        resolvedChildren = resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
+        return resolvedChildren;
+      } catch (e) {
+        if (e.query) {
+          // keep this error but try the next node, if we have one
+          lastError = e;
+        } else {
+          // we don't recognize this error, throw it
+          throw e;
+        }
+      }
+    }
+    throw lastError; // really couldn't find one
+  } else {
+      var _nodeToRangeLines = nodeToRangeLines(nextRoot, code, engine);
+
+      var start = _nodeToRangeLines.start;
+      var end = _nodeToRangeLines.end;
+
+      var codeSlice = code.substring(start, end);
+      return { code: codeSlice, nodes: [nextRoot], start: start, end: end };
+    }
+}
+
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
   switch (query.type) {
     case NodeTypes.CALL_EXPRESSION:
@@ -216,7 +294,6 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     case NodeTypes.IDENTIFIER:
     case NodeTypes.STRING:
       {
-        var nextRoot = void 0;
         var matchingNodes = void 0;
 
         switch (query.type) {
@@ -228,56 +305,17 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
             break;
         }
 
-        if (opts.after) {
-          for (var i = 0; i < matchingNodes.length; i++) {
-            var node = matchingNodes[i];
-            var nodeRange = engine.nodeToRange(node);
-            if (nodeRange.start >= opts.after) {
-              nextRoot = node;
-              break;
-            }
-          }
-        } else {
-          nextRoot = matchingNodes[0];
-        }
-
-        if (!nextRoot) {
-          throw new Error('Cannot find node for query: ' + query.matcher);
-        }
-
-        var range = engine.nodeToRange(nextRoot);
-
-        // we want to keep starting indentation, so search back to the previous
-        // newline
-        var start = range.start;
-        while (start > 0 && code[start] !== '\n') {
-          start--;
-        }
-        start++; // don't include the newline
-
-        // we also want to read to the end of the line for the node we found
-        var end = range.end;
-        while (end < code.length && code[end] !== '\n') {
-          end++;
-        }
-
-        var codeSlice = code.substring(start, end);
-
-        if (query.children) {
-          return resolveListOfQueries(ast, nextRoot, code, query.children, engine, opts);
-        } else {
-          return { code: codeSlice, nodes: [nextRoot], start: start, end: end };
-        }
+        return resolveSearchedQueryWithNodes(ast, root, code, query, engine, matchingNodes, opts);
       }
     case NodeTypes.RANGE:
       {
         var rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
-        var _start = rangeStart.start;
+        var start = rangeStart.start;
         var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, Object.assign({}, opts, { after: rangeStart.end }));
-        var _end = rangeEnd.end;
-        var _codeSlice = code.substring(_start, _end);
+        var end = rangeEnd.end;
+        var codeSlice = code.substring(start, end);
         var nodes = [].concat(_toConsumableArray(rangeStart.nodes || []), _toConsumableArray(rangeEnd.nodes || []));
-        return { code: _codeSlice, nodes: nodes, start: _start, end: _end };
+        return { code: codeSlice, nodes: nodes, start: start, end: end };
       }
     case NodeTypes.LINE_NUMBER:
       {
@@ -309,11 +347,11 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
             return sum + line.length + 1;
           }, 0);
 
-          var _start2 = charIdx;
-          var _end2 = charIdx + line.length;
-          var _codeSlice2 = code.substring(_start2, _end2);
+          var _start = charIdx;
+          var _end = charIdx + line.length;
+          var _codeSlice = code.substring(_start, _end);
           var _nodes = []; // TODO - find the node that applies to this line number
-          return { code: _codeSlice2, nodes: _nodes, start: _start2, end: _end2 };
+          return { code: _codeSlice, nodes: _nodes, start: _start, end: _end };
         }
       }
     default:

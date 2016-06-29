@@ -163,6 +163,7 @@ function nodeToRangeLines(node, code, engine) {
 
 function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, opts) {
   let nextRoot;
+  let nodeIdx = isNumeric(opts.nodeIdx) ? opts.nodeIdx : 0;
 
   if(opts.after) {
     for(let i=0; i<nodes.length; i++) {
@@ -174,7 +175,7 @@ function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, op
       }
     }
   } else {
-    nextRoot = nodes[0];
+    nextRoot = nodes[nodeIdx];
   }
 
   if(!nextRoot) {
@@ -224,9 +225,14 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     switch(callee) {
     case 'after':
       handled = true;
-      let [goalpostQuery] = args;
+      let [ goalpostQuery ] = args;
       let goalpostNode = resolveIndividualQuery(ast, root, code, goalpostQuery, engine, opts);
       opts.after = goalpostNode.end;
+      break;
+    case 'choose':
+      handled = true;
+      let [ nodeIdx ] = args;
+      opts.nodeIdx = nodeIdx.value;
       break;
     }
 
@@ -237,7 +243,6 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     if(!handled) {
       answer = modifyAnswerWithCall(ast, code, callee, args, engine, answer);
     }
-
 
     // hmm, maybe do this later in the pipeline?
     answer.code = code.substring(answer.start, answer.end);

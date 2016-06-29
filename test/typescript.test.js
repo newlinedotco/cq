@@ -301,5 +301,18 @@ bootstrap(RoutesDemoApp, [
       assert.equal(code, wanted);
     })
 
+    it('choose() should pick a specific selection', () => {
+      {
+        let { code } = cq(src, "choose(.bootstrap, 0)", {engine: 'typescript'});
+        const wanted = lines(src, 1, 1);
+        assert.equal(code, wanted);
+      }
+      {
+        let { code } = cq(src, "choose(.bootstrap, 1)", {engine: 'typescript'});
+        const wanted = lines(src, 3, 6);
+        assert.equal(code, wanted);
+      }
+    })
+
   });
 });

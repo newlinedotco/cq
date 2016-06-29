@@ -6,7 +6,6 @@
  * Thanks to astexplorer for some of this code
  * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
  */
-import 'babel-polyfill'
 import * as ts from "typescript";
 import { rangeExtents } from './util';
 

@@ -315,4 +315,29 @@ bootstrap(RoutesDemoApp, [
     })
 
   });
+
+  describe('Decorators', () => {
+    const src = `
+@Component({
+  foo: 'bar',
+  baz: 'bam
+})
+class FooBar {
+}
+`;
+
+    it('should get decorator annotations', () => {
+      let { code } = cq(src, ".FooBar .Component", {engine: 'typescript'});
+      const wanted = lines(src, 1, 4);
+      assert.equal(code, wanted);
+    })
+
+    it('should get decorator annotations as an identifier', () => {
+      let { code } = cq(src, ".Component", {engine: 'typescript'});
+      const wanted = lines(src, 1, 4);
+      assert.equal(code, wanted);
+    })
+
+  });
+
 });

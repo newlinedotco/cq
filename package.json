@@ -17,7 +17,6 @@
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",
   "dependencies": {
-    "babel-polyfill": "^6.9.1",
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
     "babylon": "^6.8.1",
@@ -25,6 +24,7 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
+    "babel-polyfill": "^6.9.1",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.9.1",
     "babel-plugin-add-module-exports": "^0.2.1",

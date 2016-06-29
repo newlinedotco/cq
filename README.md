@@ -333,6 +333,28 @@ If you want to specify a child selector at the end of a range, use parenthesis a
 
 You can use the special line number `EOF` to select until the end-of-file.
 
+### _'String'_
+
+**Examples**:
+
+- `'My Test'`
+- `'My Test' 'my should'`
+- `2-'My Test'`
+
+You can use a single-quoted string as a selection and `cq` will search for that string. When a string is found, `cq` will emit the statement / block associated with that string.
+
+For instance, given:
+
+```javascript
+describe('My First Test', () => {
+  it('basic assert', () => {
+    assert.equal(1, 1);
+  });
+});
+```
+
+You could search for the strings `'My First Test'` or `'basic assert'` and receive the appropriate selection.
+
 ### _Operators_
 
 **Examples**:
@@ -355,37 +377,51 @@ Operators allow you to change the result of the inner selection.
 
 #### `context()`
 
-The `context()` operation allows you to take line numbers before and after the selection. The signature is `context(selection, numLinesBefore, numLinesAfter)`.
+- `context(selection, numLinesBeforeStart, numLinesAfterEnd)`
+
+The `context()` operation takes line numbers before and after the selection. For example, `context(.foo, 2, 2)` will give two lines before and two lines after the `.foo` node. 
+
+Keep in mind that the `selection` denotes a node which can span multiple lines. With that in mind, positive numbers "expand" the selection and negative numbers "contract". That is, if `numLinesBeforeStart` is negative, then it can be interpreted as moving the _start_ forward (increasing line numbers). Similarly, if `numLinesAfterEnd` is negative, the _end_ is moved backwards (decreasing line numbers, towards the top of the document).
+
+`context()` modifies the range that would be returned from `selection`. If you'd like to specify a **specific number of lines range** relative to a `selection`, then see the `window()` operator.
+
+#### `window()`
+
+- `window(selection, startNumLinesAfter, endNumLinesAfter)`
+
+`window()` returns a specific number of lines relative to `selection`. For example, `window(.foo, 0, 4)` would give 5 lines, the `foo` identifier and the four lines following.
+
+It differs from `context()` in that both arguments to `window()` are relative to the _start_ of the `selection`. 
+
+`window()` is useful for extracting a specific range of lines near a particular `selection`. The `selection` is considered to start at index `0`, which means negative numbers denote the lines before the start of the selection. 
 
 #### `upto()`
 
+- `upto(selection)`
+
 The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines). 
+
+#### `choose()`
+
+- `choose(selection, matchIdx)`
+
+It's possible for a `selection` to match more than one node. While you can often disambiguate with child selections, the `choose()` operator lets you specify a particular match by index. 
+
+`matchIdx` starts at `0`. Without the `choose` operator, the default behavior of any `selection` is: `choose(selection, 0)`. Say you had two instances of the identifier `.foo` then you could grab the second by using `choose(.foo, 1)`.
+
+`choose` can be a bit brittle in that it specifies a specific `matchIdx`. A potentially better choice is the `after()` operator which finds the first `selection` that occurs after a companion selector.
+
+#### `after()`
+
+- `after(selection, afterSelection)`
+
+`after` finds the first `selection` that occurs after `afterSelection`.
 
 #### `comments()`
 
+- `comments(selection)`
+
 The `comments()` operation will return the selection plus the leading comments before the selection.
-
-### _'String'_
-
-**Examples**:
-
-- `'My Test'`
-- `'My Test' 'my should'`
-- `2-'My Test'`
-
-You can use a single-quoted string as a selection and `cq` will search for that string. When a string is found, `cq` will emit the statement / block associated with that string.
-
-For instance, given:
-
-```javascript
-describe('My First Test', () => {
-  it('basic assert', () => {
-    assert.equal(1, 1);
-  });
-});
-```
-
-You could search for the strings `'My First Test'` or `'basic assert'` and receive the appropriate selection.
 
 ## Library Usage
 

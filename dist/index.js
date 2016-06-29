@@ -360,7 +360,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
       {
         var rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
         var start = rangeStart.start;
-        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, Object.assign({}, opts, { after: rangeStart.end }));
+        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, Object.assign({}, opts, { after: rangeStart.start }));
         var end = rangeEnd.end;
         var codeSlice = code.substring(start, end);
         var nodes = [].concat(_toConsumableArray(rangeStart.nodes || []), _toConsumableArray(rangeEnd.nodes || []));

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import 'babel-polyfill';
 import cq from './index';
 import yargs from 'yargs';
 import fs from 'fs';

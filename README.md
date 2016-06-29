@@ -515,6 +515,10 @@ Originally written by [Nate Murray](https://twitter.com/eigenjoy).
  - [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the command line
  - [ASTExplorer](https://astexplorer.net/) - an online tool to explore the AST of your code
 
+## Dependencies
+
+- `babel-polyfill`
+
 ## Fullstack React Book
 
 <a href="https://fullstackreact.com">

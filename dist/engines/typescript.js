@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = typescriptEngine;
 
-require('babel-polyfill');
-
 var _typescript = require('typescript');
 
 var ts = _interopRequireWildcard(_typescript);

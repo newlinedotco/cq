@@ -295,6 +295,11 @@ bootstrap(RoutesDemoApp, [
       assert.equal(code, wanted);
     })
 
-  });
+    it('after() should find things properly', () => {
+      let { code } = cq(src, "after(.bootstrap, .provideRouter)", {engine: 'typescript'});
+      const wanted = lines(src, 3, 6);
+      assert.equal(code, wanted);
+    })
 
+  });
 });

@@ -216,11 +216,28 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     let callee = query.callee;
     // for now, the first argument is always the inner selection
     let [childQuery, ...args] = query.arguments;
+
+    let handled = false;
+    // some operators modify before the target query
+    // e.g. after() actually has two queries
+    // TODO clean this up to unify design with `modifyAnswerWithCall`. `handled` is icky
+    switch(callee) {
+    case 'after':
+      handled = true;
+      let [goalpostQuery] = args;
+      let goalpostNode = resolveIndividualQuery(ast, root, code, goalpostQuery, engine, opts);
+      opts.after = goalpostNode.end;
+      break;
+    }
+
     let answer = resolveIndividualQuery(ast, root, code, childQuery, engine, opts);
 
     // whatever the child answer is, now we modify it given our callee
     // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end 
-    answer = modifyAnswerWithCall(ast, code, callee, args, engine, answer);
+    if(!handled) {
+      answer = modifyAnswerWithCall(ast, code, callee, args, engine, answer);
+    }
+
 
     // hmm, maybe do this later in the pipeline?
     answer.code = code.substring(answer.start, answer.end);

@@ -283,7 +283,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
     let rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
     let start = rangeStart.start;
     let rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, 
-                                          Object.assign({}, opts, {after: rangeStart.end}));
+                                          Object.assign({}, opts, {after: rangeStart.start}));
     let end = rangeEnd.end;
     let codeSlice = code.substring(start, end);
     let nodes = [...(rangeStart.nodes || []), ...(rangeEnd.nodes || [])]

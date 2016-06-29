@@ -287,7 +287,6 @@ console.log(square.area);
 
     it('should allow negative context first', () => {
       let { code } = cq(es6Class, 'context(.distance, -1, -1)');
-      console.log(code);
       const wanted = lines(es6Class, 3, 5);
       assert.equal(code, wanted);
     });
@@ -301,6 +300,18 @@ console.log(square.area);
     it('should get a constructor', () => {
       let { code } = cq(es6Class, '.constructor');
       const wanted = lines(es6Class, 8, 11);
+      assert.equal(code, wanted);
+    });
+
+    it('should get a constructor as a child of the class', () => {
+      let { code } = cq(es6Class, '.Polygon .constructor');
+      const wanted = lines(es6Class, 8, 11);
+      assert.equal(code, wanted);
+    });
+
+    it('should get a constructor as a child of the class in a range', () => {
+      let { code } = cq(es6Class, '.Polygon-(.Polygon .constructor)');
+      const wanted = lines(es6Class, 1, 11);
       assert.equal(code, wanted);
     });
 

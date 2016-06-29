@@ -395,6 +395,51 @@ var results = cq(codeString, query);
 console.log(results.code);
 ```
 
+## Tips
+
+### Decorators (Annotations)
+
+Decorations are part of the range of the selection. 
+
+Say we have the following code:
+
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'home',
+  template: `<h1>Welcome!</h1>`
+})
+export class HomeComponent {
+}
+```
+
+When we grab the selection `.HomeComponent` we'll get the decoration as well:
+
+```typescript
+$ cq '.HomeComponent' examples/HomeComponent.ts
+
+@Component({
+  selector: 'home',
+  template: `<h1>Welcome!</h1>`
+})
+export class HomeComponent {
+}
+```
+
+It's important to keep this in mind if you're using other operators like `context()` that the line number will start at the beginning of the decorations, not at the constant `HomeComponent`. 
+
+Decorations are actually considered children of the node they are attached to. The `@Component` decoration is also an identifier. This means we could get the `@Component` decoration by itself like this:
+
+```typescript
+$ cq '.HomeComponent .Component' examples/HomeComponent.ts
+
+@Component({
+  selector: 'home',
+  template: `<h1>Welcome!</h1>`
+})
+```
+
 ## Future
 
 * Add queries for header information such as comments, `import`s, and `require`s

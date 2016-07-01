@@ -1,0 +1,36 @@
+{
+  "name": "@fullstackio/cqmd",
+  "version": "1.0.0",
+  "description": "markdown pre-processor for cq",
+  "main": "dist/index.js",
+  "repository": "fullstackio/cqmd",
+  "scripts": {
+    "compile": "babel -d dist/ src/",
+    "prepublish": "npm run compile",
+    "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
+    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
+    "generate-parser": "./node_modules/.bin/pegjs src/query.pegjs src/query-parser.js"
+  },
+  "bin": {
+    "cqmd": "dist/cli.js"
+  },
+  "author": "Nate Murray <nate@fullstack.io>",
+  "license": "MIT",
+  "dependencies": {
+    "yargs": "^4.7.1",
+    "@fullstackio/cq": "^2.0.5"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-core": "^6.9.1",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-react-transform": "^2.0.2",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-preset-syntax-from-presets": "^1.0.1",
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "pegjs": "^0.9.0"
+  }
+}

@@ -27,6 +27,9 @@ function splitNoParen(s){
   return A;
 }
 
+/*
+ * Format's cq results into Github-flavored markdown-style code
+ */
 function formatGfm(results, opts={}) {
   let lang = opts.lang ? opts.lang : ''
   return '```' + lang + '\n' + 
@@ -34,7 +37,7 @@ function formatGfm(results, opts={}) {
     '```' + '\n';
 }
 
-export default function cqmq(text, opts={}) {
+export default function cqmd(text, opts={}) {
   opts.format = opts.format || 'gfm';
 
   let newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)\s*$/mg, 

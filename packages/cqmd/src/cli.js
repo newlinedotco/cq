@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import 'babel-polyfill';
-import cq from 'cq';
 import yargs from 'yargs';
 import fs from 'fs';
+import cqmd from './index';
 
 /*
 
@@ -43,28 +43,22 @@ let [filename] = argv._;
 
 let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
 
+// no filename nor stdin, so show the help
+if(!filename && process.stdin.isTTY) {
+  yargs.showHelp();
+  process.exit();
+}
+
 var content = '';
 inputStream.resume();
 inputStream.on('data', function(buf) { content += buf.toString(); });
 inputStream.on('end', function() {
-  let result = cq(content, query, { engine });
-
-  if(argv.json === true) {
-    delete result['nodes'];
-    if(argv.short === true) {
-      delete result['code'];
-    }
-    console.log( JSON.stringify(result, null, 2) );
+  let result = cqmd(content, argv);
+  if(argv.output) {
+    fs.writeFileSync(argv.output, result);
   } else {
-    console.log( result.code );
+    console.log(result);
   }
-
-  // no filename nor stdin, so show the help
-  if(!filename && content.length === 0) {
-    yargs.showHelp();
-    process.exit();
-  }
-
 });
 
 

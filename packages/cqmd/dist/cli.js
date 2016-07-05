@@ -20,17 +20,8 @@ var _index2 = _interopRequireDefault(_index);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
-
- Thoughts:
-
- The idea: a markdown preprocessor that parses cq directives and replaces them with code blocks
-
- The options
- - root dir - the patch by which the paths are relative to
- - the flavor of code blocks, for now gfm
- 
+ * A markdown preprocessor that parses cq directives and replaces them with code blocks
  */
-
 var argv = _yargs2.default.usage('Usage: $0 [options] <file>').example("$0 post.md", "process post.md and emit the results on STDOUT").help('help').alias('help', 'h').option('output', {
   alias: 'o',
   type: 'string',
@@ -42,7 +33,8 @@ var argv = _yargs2.default.usage('Usage: $0 [options] <file>').example("$0 post.
 }).option('format', {
   alias: 'f',
   describe: 'the format to convert codeblocks into',
-  choices: ['gfm', 'block', 'leanpub'],
+  // choices: ['gfm', 'block', 'leanpub', 'raw'],
+  choices: ['gfm', 'raw'],
   default: 'gfm'
 }).argv;
 

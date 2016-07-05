@@ -60,6 +60,12 @@ function formatGfm(results) {
   return '```' + lang + '\n' + results.code + '\n' + '```' + '\n';
 }
 
+function formatRaw(results) {
+  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+  return results.code + '\n';
+}
+
 function cqmd(text) {
   var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -78,14 +84,26 @@ function cqmd(text) {
       return acc;
     }, {});
 
+    // blocks override the global setting
+    if (blockOpts['format']) {
+      opts.format = blockOpts['format'];
+    }
+
     var fullFilename = _path2.default.join(opts.path, actualName);
     var contents = _fs2.default.readFileSync(fullFilename).toString();
     var cqResults = (0, _cq2.default)(contents, blockOpts['crop-query']);
     var replacement = void 0;
 
+    if (typeof opts.format === "function") {
+      return opts.format(cqResults, blockOpts);
+    }
+
     switch (opts.format) {
       case 'gfm':
         replacement = formatGfm(cqResults, blockOpts);
+        break;
+      case 'raw':
+        replacement = formatRaw(cqResults, blockOpts);
         break;
       default:
         throw new Error('unknown format: ' + opts.format);

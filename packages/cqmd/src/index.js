@@ -34,18 +34,18 @@ function formatGfm(results, opts={}) {
   let lang = opts.lang ? opts.lang : ''
   return '```' + lang + '\n' + 
     results.code + '\n' +
-    '```' + '\n';
+    '```';
 }
 
 function formatRaw(results, opts={}) {
-  return results.code + '\n';
+  return results.code;
 }
 
 export default function cqmd(text, opts={}) {
   opts.format = opts.format || 'gfm';
 
-  let newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)\s*$/mg, 
-                             function(match, rawSettings, displayName, actualName, offset, s) {
+  let newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, 
+                             function(match, rawSettings, displayName, actualName, ws, offset, s) {
     let blockOpts = splitNoParen(rawSettings).reduce((acc, pair) => {
       let [k, v] = pair.split('=');
       acc[k] = v;
@@ -77,7 +77,7 @@ export default function cqmd(text, opts={}) {
       throw new Error('unknown format: ' + opts.format);
     }
 
-    return replacement;
+    return replacement + ws;
   });
   return newText;
 }

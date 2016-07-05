@@ -49,7 +49,7 @@ inputStream.on('end', function() {
   if(argv.output) {
     fs.writeFileSync(argv.output, result);
   } else {
-    console.log(result);
+    process.stdout.write(result);
   }
 });
 

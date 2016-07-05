@@ -57,13 +57,13 @@ function formatGfm(results) {
   var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   var lang = opts.lang ? opts.lang : '';
-  return '```' + lang + '\n' + results.code + '\n' + '```' + '\n';
+  return '```' + lang + '\n' + results.code + '\n' + '```';
 }
 
 function formatRaw(results) {
   var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-  return results.code + '\n';
+  return results.code;
 }
 
 function cqmd(text) {
@@ -71,7 +71,7 @@ function cqmd(text) {
 
   opts.format = opts.format || 'gfm';
 
-  var newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)\s*$/mg, function (match, rawSettings, displayName, actualName, offset, s) {
+  var newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, function (match, rawSettings, displayName, actualName, ws, offset, s) {
     var blockOpts = splitNoParen(rawSettings).reduce(function (acc, pair) {
       var _pair$split = pair.split('=');
 
@@ -109,7 +109,7 @@ function cqmd(text) {
         throw new Error('unknown format: ' + opts.format);
     }
 
-    return replacement;
+    return replacement + ws;
   });
   return newText;
 }

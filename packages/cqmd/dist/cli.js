@@ -61,6 +61,6 @@ inputStream.on('end', function () {
   if (argv.output) {
     _fs2.default.writeFileSync(argv.output, result);
   } else {
-    console.log(result);
+    process.stdout.write(result);
   }
 });

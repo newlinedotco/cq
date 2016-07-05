@@ -26,6 +26,13 @@ let results = cqmd(input, {path: __dirname});
 console.log(results);
 ```
 
+If you'd like to create a custom formatting function, use the `format` key in the options.
+
+## Future
+
+- Support plain markdown code blocks
+- Support [leanpub-style `crop-start-line`](https://leanpub.com/help/manual#leanpub-auto-displaying-only-part-of-a-code-file) blocks
+
 ## Contributing
 
 Please feel free to submit pull requests!

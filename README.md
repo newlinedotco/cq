@@ -48,6 +48,7 @@ class Barn {
     return this.height * this.width;
   }
 }
+
 ```
 
 Get the `bye()` function:
@@ -91,7 +92,7 @@ $ cq '.Barn .constructor-.calcArea' examples/basics.js
     this.height = height;
     this.width = width;
   }
-
+  
   calcArea() {
     return this.height * this.width;
   }
@@ -119,6 +120,19 @@ import {Injectable, provide} from '@angular/core';
 
 @Injectable()
 export class AuthService {
+  login(user: string, password: string): boolean {
+    if (user === 'user' && password === 'password') {
+      localStorage.setItem('username', user);
+      return true;
+    }
+
+    return false;
+  }
+
+  logout(): any {
+    localStorage.removeItem('username');
+  }
+
   getUser(): any {
     return localStorage.getItem('username');
   }
@@ -131,6 +145,7 @@ export class AuthService {
 export var AUTH_PROVIDERS: Array<any> = [
   provide(AuthService, {useClass: AuthService})
 ];
+
 ```
 
 Get the `AUTH_PROVIDERS` export:

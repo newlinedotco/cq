@@ -9,6 +9,7 @@
     "prepublish": "npm run generate-parser && npm run compile",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
+    "generate-readme": "cqmd -o README.md -p . doc/readme/README.md",
     "generate-parser": "./node_modules/.bin/pegjs src/query.pegjs src/query-parser.js"
   },
   "bin": {

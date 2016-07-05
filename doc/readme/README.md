@@ -31,23 +31,8 @@ Say we have a file `examples/basics.js` with the following code:
 
 ```javascript
 // examples/basics.js
-const bye = function() {
-  return 'bye';
-}
-bye(); // -> 'bye'
-
-let Farm = () => 'cow';
-
-class Barn {
-  constructor(height, width) {
-    this.height = height;
-    this.width = width;
-  }
-  
-  calcArea() {
-    return this.height * this.width;
-  }
-}
+{lang=javascript,crop-query=.bye-EOF,format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the `bye()` function:
@@ -55,9 +40,8 @@ Get the `bye()` function:
 ```javascript
 $ cq '.bye' examples/basics.js
 
-const bye = function() {
-  return 'bye';
-}
+{lang=javascript,crop-query=.bye,format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the `calcArea()` function on the `Barn` class:
@@ -65,9 +49,8 @@ Get the `calcArea()` function on the `Barn` class:
 ```javascript
 $ cq '.Barn .calcArea' examples/basics.js
 
-  calcArea() {
-    return this.height * this.width;
-  }
+{lang=javascript,crop-query=.Barn .calcArea,format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the `bye()` function plus the line after:
@@ -76,10 +59,8 @@ Get the `bye()` function plus the line after:
 // `context(identifier, linesBefore, linesAfter)`
 $ cq 'context(.bye,0,1)' examples/basics.js
 
-const bye = function() {
-  return 'bye';
-}
-bye(); // -> 'bye'
+{lang=javascript,crop-query=context(.bye,0,1),format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` class
@@ -87,14 +68,8 @@ Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` cl
 ```javascript
 $ cq '.Barn .constructor-.calcArea' examples/basics.js
 
-  constructor(height, width) {
-    this.height = height;
-    this.width = width;
-  }
-
-  calcArea() {
-    return this.height * this.width;
-  }
+{lang=javascript,crop-query=.Barn .constructor-.calcArea,format=raw}
+<<[](examples/basics.js)
 ```
 
 If you pass `--json` you'll get the results in JSON, which can be useful for further processing:
@@ -115,22 +90,8 @@ $ cq --json 'context(.bye,0,1)' examples/basics.js
 
 ```typescript
 // AuthService.ts
-import {Injectable, provide} from '@angular/core';
-
-@Injectable()
-export class AuthService {
-  getUser(): any {
-    return localStorage.getItem('username');
-  }
-
-  isLoggedIn(): boolean {
-    return this.getUser() !== null;
-  }
-}
-
-export var AUTH_PROVIDERS: Array<any> = [
-  provide(AuthService, {useClass: AuthService})
-];
+{lang=typescript,crop-query=.Injectable-EOF,format=raw}
+<<[](examples/AuthService.ts)
 ```
 
 Get the `AUTH_PROVIDERS` export:

@@ -66,7 +66,7 @@ export class AuthService {
     return localStorage.getItem('username');
   }
 
-  isLogged(): boolean {
+  isLoggedIn(): boolean {
     return this.getUser() !== null;
   }
 }
@@ -87,7 +87,6 @@ export var AUTH_PROVIDERS: Array<any> = [
       assert.equal(code, wanted);
     })
 
-
     it('should extract a specific method', () => {
       let { code } = cq(src, '.AuthService .login', {engine: 'typescript'});
       const wanted = lines(src, 5, 12);
@@ -105,6 +104,13 @@ export var AUTH_PROVIDERS: Array<any> = [
       const wanted = lines(src, 0, 12);
       assert.equal(code, wanted);
     })
+
+    it('should extract ranges from children to parent vars ', () => {
+      let { code } = cq(src, '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS', {engine: 'typescript'});
+      const wanted = lines(src, 22, 29);
+      assert.equal(code, wanted);
+    })
+
   });
 
   describe('searching for strings', () => {

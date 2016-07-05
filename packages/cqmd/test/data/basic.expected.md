@@ -16,4 +16,3 @@ function bye() {
 ```
 
 That's all
-

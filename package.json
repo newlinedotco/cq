@@ -6,7 +6,7 @@
   "repository": "fullstackio/cq",
   "scripts": {
     "compile": "babel -d dist/ src/",
-    "prepublish": "npm run generate-parser && npm run compile",
+    "prepublish": "npm run generate-readme && git diff README.md && npm run generate-parser && npm run compile",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
     "generate-readme": "cqmd -o README.md -p . doc/readme/README.cq.md",

@@ -18,6 +18,75 @@ $ cq --path <path/to/code/basepath> <input-markdown-file>
 $ cat file | cqmd --path <path>
 ```
 
+## Markdown Format
+
+To use `cqmd` you write a normal markdown file but instead of using indented code blocks you use the following syntax:
+
+    {lang=myLang,crop-query=myQuery,format=myFormat}
+    <<[](path/to/file.js)
+
+For example, say we have a file `examples/basics.js` with the following code:
+
+```javascript
+// examples/basics.js
+const bye = function() {
+  return 'bye';
+}
+bye(); // -> 'bye'
+
+let Farm = () => 'cow';
+
+class Barn {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+  
+  calcArea() {
+    return this.height * this.width;
+  }
+}
+
+```
+
+In our markdown file we could include the code block by using the following markdown:
+
+    // document.md
+
+    And here is how we say goodbye:
+
+    {lang=javascript,crop-query=.bye,format=gfm}
+    <<[](examples/basics.js)
+
+    Isn't that neat?
+
+> Notice that none of the values are quoted. You do **not** quote your crop-query. If you use quotes then you are searching for a string. 
+
+Now we can process `document.md` like so:
+
+```shell
+$ cqmd --path . document.md
+```
+
+Which emits:
+
+    // document.md
+
+    And here is how we say goodbye:
+
+    ```javascript
+    const bye = function() {
+      return 'bye';
+    }
+    ```
+
+    Isn't that neat?
+
+You can see the full list of possible queries in [the cq manual](https://github.com/fullstackio/cq).
+
+
+
+
 ## Library Usage
 
 ```javascript

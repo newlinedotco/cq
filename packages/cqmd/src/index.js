@@ -5,27 +5,7 @@
 import cq from '@fullstackio/cq';
 import fs from 'fs';
 import path from 'path';
-
-// http://stackoverflow.com/questions/25058134/javascript-split-a-string-by-comma-except-inside-parentheses
-function splitNoParen(s){
-  var left = 0, right = 0, A = [], 
-  M = s.match(/([^()]+)|([()])/g), L = M.length, next, str = '';
-  for(var i = 0; i<L; i++){
-    next = M[i];
-    if(next === '(') ++left;
-    else if(next === ')') ++right;
-    if(left !== 0){
-      str += next;
-      if(left === right){
-        A[A.length-1] +=str;
-        left = right= 0;
-        str = '';
-      }
-    }
-    else A = A.concat(next.match(/([^,]+)/g));
-  }
-  return A;
-}
+import { splitNoParent } from 'util';
 
 /*
  * Format's cq results into Github-flavored markdown-style code
@@ -56,6 +36,7 @@ export default function cqmd(text, opts={}) {
     if(blockOpts['format']) {
       opts.format = blockOpts['format'];
     }
+    console.log('blockOpts', rawSettings, blockOpts);
 
     let fullFilename = path.join(opts.path, actualName);
     let contents = fs.readFileSync(fullFilename).toString();

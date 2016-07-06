@@ -22,4 +22,11 @@ Oh just plop it where-ever why don'cha:
 {lang=javascript,crop-query=.hello,format=raw}
 <<[](basic.js)
 
+Or some typescript:
+
+```typescript
+{lang=typescript,crop-query=(.AuthService .isLoggedIn)-.AUTH_PROVIDERS,format=raw}
+<<[](AuthService.ts)
+```
+
 That's all

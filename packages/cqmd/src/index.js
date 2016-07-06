@@ -5,7 +5,7 @@
 import cq from '@fullstackio/cq';
 import fs from 'fs';
 import path from 'path';
-import { splitNoParent } from 'util';
+import { splitNoParen } from './util';
 
 /*
  * Format's cq results into Github-flavored markdown-style code
@@ -36,7 +36,6 @@ export default function cqmd(text, opts={}) {
     if(blockOpts['format']) {
       opts.format = blockOpts['format'];
     }
-    console.log('blockOpts', rawSettings, blockOpts);
 
     let fullFilename = path.join(opts.path, actualName);
     let contents = fs.readFileSync(fullFilename).toString();

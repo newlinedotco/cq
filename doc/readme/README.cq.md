@@ -114,34 +114,16 @@ $ cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
 
 `cq` can search for strings as well as identifiers. Say we have the following test:
 
-```javascript
-import chai from 'chai';
-const assert = chai.assert;
-
-describe('My First Test', () => {
-  it('basic assert', () => {
-    assert.equal(1, 1);
-  });
-});
-
-describe('My Second Test', () => {
-  it('basic assert', () => {
-    // this is the second one
-    assert.equal(2, 2);
-  });
-});
-```
+{lang=javascript,crop-query='chai'-EOF}
+<<[](examples/mocha.test.js)
  
 We can get the first test:
 
 ```javascript
 $ cq "'My First Test'" examples/mocha.test.js
 
-describe('My First Test', () => {
-  it('basic assert', () => {
-    assert.equal(1, 1);
-  });
-});
+{lang=javascript,crop-query='My First Test',format=raw}
+<<[](examples/mocha.test.js)
 ```
 
 Or get the `it` block in the second test:
@@ -149,26 +131,16 @@ Or get the `it` block in the second test:
 ```javascript
 $ cq "'My Second Test' 'basic assert'" examples/mocha.test.js
 
-  it('basic assert', () => {
-    // this is the second one
-    assert.equal(2, 2);
-  });
+{lang=javascript,crop-query='My Second Test' 'basic assert',format=raw}
+<<[](examples/mocha.test.js)
 ```
 
 Sometimes we want to pull the comments before a selection. `cq` supports this using the `comments()` operator:
 
 ```javascript
 // comments.js
-function hello() {
-  return 'hi';
-}
-
-/*
- * @function bye
- */
-function bye() {
-  return 'see ya';
-}
+{lang=javascript,crop-query=1-EOF,format=raw}
+<<[](examples/comments.js)
 ```
 
 Get the `bye()` function with comments:
@@ -176,12 +148,8 @@ Get the `bye()` function with comments:
 ```javascript
 $ cq 'comments(.bye)' comments.js
 
-/*
- * @function bye
- */
-const bye = function() {
-  return 'bye';
-}
+{lang=javascript,crop-query=comments(.bye),format=raw}
+<<[](examples/comments.js)
 ```
 
 > See _many_ more examples in the [`/examples`](./examples) directory

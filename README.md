@@ -191,6 +191,7 @@ describe('My Second Test', () => {
     assert.equal(2, 2);
   });
 });
+
 ```
  
 We can get the first test:
@@ -230,6 +231,7 @@ function hello() {
 function bye() {
   return 'see ya';
 }
+
 ```
 
 Get the `bye()` function with comments:
@@ -240,8 +242,8 @@ $ cq 'comments(.bye)' comments.js
 /*
  * @function bye
  */
-const bye = function() {
-  return 'bye';
+function bye() {
+  return 'see ya';
 }
 ```
 

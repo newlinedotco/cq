@@ -33,20 +33,18 @@ export default function cqmd(text, opts={}) {
     }, {});
 
     // blocks override the global setting
-    if(blockOpts['format']) {
-      opts.format = blockOpts['format'];
-    }
+    let format = blockOpts['format'] ? blockOpts['format'] : opts.format;                             
 
     let fullFilename = path.join(opts.path, actualName);
     let contents = fs.readFileSync(fullFilename).toString();
     let cqResults = cq(contents, blockOpts['crop-query']);
     let replacement;
 
-    if(typeof opts.format === "function") {
-      return opts.format(cqResults, blockOpts);
+    if(typeof format === "function") {
+      return format(cqResults, blockOpts);
     }
 
-    switch(opts.format) {
+    switch(format) {
     case 'gfm':
       replacement = formatGfm(cqResults, blockOpts);
       break;
@@ -54,7 +52,7 @@ export default function cqmd(text, opts={}) {
       replacement = formatRaw(cqResults, blockOpts);
       break;
     default:
-      throw new Error('unknown format: ' + opts.format);
+      throw new Error('unknown format: ' + format);
     }
 
     return replacement + ws;

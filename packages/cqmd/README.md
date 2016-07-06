@@ -36,17 +36,6 @@ bye(); // -> 'bye'
 
 let Farm = () => 'cow';
 
-class Barn {
-  constructor(height, width) {
-    this.height = height;
-    this.width = width;
-  }
-  
-  calcArea() {
-    return this.height * this.width;
-  }
-}
-
 ```
 
 In our markdown file we could include the code block by using the following markdown:

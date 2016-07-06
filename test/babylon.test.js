@@ -173,6 +173,12 @@ bye(); // -> 'bye'
       assert.equal(code, wanted);
     })
 
+    it('should not fail to undent top-level code', () => {
+      let { code } = cq(someFunctions, '.hello', {undent: true});
+      const wanted = lines(someFunctions, 1, 3);
+      assert.equal(code, wanted);
+    })
+
   })
 
 
@@ -314,6 +320,14 @@ console.log(square.area);
       const wanted = lines(es6Class, 1, 11);
       assert.equal(code, wanted);
     });
+
+    it('should undent indented code', () => {
+      let { code } = cq(es6Class, '.area', {undent: true});
+      const wanted = `get area() {
+  return this.calcArea();
+}`
+      assert.equal(code, wanted);
+    })
 
   });
 

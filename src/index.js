@@ -334,6 +334,26 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
 
 }
 
+// given code, removes the smallest indent from each line (e.g. nested code becomes less-indented to the least indented line)
+function undent(code) {
+  let lines = code.split("\n");
+  let minIndent = Number.MAX_VALUE;
+
+  // find min indent
+  lines.forEach((line) => {
+    let startingSpaceMatch = line.match(/^\s*/);
+    let indentLength = startingSpaceMatch[0].length;
+    if(indentLength < minIndent) {
+      minIndent = indentLength;
+    }
+  })
+
+  // remove the indentation from each line
+  return lines.map((line) => {
+    return line.substring(minIndent);
+  }).join('\n');
+}
+
 // given character index idx in code, returns the 1-indexed line number 
 function lineNumberOfCharacterIndex(code, idx) {
   const everythingUpUntilTheIndex = code.substring(0, idx);
@@ -386,5 +406,11 @@ export default function cq(code, query, opts={}) {
   let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
   let root = engine.getInitialRoot(ast);
 
-  return resolveListOfQueries(ast, root, code, query, engine, opts);
+  let results = resolveListOfQueries(ast, root, code, query, engine, opts);
+
+  if(opts.undent) {
+    results.code = undent(results.code);
+  }
+
+  return results;
 }

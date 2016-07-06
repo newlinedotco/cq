@@ -99,9 +99,8 @@ Get the `AUTH_PROVIDERS` export:
 ```typescript
 $ cq '.AUTH_PROVIDERS' examples/AuthService.ts
 
-export var AUTH_PROVIDERS: Array<any> = [
-  provide(AuthService, {useClass: AuthService})
-];
+{lang=typescript,crop-query=.AUTH_PROVIDERS,format=raw}
+<<[](examples/AuthService.ts)
 ```
 
 Get the `isLoggedIn()` function through `AUTH_PROVIDERS`
@@ -109,14 +108,8 @@ Get the `isLoggedIn()` function through `AUTH_PROVIDERS`
 ```typescript
 $ cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
 
-  isLoggedIn(): boolean {
-    return this.getUser() !== null;
-  }
-}
-
-export var AUTH_PROVIDERS: Array<any> = [
-  provide(AuthService, {useClass: AuthService})
-];
+{lang=typescript,crop-query=(.AuthService .isLoggedIn)-.AUTH_PROVIDERS,format=raw}
+<<[](examples/AuthService.ts)
 ```
 
 `cq` can search for strings as well as identifiers. Say we have the following test:

@@ -29,6 +29,7 @@ let argv = yargs
       choices: ['gfm', 'raw'],
       default: 'gfm'
     })
+    .version()
     .argv;
 
 let [filename] = argv._;

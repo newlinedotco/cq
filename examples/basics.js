@@ -39,4 +39,3 @@ class Barn {
     return this.height * this.width;
   }
 }
-

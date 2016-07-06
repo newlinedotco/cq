@@ -31,24 +31,8 @@ Say we have a file `examples/basics.js` with the following code:
 
 ```javascript
 // examples/basics.js
-const bye = function() {
-  return 'bye';
-}
-bye(); // -> 'bye'
-
-let Farm = () => 'cow';
-
-class Barn {
-  constructor(height, width) {
-    this.height = height;
-    this.width = width;
-  }
-  
-  calcArea() {
-    return this.height * this.width;
-  }
-}
-
+{lang=javascript,crop-query=.bye-EOF,format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the `bye()` function:
@@ -56,9 +40,8 @@ Get the `bye()` function:
 ```javascript
 $ cq '.bye' examples/basics.js
 
-const bye = function() {
-  return 'bye';
-}
+{lang=javascript,crop-query=.bye,format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the `calcArea()` function on the `Barn` class:
@@ -66,9 +49,8 @@ Get the `calcArea()` function on the `Barn` class:
 ```javascript
 $ cq '.Barn .calcArea' examples/basics.js
 
-  calcArea() {
-    return this.height * this.width;
-  }
+{lang=javascript,crop-query=.Barn .calcArea,format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the `bye()` function plus the line after:
@@ -77,10 +59,8 @@ Get the `bye()` function plus the line after:
 // `context(identifier, linesBefore, linesAfter)`
 $ cq 'context(.bye,0,1)' examples/basics.js
 
-const bye = function() {
-  return 'bye';
-}
-bye(); // -> 'bye'
+{lang=javascript,crop-query=context(.bye,0,1),format=raw}
+<<[](examples/basics.js)
 ```
 
 Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` class
@@ -88,14 +68,8 @@ Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` cl
 ```javascript
 $ cq '.Barn .constructor-.calcArea' examples/basics.js
 
-  constructor(height, width) {
-    this.height = height;
-    this.width = width;
-  }
-  
-  calcArea() {
-    return this.height * this.width;
-  }
+{lang=javascript,crop-query=.Barn .constructor-.calcArea,format=raw}
+<<[](examples/basics.js)
 ```
 
 If you pass `--json` you'll get the results in JSON, which can be useful for further processing:
@@ -116,36 +90,8 @@ $ cq --json 'context(.bye,0,1)' examples/basics.js
 
 ```typescript
 // AuthService.ts
-import {Injectable, provide} from '@angular/core';
-
-@Injectable()
-export class AuthService {
-  login(user: string, password: string): boolean {
-    if (user === 'user' && password === 'password') {
-      localStorage.setItem('username', user);
-      return true;
-    }
-
-    return false;
-  }
-
-  logout(): any {
-    localStorage.removeItem('username');
-  }
-
-  getUser(): any {
-    return localStorage.getItem('username');
-  }
-
-  isLoggedIn(): boolean {
-    return this.getUser() !== null;
-  }
-}
-
-export var AUTH_PROVIDERS: Array<any> = [
-  provide(AuthService, {useClass: AuthService})
-];
-
+{lang=typescript,crop-query=.Injectable-EOF,format=raw}
+<<[](examples/AuthService.ts)
 ```
 
 Get the `AUTH_PROVIDERS` export:
@@ -153,9 +99,8 @@ Get the `AUTH_PROVIDERS` export:
 ```typescript
 $ cq '.AUTH_PROVIDERS' examples/AuthService.ts
 
-export var AUTH_PROVIDERS: Array<any> = [
-  provide(AuthService, {useClass: AuthService})
-];
+{lang=typescript,crop-query=.AUTH_PROVIDERS,format=raw}
+<<[](examples/AuthService.ts)
 ```
 
 Get the `isLoggedIn()` function through `AUTH_PROVIDERS`
@@ -163,47 +108,22 @@ Get the `isLoggedIn()` function through `AUTH_PROVIDERS`
 ```typescript
 $ cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
 
-  isLoggedIn(): boolean {
-    return this.getUser() !== null;
-  }
-}
-
-export var AUTH_PROVIDERS: Array<any> = [
-  provide(AuthService, {useClass: AuthService})
-];
+{lang=typescript,crop-query=(.AuthService .isLoggedIn)-.AUTH_PROVIDERS,format=raw}
+<<[](examples/AuthService.ts)
 ```
 
 `cq` can search for strings as well as identifiers. Say we have the following test:
 
-```javascript
-import chai from 'chai';
-const assert = chai.assert;
-
-describe('My First Test', () => {
-  it('basic assert', () => {
-    assert.equal(1, 1);
-  });
-});
-
-describe('My Second Test', () => {
-  it('basic assert', () => {
-    // this is the second one
-    assert.equal(2, 2);
-  });
-});
-
-```
+{lang=javascript,crop-query='chai'-EOF}
+<<[](examples/mocha.test.js)
  
 We can get the first test:
 
 ```javascript
 $ cq "'My First Test'" examples/mocha.test.js
 
-describe('My First Test', () => {
-  it('basic assert', () => {
-    assert.equal(1, 1);
-  });
-});
+{lang=javascript,crop-query='My First Test',format=raw}
+<<[](examples/mocha.test.js)
 ```
 
 Or get the `it` block in the second test:
@@ -211,27 +131,16 @@ Or get the `it` block in the second test:
 ```javascript
 $ cq "'My Second Test' 'basic assert'" examples/mocha.test.js
 
-  it('basic assert', () => {
-    // this is the second one
-    assert.equal(2, 2);
-  });
+{lang=javascript,crop-query='My Second Test' 'basic assert',format=raw}
+<<[](examples/mocha.test.js)
 ```
 
 Sometimes we want to pull the comments before a selection. `cq` supports this using the `comments()` operator:
 
 ```javascript
 // comments.js
-function hello() {
-  return 'hi';
-}
-
-/*
- * @function bye
- */
-function bye() {
-  return 'see ya';
-}
-
+{lang=javascript,crop-query=1-EOF,format=raw}
+<<[](examples/comments.js)
 ```
 
 Get the `bye()` function with comments:
@@ -239,12 +148,8 @@ Get the `bye()` function with comments:
 ```javascript
 $ cq 'comments(.bye)' comments.js
 
-/*
- * @function bye
- */
-function bye() {
-  return 'see ya';
-}
+{lang=javascript,crop-query=comments(.bye),format=raw}
+<<[](examples/comments.js)
 ```
 
 > This file was itself [generated using `cq`](./doc/readme/README.cq.md).

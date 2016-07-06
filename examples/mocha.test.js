@@ -25,4 +25,3 @@ describe('My Second Test', () => {
     assert.equal(2, 2);
   });
 });
-  

@@ -36,7 +36,7 @@ var argv = _yargs2.default.usage('Usage: $0 [options] <file>').example("$0 post.
   // choices: ['gfm', 'block', 'leanpub', 'raw'],
   choices: ['gfm', 'raw'],
   default: 'gfm'
-}).argv;
+}).version().argv;
 
 var _argv$_ = _slicedToArray(argv._, 1);
 

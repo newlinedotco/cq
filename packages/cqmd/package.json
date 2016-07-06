@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cqmd",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "markdown pre-processor for cq",
   "main": "dist/index.js",
   "repository": "fullstackio/cqmd",

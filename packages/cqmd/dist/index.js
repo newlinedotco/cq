@@ -24,7 +24,7 @@ var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
 
-var _util = require('util');
+var _util = require('./util');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -50,7 +50,7 @@ function cqmd(text) {
   opts.format = opts.format || 'gfm';
 
   var newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, function (match, rawSettings, displayName, actualName, ws, offset, s) {
-    var blockOpts = splitNoParen(rawSettings).reduce(function (acc, pair) {
+    var blockOpts = (0, _util.splitNoParen)(rawSettings).reduce(function (acc, pair) {
       var _pair$split = pair.split('=');
 
       var _pair$split2 = _slicedToArray(_pair$split, 2);
@@ -66,7 +66,6 @@ function cqmd(text) {
     if (blockOpts['format']) {
       opts.format = blockOpts['format'];
     }
-    console.log('blockOpts', rawSettings, blockOpts);
 
     var fullFilename = _path2.default.join(opts.path, actualName);
     var contents = _fs2.default.readFileSync(fullFilename).toString();

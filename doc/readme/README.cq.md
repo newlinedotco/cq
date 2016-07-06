@@ -407,6 +407,10 @@ $ cq '.HomeComponent .Component' examples/HomeComponent.ts
 })
 ```
 
+## CLI Usage
+
+To pre-process your markdown on the CLI use the [cqmd utility](https://github.com/fullstackio/cqmd).
+
 ## Library Usage
 
 ```javascript

@@ -119,12 +119,14 @@ export default function babylonEngine(engineOpts={}) {
     },
     findNodesWithIdentifier(ast, root, query) {
       let paths = [];
-      traverse(root, {
-        Identifier: function (node) {
-          if(node.name === query.matcher) {
-            paths = [...paths, node.parent];
-          }
+      const nodeCb = (node) => {
+        if(node.name === query.matcher) {
+          paths = [...paths, node.parent];
         }
+      };
+      traverse(root, {
+        Identifier: nodeCb,
+        JSXIdentifier: nodeCb
       });
       return paths;
     },

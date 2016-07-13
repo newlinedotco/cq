@@ -331,6 +331,80 @@ console.log(square.area);
 
   });
 
+  describe('JSX', () => {
+    const funcWithJSX = `
+function submitButton (props) {
+  const submitText = props.isCreate ? 'Create' : 'Update';
+  return (
+    <div className='content'>
+      <div className='field'>
+        <label>Add Name</label>
+        <input
+          type='text'
+          ref='name'
+        />
+      </div>
+      <SubmitButton
+        text={submitText}
+        onSubmit={props.onSubmit}
+      />
+    </div>
+  );
+}
+    `;
+
+    it('returns a multi-line JSX element', () => {
+      let query = [{
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'SubmitButton',
+       }];
+
+      let { code } = cq(funcWithJSX, query);
+      const wanted = lines(funcWithJSX, 12, 15);
+
+      assert.equal(code, wanted);
+    });
+
+    it('returns a single-line JSX element', () => {
+      let query = [{
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'label',
+       }];
+
+      let { code } = cq(funcWithJSX, query);
+      const wanted = lines(funcWithJSX, 6, 6);
+
+      assert.equal(code, wanted);
+    });
+
+    it('returns an in-line code expression', () => {
+      let query = 'choose(.submitText, 1)'
+
+      let { code } = cq(funcWithJSX, query);
+      const wanted = lines(funcWithJSX, 13, 13);
+
+      assert.equal(code, wanted);
+    });
+
+    it('returns an attribute on a JSX element', () => {
+      let query = '.SubmitButton.onSubmit'
+
+      let { code } = cq(funcWithJSX, query);
+      const wanted = lines(funcWithJSX, 14, 14);
+
+      assert.equal(code, wanted);
+    });
+
+    it('returns a range of attributes on a JSX element', () => {
+      let query = '.SubmitButton .submitText-.onSubmit'
+
+      let { code } = cq(funcWithJSX, query);
+      const wanted = lines(funcWithJSX, 13, 14);
+
+      assert.equal(code, wanted);
+    });
+  });
+
   describe('more ES6 Classes', () => {
     const src = `
 class Square {

@@ -76,16 +76,16 @@ function movePositionByLines(code, numLines, position) {
     }
     if (opts.trimNewline) position++; // don't include prior newline
   } else if (numLines > 0) {
-      var numFollowingLines = numLines;
-      position++;
-      while (position < code.length && numFollowingLines > 0) {
-        if (code[position] === '\n') {
-          numFollowingLines--;
-        }
-        position++;
+    var numFollowingLines = numLines;
+    position++;
+    while (position < code.length && numFollowingLines > 0) {
+      if (code[position] === '\n') {
+        numFollowingLines--;
       }
-      if (opts.trimNewline) position--; // don't include the last newline
+      position++;
     }
+    if (opts.trimNewline) position--; // don't include the last newline
+  }
 
   return position;
 }
@@ -281,14 +281,14 @@ function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, op
     }
     throw lastError; // really couldn't find one
   } else {
-      var _nodeToRangeLines = nodeToRangeLines(nextRoot, code, engine);
+    var _nodeToRangeLines = nodeToRangeLines(nextRoot, code, engine);
 
-      var start = _nodeToRangeLines.start;
-      var end = _nodeToRangeLines.end;
+    var start = _nodeToRangeLines.start;
+    var end = _nodeToRangeLines.end;
 
-      var codeSlice = code.substring(start, end);
-      return { code: codeSlice, nodes: [nextRoot], start: start, end: end };
-    }
+    var codeSlice = code.substring(start, end);
+    return { code: codeSlice, nodes: [nextRoot], start: start, end: end };
+  }
 }
 
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
@@ -333,7 +333,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         var answer = resolveIndividualQuery(ast, root, code, childQuery, engine, opts);
 
         // whatever the child answer is, now we modify it given our callee
-        // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end
+        // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end 
         if (!handled) {
           answer = modifyAnswerWithCall(ast, code, callee, args, engine, answer);
         }
@@ -390,7 +390,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
 
           // find the acutal line number
           var lines = code.split('\n');
-          var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER
+          var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER 
 
           // to get the starting index of this line...
           // we take the sum of all prior lines:
@@ -432,7 +432,7 @@ function undent(code) {
   }).join('\n');
 }
 
-// given character index idx in code, returns the 1-indexed line number
+// given character index idx in code, returns the 1-indexed line number 
 function lineNumberOfCharacterIndex(code, idx) {
   var everythingUpUntilTheIndex = code.substring(0, idx);
   // computer science!

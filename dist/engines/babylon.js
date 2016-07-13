@@ -125,12 +125,14 @@ function babylonEngine() {
     },
     findNodesWithIdentifier: function findNodesWithIdentifier(ast, root, query) {
       var paths = [];
-      traverse(root, {
-        Identifier: function Identifier(node) {
-          if (node.name === query.matcher) {
-            paths = [].concat(_toConsumableArray(paths), [node.parent]);
-          }
+      var nodeCb = function nodeCb(node) {
+        if (node.name === query.matcher) {
+          paths = [].concat(_toConsumableArray(paths), [node.parent]);
         }
+      };
+      traverse(root, {
+        Identifier: nodeCb,
+        JSXIdentifier: nodeCb
       });
       return paths;
     },

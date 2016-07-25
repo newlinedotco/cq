@@ -43,7 +43,7 @@ case 'typescript':
   engine = argv.engine;
   break;
 case 'auto':
-  if(filename && filename.match(/.tsx?/)) {
+  if(filename && filename.match(/\.tsx?/)) {
     engine = 'typescript';
   } else {
     engine = 'babylon';

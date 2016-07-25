@@ -582,5 +582,56 @@ export class PhotosComponent {
     })
   })
 
+  describe('More JSX', () => {
+    const src = `
+    const EditableTimerList = React.createClass({
+      render: function () {
+        // Inside EditableTimerList.render()
+        const timers = this.props.timers.map((timer) => (
+          <EditableTimer
+            key={timer.id}
+            id={timer.id}
+          />
+        ));
+        return (
+          <div id='timers'>
+            {timers}
+          </div>
+        );
+      },
+    });
+
+    const EditableTimer = React.createClass({
+      getInitialState: function () {
+        return {
+          editFormOpen: false,
+        };
+      },
+      render: function () {
+        return (
+            <Timer
+              id={this.props.id}
+              title={this.props.title}
+            />
+        );
+      },
+    });
+    `;
+
+    it('Find a JSXIdentifier as an identifier', () => {
+      let { code } = cq(src, ".Timer");
+      const wanted = lines(src, 26, 29);
+      assert.equal(code, wanted);
+    });
+
+    it('Find a JSXIdentifier child identifier', () => {
+      let { code } = cq(src, ".EditableTimer .Timer");
+      const wanted = lines(src, 26, 29);
+      assert.equal(code, wanted);
+    });
+
+  });
+
+
 
 });

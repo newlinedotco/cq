@@ -34,11 +34,9 @@ var argv = _yargs2.default.usage('Usage: $0 [options] <query> <file>').example("
   default: 'auto'
 }).argv;
 
-var _argv$_ = _slicedToArray(argv._, 2);
-
-var query = _argv$_[0];
-var filename = _argv$_[1];
-
+var _argv$_ = _slicedToArray(argv._, 2),
+    query = _argv$_[0],
+    filename = _argv$_[1];
 
 if (!query) {
   _yargs2.default.showHelp();

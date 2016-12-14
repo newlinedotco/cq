@@ -38,10 +38,8 @@ var argv = _yargs2.default.usage('Usage: $0 [options] <file>').example("$0 post.
   default: 'gfm'
 }).version().argv;
 
-var _argv$_ = _slicedToArray(argv._, 1);
-
-var filename = _argv$_[0];
-
+var _argv$_ = _slicedToArray(argv._, 1),
+    filename = _argv$_[0];
 
 var inputStream = filename ? _fs2.default.createReadStream(filename) : process.stdin;
 

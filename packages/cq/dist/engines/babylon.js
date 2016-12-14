@@ -92,11 +92,11 @@ function nodeToRange(node) {
 }
 
 function babylonEngine() {
-  var engineOpts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var engineOpts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   return {
     parse: function parse(code) {
-      var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts));
       return ast;

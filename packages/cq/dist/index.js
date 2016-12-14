@@ -63,7 +63,7 @@ function isNumeric(n) {
 }
 
 function movePositionByLines(code, numLines, position) {
-  var opts = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+  var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   if (numLines < 0) {
     var numPreviousLines = numLines * -1;
@@ -76,23 +76,23 @@ function movePositionByLines(code, numLines, position) {
     }
     if (opts.trimNewline) position++; // don't include prior newline
   } else if (numLines > 0) {
-      var numFollowingLines = numLines;
-      position++;
-      while (position < code.length && numFollowingLines > 0) {
-        if (code[position] === '\n') {
-          numFollowingLines--;
-        }
-        position++;
+    var numFollowingLines = numLines;
+    position++;
+    while (position < code.length && numFollowingLines > 0) {
+      if (code[position] === '\n') {
+        numFollowingLines--;
       }
-      if (opts.trimNewline) position--; // don't include the last newline
+      position++;
     }
+    if (opts.trimNewline) position--; // don't include the last newline
+  }
 
   return position;
 }
 
 function adjustRangeWithContext(code, linesBefore, linesAfter, _ref) {
-  var start = _ref.start;
-  var end = _ref.end;
+  var start = _ref.start,
+      end = _ref.end;
 
   if (linesBefore && linesBefore !== 0) {
     var trimNewline = linesBefore > 0 ? true : false;
@@ -108,8 +108,8 @@ function adjustRangeWithContext(code, linesBefore, linesAfter, _ref) {
 }
 
 function adjustRangeWithWindow(code, startingLine, endingLine, _ref2) {
-  var start = _ref2.start;
-  var end = _ref2.end;
+  var start = _ref2.start,
+      end = _ref2.end;
 
   // start, end are the range for the whole node
   var originalStart = start;
@@ -134,9 +134,9 @@ function adjustRangeWithWindow(code, startingLine, endingLine, _ref2) {
 }
 
 function adjustRangeForComments(ast, code, leading, trailing, engine, _ref3) {
-  var start = _ref3.start;
-  var end = _ref3.end;
-  var nodes = _ref3.nodes;
+  var start = _ref3.start,
+      end = _ref3.end,
+      nodes = _ref3.nodes;
 
   // this is going to be part of the engine
 
@@ -150,9 +150,9 @@ function adjustRangeForComments(ast, code, leading, trailing, engine, _ref3) {
 }
 
 function adjustRangeForDecorators(ast, code, leading, trailing, engine, _ref4) {
-  var start = _ref4.start;
-  var end = _ref4.end;
-  var nodes = _ref4.nodes;
+  var start = _ref4.start,
+      end = _ref4.end,
+      nodes = _ref4.nodes;
 
   nodes.map(function (node) {
     var decoratorsRange = (0, _util.rangeExtents)(node.decorators.map(function (d) {
@@ -166,9 +166,9 @@ function adjustRangeForDecorators(ast, code, leading, trailing, engine, _ref4) {
 }
 
 function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
-  var start = _ref5.start;
-  var end = _ref5.end;
-  var nodes = _ref5.nodes;
+  var start = _ref5.start,
+      end = _ref5.end,
+      nodes = _ref5.nodes;
 
   switch (callee) {
     case 'upto':
@@ -181,18 +181,16 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
       return { start: start, end: start };
       break;
     case 'context':
-      var _args = _slicedToArray(args, 2);
-
-      var linesBefore = _args[0];
-      var linesAfter = _args[1];
+      var _args = _slicedToArray(args, 2),
+          linesBefore = _args[0],
+          linesAfter = _args[1];
 
       return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, { start: start, end: end });
       break;
     case 'window':
-      var _args2 = _slicedToArray(args, 2);
-
-      var startingLine = _args2[0];
-      var endingLine = _args2[1];
+      var _args2 = _slicedToArray(args, 2),
+          startingLine = _args2[0],
+          endingLine = _args2[1];
 
       return adjustRangeWithWindow(code, startingLine.value, endingLine.value, { start: start, end: end });
       break;
@@ -281,14 +279,13 @@ function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, op
     }
     throw lastError; // really couldn't find one
   } else {
-      var _nodeToRangeLines = nodeToRangeLines(nextRoot, code, engine);
+    var _nodeToRangeLines = nodeToRangeLines(nextRoot, code, engine),
+        start = _nodeToRangeLines.start,
+        end = _nodeToRangeLines.end;
 
-      var start = _nodeToRangeLines.start;
-      var end = _nodeToRangeLines.end;
-
-      var codeSlice = code.substring(start, end);
-      return { code: codeSlice, nodes: [nextRoot], start: start, end: end };
-    }
+    var codeSlice = code.substring(start, end);
+    return { code: codeSlice, nodes: [nextRoot], start: start, end: end };
+  }
 }
 
 function resolveIndividualQuery(ast, root, code, query, engine, opts) {
@@ -298,11 +295,9 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         var callee = query.callee;
         // for now, the first argument is always the inner selection
 
-        var _query$arguments = _toArray(query.arguments);
-
-        var childQuery = _query$arguments[0];
-
-        var args = _query$arguments.slice(1);
+        var _query$arguments = _toArray(query.arguments),
+            childQuery = _query$arguments[0],
+            args = _query$arguments.slice(1);
 
         var handled = false;
         // some operators modify before the target query
@@ -312,9 +307,8 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
           case 'after':
             handled = true;
 
-            var _args3 = _slicedToArray(args, 1);
-
-            var goalpostQuery = _args3[0];
+            var _args3 = _slicedToArray(args, 1),
+                goalpostQuery = _args3[0];
 
             var goalpostNode = resolveIndividualQuery(ast, root, code, goalpostQuery, engine, opts);
             opts.after = goalpostNode.end;
@@ -322,9 +316,8 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
           case 'choose':
             handled = true;
 
-            var _args4 = _slicedToArray(args, 1);
-
-            var nodeIdx = _args4[0];
+            var _args4 = _slicedToArray(args, 1),
+                nodeIdx = _args4[0];
 
             opts.nodeIdx = nodeIdx.value;
             break;
@@ -333,7 +326,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         var answer = resolveIndividualQuery(ast, root, code, childQuery, engine, opts);
 
         // whatever the child answer is, now we modify it given our callee
-        // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end
+        // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end 
         if (!handled) {
           answer = modifyAnswerWithCall(ast, code, callee, args, engine, answer);
         }
@@ -390,7 +383,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
 
           // find the acutal line number
           var lines = code.split('\n');
-          var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER
+          var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER 
 
           // to get the starting index of this line...
           // we take the sum of all prior lines:
@@ -432,7 +425,7 @@ function undent(code) {
   }).join('\n');
 }
 
-// given character index idx in code, returns the 1-indexed line number
+// given character index idx in code, returns the 1-indexed line number 
 function lineNumberOfCharacterIndex(code, idx) {
   var everythingUpUntilTheIndex = code.substring(0, idx);
   // computer science!
@@ -462,7 +455,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
 }
 
 function cq(code, query) {
-  var opts = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var engine = opts.engine || (0, _babylon2.default)();
 

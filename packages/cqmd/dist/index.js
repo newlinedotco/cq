@@ -32,31 +32,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * Format's cq results into Github-flavored markdown-style code
  */
 function formatGfm(results) {
-  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   var lang = opts.lang ? opts.lang : '';
   return '```' + lang + '\n' + results.code + '\n' + '```';
 }
 
 function formatRaw(results) {
-  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   return results.code;
 }
 
 function cqmd(text) {
-  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   opts.format = opts.format || 'gfm';
 
   var newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, function (match, rawSettings, displayName, actualName, ws, offset, s) {
     var blockOpts = (0, _util.splitNoParen)(rawSettings).reduce(function (acc, pair) {
-      var _pair$split = pair.split('=');
-
-      var _pair$split2 = _slicedToArray(_pair$split, 2);
-
-      var k = _pair$split2[0];
-      var v = _pair$split2[1];
+      var _pair$split = pair.split('='),
+          _pair$split2 = _slicedToArray(_pair$split, 2),
+          k = _pair$split2[0],
+          v = _pair$split2[1];
 
       acc[k] = v;
       return acc;

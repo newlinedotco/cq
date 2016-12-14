@@ -84,11 +84,11 @@ function nodeToRange(node) {
 }
 
 function typescriptEngine() {
-  var engineOpts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var engineOpts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   return {
     parse: function parse(code) {
-      var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       return ts.createSourceFile(opts.filename || '(no filename)', code, ts.ScriptTarget.Latest, true);
     },
@@ -98,11 +98,9 @@ function typescriptEngine() {
 
     nodeToRange: nodeToRange,
     commentRange: function commentRange(node, code, getLeading, getTrailing) {
-      var _nodeToRange = nodeToRange(node);
-
-      var start = _nodeToRange.start;
-      var end = _nodeToRange.end;
-
+      var _nodeToRange = nodeToRange(node),
+          start = _nodeToRange.start,
+          end = _nodeToRange.end;
 
       if (getLeading) {
         var nodePos = node.pos;

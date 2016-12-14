@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/code-query-image.png" alt="Code Query - extract code snippets using selectors" />
+  <img src="https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/code-query-image.png" alt="Code Query - extract code snippets using selectors" />
 </p>
 
-# cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
+# cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com) 
 
 > A tool to extract code snippets using selectors (instead of line numbers)
 >
@@ -43,7 +43,7 @@ class Barn {
     this.height = height;
     this.width = width;
   }
-
+  
   calcArea() {
     return this.height * this.width;
   }
@@ -92,7 +92,7 @@ $ cq '.Barn .constructor-.calcArea' examples/basics.js
     this.height = height;
     this.width = width;
   }
-
+  
   calcArea() {
     return this.height * this.width;
   }
@@ -193,7 +193,7 @@ describe('My Second Test', () => {
 });
 
 ```
-
+ 
 We can get the first test:
 
 ```javascript
@@ -248,7 +248,7 @@ function bye() {
 ```
 
 > This file was itself [generated using `cq`](./doc/readme/README.cq.md).
->
+> 
 > See _many_ more examples in the [`/examples`](./examples) directory
 
 ## Features
@@ -319,7 +319,7 @@ Searches for identifiers traverse the whole tree, relative to the parent, and re
 
 The space in a query selection expression designates a parent for the next identifier. For instance, the query `.Simple .render` will first look for the identifier `Simple` and then find the `render` function that is a child of `Simple`.
 
-The space indicates to search for the next identifier anywhere within the parent. That is, it does **not** require that the child identifier be a _direct child_ the parent.
+The space indicates to search for the next identifier anywhere within the parent. That is, it does **not** require that the child identifier be a _direct child_ the parent. 
 
 > In this way the space is analogous to the space in a CSS selector. E.g. search for any child that matches.
 > `cq` does not yet support the `>` notation (which would require the identifier to be a direct child), but we may in the future.
@@ -343,14 +343,14 @@ class Barn {
     this.height = height;
     this.width = width;
   }
-
+  
   calcArea() {
     return this.height * this.width;
   }
 }
 ```
 
-A pair of selections (e.g. identifiers) joined by a dash `-` form a _range_. A range will emit the code from the beginning of the match of the first identifier to the end of the match of the last.
+A pair of selections (e.g. identifiers) joined by a dash `-` form a _range_. A range will emit the code from the beginning of the match of the first identifier to the end of the match of the last. 
 
 You can use a parent identifier to limit the scope of the search of the range as in the query: `.Barn .constructor-.calcArea`
 
@@ -400,13 +400,13 @@ const bye = function() {
 bye(); // -> 'bye'
 ```
 
-Operators allow you to change the result of the inner selection.
+Operators allow you to change the result of the inner selection. 
 
 #### `context()`
 
 - `context(selection, numLinesBeforeStart, numLinesAfterEnd)`
 
-The `context()` operation takes line numbers before and after the selection. For example, `context(.foo, 2, 2)` will give two lines before and two lines after the `.foo` node.
+The `context()` operation takes line numbers before and after the selection. For example, `context(.foo, 2, 2)` will give two lines before and two lines after the `.foo` node. 
 
 Keep in mind that the `selection` denotes a node which can span multiple lines. With that in mind, positive numbers "expand" the selection and negative numbers "contract". That is, if `numLinesBeforeStart` is negative, then it can be interpreted as moving the _start_ forward (increasing line numbers). Similarly, if `numLinesAfterEnd` is negative, the _end_ is moved backwards (decreasing line numbers, towards the top of the document).
 
@@ -418,21 +418,21 @@ Keep in mind that the `selection` denotes a node which can span multiple lines. 
 
 `window()` returns a specific number of lines relative to `selection`. For example, `window(.foo, 0, 4)` would give 5 lines, the `foo` identifier and the four lines following.
 
-It differs from `context()` in that both arguments to `window()` are relative to the _start_ of the `selection`.
+It differs from `context()` in that both arguments to `window()` are relative to the _start_ of the `selection`. 
 
-`window()` is useful for extracting a specific range of lines near a particular `selection`. The `selection` is considered to start at index `0`, which means negative numbers denote the lines before the start of the selection.
+`window()` is useful for extracting a specific range of lines near a particular `selection`. The `selection` is considered to start at index `0`, which means negative numbers denote the lines before the start of the selection. 
 
 #### `upto()`
 
 - `upto(selection)`
 
-The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines).
+The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines). 
 
 #### `choose()`
 
 - `choose(selection, matchIdx)`
 
-It's possible for a `selection` to match more than one node. While you can often disambiguate with child selections, the `choose()` operator lets you specify a particular match by index.
+It's possible for a `selection` to match more than one node. While you can often disambiguate with child selections, the `choose()` operator lets you specify a particular match by index. 
 
 `matchIdx` starts at `0`. Without the `choose` operator, the default behavior of any `selection` is: `choose(selection, 0)`. Say you had two instances of the identifier `.foo` then you could grab the second by using `choose(.foo, 1)`.
 
@@ -536,8 +536,6 @@ The query API may change (see [Future](#future)). Any breaking API changes (quer
 
 Please feel free to submit pull requests!
 
-For instructions on pushing and releasing new versions of `cq`, see [RELEASING.md](./RELEASING.md).
-
 ## Authors
 
 Originally written by [Nate Murray](https://twitter.com/eigenjoy).
@@ -556,7 +554,7 @@ Originally written by [Nate Murray](https://twitter.com/eigenjoy).
 ## Fullstack React Book
 
 <a href="https://fullstackreact.com">
-<img align="right" src="https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/fullstack-react-hero-book.png" alt="Fullstack React Book" width="155" height="250" />
+<img align="right" src="https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/fullstack-react-hero-book.png" alt="Fullstack React Book" width="155" height="250" />
 </a>
 
 This repo was written and is maintained by the [Fullstack React](https://fullstackreact.com) team. If you're looking to learn React, there's no faster way than by spending a few hours with the Fullstack React book.

@@ -6,13 +6,9 @@
   "repository": "fullstackio/cq",
   "scripts": {
     "compile": "./node_modules/.bin/babel -d dist/ src/",
-    "prepublish": "npm run generate-readme && git diff ../../README.md && npm run compile",
+    "prepublish": "npm run compile",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
-    "generate-readme": "node ./node_modules/.bin/cqmd -o ../../README.md -p . doc/readme/README.cq.md",
-  },
-  "bin": {
-    "cq": "dist/cli.js"
   },
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",
@@ -21,7 +17,6 @@
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
     "babylon": "^6.8.1",
-    "yargs": "^4.7.1"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
@@ -36,6 +31,7 @@
     "mocha": "^2.5.3",
     "pegjs": "^0.9.0",
     "@fullstackio/cqmd": "^1.0.5",
-    "@fullstackio/cq": "^1.0.5"
+    "@fullstackio/cq": "^1.0.5",
+    "yargs": "^4.7.1"
   }
 }

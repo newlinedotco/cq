@@ -12,6 +12,9 @@ import babylonEngine from './engines/babylon';
 import typescriptEngine from './engines/typescript';
 import { rangeExtents } from './engines/util';
 
+import debugLib from 'debug';
+const debug = debug('cq');
+
 export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
   RANGE: 'RANGE',
@@ -399,11 +402,22 @@ export default function cq(code, query, opts={}) {
       engine = babylonEngine();
       break;
     default:
-      throw new Error('unknown engine: ' + engine);
+      try {
+        engine = require(`cq-${engine}-engine`);
+      } catch (err) {
+        throw new Error('unknown engine: ' + engine);
+      }
+      break;
     }
   }
 
+  if(typeof engine === 'function') {
+    // then just use it
+  }
+
+  debug(code);
   let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
+  debug(ast);
   let root = engine.getInitialRoot(ast);
 
   let results = resolveListOfQueries(ast, root, code, query, engine, opts);

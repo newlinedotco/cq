@@ -51,9 +51,9 @@ case 'auto':
 default:
     let foundEngine = false;
     [ 
-      `@fullstackio/cq-${engine}-engine`,
-      `cq-${engine}-engine`,
-      engine
+      `@fullstackio/cq-${argv.engine}-engine`,
+      `cq-${argv.engine}-engine`,
+      argv.engine
     ].map((potentialEngine) => {
       try {
         if(!foundEngine) {

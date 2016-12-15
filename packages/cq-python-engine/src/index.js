@@ -107,16 +107,37 @@ export default function pythonEngine(engineOpts={}) {
     },
     findNodesWithIdentifier(ast, root, query) {
       let paths = [];
+
       const nodeCb = (node) => {
         if(node.name === query.matcher) {
+          // in babel the name is an identifier, here it's just the node
+          // paths = [...paths, node.parent];
+          paths = [...paths, node];
+        }
+      };
+
+      const parentCb = (node) => {
+        if(node.name === query.matcher ||
+           node.id === query.matcher) {
           paths = [...paths, node.parent];
         }
       };
 
-      let traverseCbs = _.reduce(['FunctionDef'], (acc, type) => {
-        acc[type] = nodeCb;
-        return acc;
-      }, {});
+      // let traverseCbs = _.reduce([
+      //   'FunctionDef',
+      //   'Expr'
+      //  ], (acc, type) => {
+      //   acc[type] = nodeCb;
+      //   return acc;
+      // }, {});
+
+      let traverseCbs = {
+        'FunctionDef': nodeCb,
+        'ClassDef': nodeCb,
+
+        'Name': parentCb,
+        'alias': parentCb
+      };
 
       // traverse(root, {
       //   Identifier: nodeCb,
@@ -143,3 +164,4 @@ export default function pythonEngine(engineOpts={}) {
     }
   }
 }
+

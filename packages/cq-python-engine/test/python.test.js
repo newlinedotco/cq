@@ -2,6 +2,8 @@ import 'babel-polyfill'
 import chai from 'chai';
 const assert = chai.assert;
 import cq, { NodeTypes } from '@fullstackio/cq';
+import pythonEngine from '../src/index';
+const engine = pythonEngine();
 
 function lines(str, startLine, endLine) {
   return str.split('\n').slice(startLine, endLine + 1).join('\n');
@@ -11,36 +13,33 @@ describe.only('python', () => {
 
   describe('top level functions', () => {
     const someFunctions = `
-function hello(): string {
-  return 'hello';
-}
+def hello():
+  return "hello";
 
-const bye = function() {
-  return 'bye';
-} // -> 'bye'
+bye = lambda: "bye"
 
-let Farm = () => 'cow';
-bye(); // -> 'bye'
-// never say goodbye
-    `;
+bye() # -> bye
+
+# never say goodbye`;
 
     it('should return a function definition', () => {
-      let { code } = cq(someFunctions, '.hello', {engine: 'typescript'});
-      const wanted = lines(someFunctions, 1, 3);
+      let { code } = cq(someFunctions, '.hello', { engine });
+      const wanted = lines(someFunctions, 1, 2);
       assert.equal(code, wanted);
     })
 
-    it('should return an anonymous function assigned to a variable', () => {
-      let { code } = cq(someFunctions, '.bye', {engine: 'typescript'});
-      const wanted = lines(someFunctions, 5, 7);
-      assert.equal(code, wanted);
-    })
+    // it('should return an anonymous function assigned to a variable', () => {
+    //   let { code } = cq(someFunctions, '.bye', {engine: 'typescript'});
+    //   const wanted = lines(someFunctions, 5, 7);
+    //   assert.equal(code, wanted);
+    // })
 
-    it('should return an arrow function assigned to a variable', () => {
-      let { code } = cq(someFunctions, '.Farm', {engine: 'typescript'});
-      const wanted = lines(someFunctions, 9, 9);
-      assert.equal(code, wanted);
-    })
+    // it('should return an arrow function assigned to a variable', () => {
+    //   let { code } = cq(someFunctions, '.Farm', {engine: 'typescript'});
+    //   const wanted = lines(someFunctions, 9, 9);
+    //   assert.equal(code, wanted);
+    // })
+
   });
 
  describe.skip('Angular Code', () => {

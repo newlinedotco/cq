@@ -78,14 +78,6 @@ function nodeToRange(node) {
 export default function pythonEngine(engineOpts={}) {
   return {
     parse(code, opts={}) {
-      // let AST =
-      // shell out to: 
-      //     /python-to-ast.py —input somefile.py —json
-      //     then parse string of python code
-      //      into node AST
-      // 
-      // let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts));
-      // return ast;
       return spawnParseCmd(code, opts)
               .then(({code, output}) => ({code, output: JSON.parse(output)}));
     },

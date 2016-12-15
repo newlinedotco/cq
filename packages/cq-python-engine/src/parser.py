@@ -16,6 +16,7 @@ import sys
 import json
 import ast
 from argparse import ArgumentParser
+from pprint import pprint
 
 def classname(cls):
     """
@@ -31,6 +32,7 @@ def jsonify_ast(node):
     for k in node._fields:
         fields[k] = '...'
         var = getattr(node, k)
+        print(node.left, node.right)
         if isinstance(var, ast.AST):
             if var._fields:
                 # if isinstance(var, ast.Str) and len(var._fields) == 1:
@@ -38,7 +40,10 @@ def jsonify_ast(node):
                 # else:
                 fields[k] = jsonify_ast(var)
             else:
-                fields[k] = classname(var)
+                fields[k] = {
+                    'type': classname(var),
+                    'start': node.lineno
+                }
 
         elif isinstance(var, list):
             fields[k] = []
@@ -66,6 +71,7 @@ def make_ast(code):
     Make an AST tree from a string of code
     """
     tree = ast.parse(code)
+    # pprint(ast.dump(tree, True, True))
     return jsonify_ast(tree)
 
 def read_from_stdin():

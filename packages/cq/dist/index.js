@@ -514,15 +514,13 @@ exports.default = function () {
             }
 
             debug(code);
-            console.log('code', code);
-            _context.next = 23;
+            _context.next = 22;
             return Promise.resolve(engine.parse(code, Object.assign({}, opts.parserOpts)));
 
-          case 23:
+          case 22:
             ast = _context.sent;
 
             debug(ast);
-            console.log('ast', ast);
             root = engine.getInitialRoot(ast);
             results = resolveListOfQueries(ast, root, code, query, engine, opts);
 
@@ -533,7 +531,7 @@ exports.default = function () {
 
             return _context.abrupt('return', results);
 
-          case 30:
+          case 28:
           case 'end':
             return _context.stop();
         }

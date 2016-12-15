@@ -520,7 +520,7 @@ exports.default = function () {
           case 22:
             ast = _context.sent;
 
-            debug(JSON.stringify(ast, null, 2));
+            // debug(JSON.stringify(ast, null, 2));
 
             root = engine.getInitialRoot(ast);
             results = resolveListOfQueries(ast, root, code, query, engine, opts);
@@ -532,7 +532,7 @@ exports.default = function () {
 
             return _context.abrupt('return', results);
 
-          case 28:
+          case 27:
           case 'end':
             return _context.stop();
         }

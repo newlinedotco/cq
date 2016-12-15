@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.splitNoParen = splitNoParen;
-/**
- * cqmd utility functions
- */
+exports.spawnParseCmd = spawnParseCmd;
+
+var _child_process = require('child_process');
 
 // http://stackoverflow.com/questions/25058134/javascript-split-a-string-by-comma-except-inside-parentheses
 function splitNoParen(s) {
@@ -45,4 +45,30 @@ function splitNoParen(s) {
   }
   keepResult();
   return results;
+} /**
+   * cq utility functions
+   */
+
+function spawnParseCmd(content) {
+  return new Promise(function (resolve, reject) {
+    var spawnOpts = {
+      shell: false,
+      cwd: __dirname
+    };
+    var cmd = (0, _child_process.spawn)('python', ['./parser.py', content], spawnOpts);
+    var output = '';
+    var error = '';
+    cmd.stdout.on('data', function (data) {
+      return output += data.toString();
+    });
+    cmd.stdout.on('end', function () {});
+    cmd.stderr.on('data', function (data) {
+      return error += data.toString();
+    });
+    cmd.stderr.on('end', function () {});
+
+    cmd.on('exit', function (code) {
+      return code !== 0 ? reject({ code: code, error: error }) : resolve({ code: code, output: output });
+    });
+  });
 }

@@ -12,6 +12,9 @@
   },
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "babel-polyfill": "^6.9.1",
     "babel-traverse": "^6.9.0",

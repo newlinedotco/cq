@@ -3,7 +3,7 @@
   "version": "4.0.2",
   "description": "markdown pre-processor for cq",
   "main": "dist/index.js",
-  "repository": "fullstackio/cqmd",
+  "repository": "https://github.com/fullstackio/cq/tree/master/packages/cqmd",
   "scripts": {
     "compile": "babel -d dist/ src/",
     "prepublish": "npm run compile",
@@ -15,6 +15,9 @@
   },
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@fullstackio/cq": "^2.0.5",
     "string-replace-async": "^1.2.0",

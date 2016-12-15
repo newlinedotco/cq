@@ -11,7 +11,7 @@ $ npm install --global @fullstackio/cqmd
 ## Usage
 
 ```
-$ cq --path <path/to/code/basepath> <input-markdown-file>
+$ cqmd --path <path/to/code/basepath> <input-markdown-file>
 
 # or
 
@@ -73,15 +73,13 @@ Which emits:
 
 You can see the full list of possible queries in [the cq manual](https://github.com/fullstackio/cq).
 
-
-
-
 ## Library Usage
 
 ```javascript
 var cqmd = require('@fullstackio/cqmd').default;
-let results = cqmd(input, {path: __dirname});
-console.log(results);
+cqmd(input, {path: __dirname}).then(function(results) {
+  console.log(results);
+});
 ```
 
 If you'd like to create a custom formatting function, use the `format` key in the options.

@@ -55,10 +55,11 @@ inputStream.on('data', function (buf) {
   content += buf.toString();
 });
 inputStream.on('end', function () {
-  var result = (0, _index2.default)(content, argv);
-  if (argv.output) {
-    _fs2.default.writeFileSync(argv.output, result);
-  } else {
-    process.stdout.write(result);
-  }
+  (0, _index2.default)(content, argv).then(function (result) {
+    if (argv.output) {
+      _fs2.default.writeFileSync(argv.output, result);
+    } else {
+      process.stdout.write(result);
+    }
+  });
 });

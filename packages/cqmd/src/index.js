@@ -21,7 +21,7 @@ function formatRaw(results, opts={}) {
   return results.code;
 }
 
-export default function cqmd(text, opts={}) {
+export default async function cqmd(text, opts={}) {
   opts.format = opts.format || 'gfm';
 
   let newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, 
@@ -37,7 +37,7 @@ export default function cqmd(text, opts={}) {
 
     let fullFilename = path.join(opts.path, actualName);
     let contents = fs.readFileSync(fullFilename).toString();
-    let cqResults = cq(contents, blockOpts['crop-query']);
+    let cqResults = cq(contents, blockOpts['crop-query']); // TODO
     let replacement;
 
     if(typeof format === "function") {

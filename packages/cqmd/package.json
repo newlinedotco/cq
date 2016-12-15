@@ -8,8 +8,7 @@
     "compile": "babel -d dist/ src/",
     "prepublish": "npm run compile",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
-    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
-    "generate-parser": "./node_modules/.bin/pegjs src/query.pegjs src/query-parser.js"
+    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch"
   },
   "bin": {
     "cqmd": "dist/cli.js"

@@ -46,12 +46,13 @@ var content = '';
 inputStream.resume();
 inputStream.on('data', function(buf) { content += buf.toString(); });
 inputStream.on('end', function() {
-  let result = cqmd(content, argv);
-  if(argv.output) {
-    fs.writeFileSync(argv.output, result);
-  } else {
-    process.stdout.write(result);
-  }
+  cqmd(content, argv).then((result) => {
+    if(argv.output) {
+      fs.writeFileSync(argv.output, result);
+    } else {
+      process.stdout.write(result);
+    }
+  });
 });
 
 

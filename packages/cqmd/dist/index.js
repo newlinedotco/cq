@@ -4,13 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * cqmd - a markdown pre-processor to convert cq queries into conventional markdown
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */
-
-
-exports.default = cqmd;
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _cq = require('@fullstackio/cq');
 
@@ -28,6 +22,12 @@ var _util = require('./util');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; } /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * cqmd - a markdown pre-processor to convert cq queries into conventional markdown
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            */
+
+
 /*
  * Format's cq results into Github-flavored markdown-style code
  */
@@ -44,47 +44,67 @@ function formatRaw(results) {
   return results.code;
 }
 
-function cqmd(text) {
-  var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+exports.default = function () {
+  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(text) {
+    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var newText;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            opts.format = opts.format || 'gfm';
 
-  opts.format = opts.format || 'gfm';
+            newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, function (match, rawSettings, displayName, actualName, ws, offset, s) {
+              var blockOpts = (0, _util.splitNoParen)(rawSettings).reduce(function (acc, pair) {
+                var _pair$split = pair.split('='),
+                    _pair$split2 = _slicedToArray(_pair$split, 2),
+                    k = _pair$split2[0],
+                    v = _pair$split2[1];
 
-  var newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, function (match, rawSettings, displayName, actualName, ws, offset, s) {
-    var blockOpts = (0, _util.splitNoParen)(rawSettings).reduce(function (acc, pair) {
-      var _pair$split = pair.split('='),
-          _pair$split2 = _slicedToArray(_pair$split, 2),
-          k = _pair$split2[0],
-          v = _pair$split2[1];
+                acc[k] = v;
+                return acc;
+              }, {});
 
-      acc[k] = v;
-      return acc;
-    }, {});
+              // blocks override the global setting
+              var format = blockOpts['format'] ? blockOpts['format'] : opts.format;
 
-    // blocks override the global setting
-    var format = blockOpts['format'] ? blockOpts['format'] : opts.format;
+              var fullFilename = _path2.default.join(opts.path, actualName);
+              var contents = _fs2.default.readFileSync(fullFilename).toString();
+              var cqResults = (0, _cq2.default)(contents, blockOpts['crop-query']); // TODO
+              var replacement = void 0;
 
-    var fullFilename = _path2.default.join(opts.path, actualName);
-    var contents = _fs2.default.readFileSync(fullFilename).toString();
-    var cqResults = (0, _cq2.default)(contents, blockOpts['crop-query']);
-    var replacement = void 0;
+              if (typeof format === "function") {
+                return format(cqResults, blockOpts);
+              }
 
-    if (typeof format === "function") {
-      return format(cqResults, blockOpts);
-    }
+              switch (format) {
+                case 'gfm':
+                  replacement = formatGfm(cqResults, blockOpts);
+                  break;
+                case 'raw':
+                  replacement = formatRaw(cqResults, blockOpts);
+                  break;
+                default:
+                  throw new Error('unknown format: ' + format);
+              }
 
-    switch (format) {
-      case 'gfm':
-        replacement = formatGfm(cqResults, blockOpts);
-        break;
-      case 'raw':
-        replacement = formatRaw(cqResults, blockOpts);
-        break;
-      default:
-        throw new Error('unknown format: ' + format);
-    }
+              return replacement + ws;
+            });
+            return _context.abrupt('return', newText);
 
-    return replacement + ws;
-  });
-  return newText;
-}
+          case 3:
+          case 'end':
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+
+  function cqmd(_x3) {
+    return _ref.apply(this, arguments);
+  }
+
+  return cqmd;
+}();
+
 module.exports = exports['default'];

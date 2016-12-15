@@ -9,13 +9,6 @@ import _ from 'lodash';
 import util from 'util';
 import { spawnParseCmd, rangeExtents } from './util';
 
-// const defaultBabylonConfig = {
-//   sourceType: "module",
-//   plugins: [
-//     // ...
-//   ]
-// };
-
 const ignoredProperties = new Set([
   'constructor',
   'parent'
@@ -32,9 +25,8 @@ function isNode(node) {
 }
 
 function traverse(node, nodeCbs) {
-  console.log();
-
-  console.log('node', node.type, util.inspect(node));
+  // console.log();
+  // console.log('node', node.type, util.inspect(node));
 
   let nodeName = getNodeName(node);
 
@@ -110,8 +102,6 @@ export default function pythonEngine(engineOpts={}) {
 
       const nodeCb = (node) => {
         if(node.name === query.matcher) {
-          // in babel the name is an identifier, here it's just the node
-          // paths = [...paths, node.parent];
           paths = [...paths, node];
         }
       };
@@ -123,43 +113,33 @@ export default function pythonEngine(engineOpts={}) {
         }
       };
 
-      // let traverseCbs = _.reduce([
-      //   'FunctionDef',
-      //   'Expr'
-      //  ], (acc, type) => {
-      //   acc[type] = nodeCb;
-      //   return acc;
-      // }, {});
-
       let traverseCbs = {
+        // types which match the node themselves
         'FunctionDef': nodeCb,
         'ClassDef': nodeCb,
 
+        // types which should return the parent
         'Name': parentCb,
         'alias': parentCb
       };
 
-      // traverse(root, {
-      //   Identifier: nodeCb,
-      //   JSXIdentifier: nodeCb
-      // });
-
       traverse(root, traverseCbs);
-
-      console.log('paths', paths);
-
-
       return paths;
     },
     findNodesWithString(ast, root, query) {
       let paths = [];
-      traverse(root, {
-        StringLiteral: function (node) {
-          if(node.value === query.matcher) {
-            paths = [...paths, node.parent];
-          }
+
+      const parentCb = (node) => {
+        if(node.s === query.matcher) {
+          paths = [...paths, node.parent];
         }
-      });
+      };
+
+      let traverseCbs = {
+        'Str': parentCb,
+      };
+
+      traverse(root, traverseCbs);
       return paths;
     }
   }

@@ -1,6 +1,8 @@
 /**
- * cqmd utility functions
+ * cq utility functions
  */
+
+import { spawn } from 'child_process';
 
 // http://stackoverflow.com/questions/25058134/javascript-split-a-string-by-comma-except-inside-parentheses
 export function splitNoParen(s){
@@ -38,4 +40,24 @@ export function splitNoParen(s){
   }
   keepResult();
   return results;
+}
+
+export function spawnParseCmd(content) {
+  return new Promise((resolve, reject) => {
+    const spawnOpts = {
+      shell: false,
+      cwd: __dirname
+    };
+    const cmd = spawn('python', ['./parser.py', content], spawnOpts)
+    let output = '';
+    let error = '';
+    cmd.stdout.on('data', data => output += data.toString());
+    cmd.stdout.on('end', () => {});
+    cmd.stderr.on('data', data => error += data.toString());
+    cmd.stderr.on('end', () => {});
+
+    cmd.on('exit', (code) => {
+      return (code !== 0) ? reject({code, error}) : resolve({code, output});
+    });
+  });
 }

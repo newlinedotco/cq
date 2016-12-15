@@ -1,6 +1,20 @@
-import ast
+"""
+Python parser for parsing code into a JSON object
+Accepts input from the command-line either as STDIN
+or a raw string.
+
+Example usage:
+
+  python src/parser.py "$(cat test/data/bye.py)"
+  cat test/data/bye.py | python src/parser.py
+
+Most credit goes to https://github.com/exana/python-ast-explorer
+for parsing ideas
+"""
+
 import sys
 import json
+import ast
 from argparse import ArgumentParser
 
 def classname(cls):
@@ -9,7 +23,7 @@ def classname(cls):
     """
     return cls.__class__.__name__
 
-def jsonify_ast(node, level=0):
+def jsonify_ast(node):
     """
     Convert the AST node into a JSON object
     """
@@ -55,7 +69,12 @@ def read_from_stdin():
     """
     Read from stdin helper
     """
-    return sys.stdin.read()
+    while True:
+        output = sys.stdin.read()
+        if not output:
+            print '[No more data]'
+            break
+        return output
 
 def main():
     """
@@ -67,7 +86,7 @@ def main():
 
     code = args.text if args.text is not None else read_from_stdin()
     tree = make_ast(code)
-    print(json.dumps(tree))
+    print json.dumps(tree)
 
 
 if __name__ == '__main__':

@@ -1,3 +1,7 @@
+"""
+Test program
+"""
+
 def bye():
     return "bye"
 

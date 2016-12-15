@@ -5,7 +5,7 @@
  *
  */
 let babylon = require("babylon");
-import { rangeExtents } from './util';
+import { spawnParseCmd, rangeExtents } from './util';
 
 // const defaultBabylonConfig = {
 //   sourceType: "module",
@@ -86,9 +86,11 @@ export default function pythonEngine(engineOpts={}) {
       // 
       // let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts));
       // return ast;
+      return spawnParseCmd(code, opts)
+              .then(({code, output}) => ({code, output: JSON.parse(output)}));
     },
     getInitialRoot(ast) {
-      return ast.program
+      return ast.Module;
     },
     nodeToRange,
     commentRange(node, code, getLeading, getTrailing) {

@@ -3,7 +3,9 @@ import 'babel-polyfill';
 import yargs from 'yargs';
 import fs from 'fs';
 import {Readable} from 'stream';
-import parser from './index';
+
+import { spawnParseCmd } from './util';
+import parser from './index';    
 
 /*
  * A python preprocessor that parses python code into JSON 
@@ -51,7 +53,16 @@ var content = '';
 inputStream.resume();
 inputStream.on('data', function(buf) { content += buf.toString(); });
 inputStream.on('end', function() {
-  console.log(content);
+  spawnParseCmd(content)
+  .then(({code, output}) => {
+    const engine = new parser();
+    let tree = JSON.parse(output);
+    let res = engine.getInitialRoot(tree);
+    console.log(res);
+  })
+  .catch(err => {
+    console.log('err ->', err);
+  })
 });
 
 

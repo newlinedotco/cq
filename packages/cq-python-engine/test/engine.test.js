@@ -70,6 +70,33 @@ print("Hello {}".format("world"))
         assert.equal(fn[0].Return.value.Str.s, 'bye');
       });
 
+    });
+
+    describe('with_imports.py', () => {
+      let res, body;
+      beforeEach((done) => {
+        code = readFixture('with_imports.py')
+        engine.parse(code)
+        .then(result => res = result)
+        .then(() => body = res.output.Module.body)
+        .then(() => done(null))
+        .catch(done);
+      });
+
+      it('successfully parses', () => {
+        assert.equal(res.code, 0);
+      });
+
+      it('has 2 imports', () => {
+        assert.equal(body.length, 3)
+        assert(body[0].Import)
+        assert(body[1].Import)
+      });
+
+      it('has 1 function with a docstring', () => {
+        const doc = body[2].FunctionDef.body[0].Expr.value.Str.s;
+        assert.deepEqual(doc, '\n    Fake parsing code with arguments\n    ')
+      })
     })
 
   });

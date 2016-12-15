@@ -33,6 +33,9 @@ def jsonify_ast(node):
         var = getattr(node, k)
         if isinstance(var, ast.AST):
             if var._fields:
+                # if isinstance(var, ast.Str) and len(var._fields) == 1:
+                #     fields[k] = var.s
+                # else:
                 fields[k] = jsonify_ast(var)
             else:
                 fields[k] = classname(var)

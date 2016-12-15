@@ -38,6 +38,11 @@ def fix_ast(tree, source_lines, tokens):
         Match tokens with this node
         """
         lineno, col_offset = node.lineno, node.col_offset
+
+        # Make sure you filter out tokens we're not interested in, particularly
+        # DEDENTs There are probably other types we'll come across that need
+        # filtered out, so you can find the list here:
+        # https://docs.python.org/2/library/token.html#token.ENDMARKER
         possible_tokens = list(filter((lambda tok: tok[LINENO] == lineno
                                        and tok[COL_OFFSET] == col_offset
                                        and tok[TYPE] not in [token.DEDENT]), tokens))
@@ -100,7 +105,6 @@ def tokenize_with_char_offsets(source):
             tok = Token(token[TYPE], token[STRING],
                         token[LINENO][0], token[LINENO][1],
                         token[COL_OFFSET][0], token[COL_OFFSET][1])
-            continue
 
         else:
             assert token[LINENO][0] > 0 # lineno is > 0

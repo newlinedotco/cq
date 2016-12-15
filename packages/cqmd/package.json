@@ -19,7 +19,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@fullstackio/cq": "^2.0.5",
+    "@fullstackio/cq": "^4.0.2",
     "string-replace-async": "^1.2.0",
     "yargs": "^4.7.1"
   },

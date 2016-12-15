@@ -20,6 +20,10 @@ var _path2 = _interopRequireDefault(_path);
 
 var _util = require('./util');
 
+var _stringReplaceAsync = require('string-replace-async');
+
+var _stringReplaceAsync2 = _interopRequireDefault(_stringReplaceAsync);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; } /**
@@ -45,59 +49,93 @@ function formatRaw(results) {
 }
 
 exports.default = function () {
-  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(text) {
+  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(text) {
     var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var newText;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
+    var replacer, newText;
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
-        switch (_context.prev = _context.next) {
+        switch (_context2.prev = _context2.next) {
           case 0:
             opts.format = opts.format || 'gfm';
 
-            newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, function (match, rawSettings, displayName, actualName, ws, offset, s) {
-              var blockOpts = (0, _util.splitNoParen)(rawSettings).reduce(function (acc, pair) {
-                var _pair$split = pair.split('='),
-                    _pair$split2 = _slicedToArray(_pair$split, 2),
-                    k = _pair$split2[0],
-                    v = _pair$split2[1];
+            replacer = function () {
+              var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(match, rawSettings, displayName, actualName, ws, offset, s) {
+                var blockOpts, format, fullFilename, contents, cqResults, replacement;
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                  while (1) {
+                    switch (_context.prev = _context.next) {
+                      case 0:
+                        blockOpts = (0, _util.splitNoParen)(rawSettings).reduce(function (acc, pair) {
+                          var _pair$split = pair.split('='),
+                              _pair$split2 = _slicedToArray(_pair$split, 2),
+                              k = _pair$split2[0],
+                              v = _pair$split2[1];
 
-                acc[k] = v;
-                return acc;
-              }, {});
+                          acc[k] = v;
+                          return acc;
+                        }, {});
 
-              // blocks override the global setting
-              var format = blockOpts['format'] ? blockOpts['format'] : opts.format;
+                        // blocks override the global setting
 
-              var fullFilename = _path2.default.join(opts.path, actualName);
-              var contents = _fs2.default.readFileSync(fullFilename).toString();
-              var cqResults = (0, _cq2.default)(contents, blockOpts['crop-query']); // TODO
-              var replacement = void 0;
+                        format = blockOpts['format'] ? blockOpts['format'] : opts.format;
+                        fullFilename = _path2.default.join(opts.path, actualName);
+                        contents = _fs2.default.readFileSync(fullFilename).toString();
+                        cqResults = (0, _cq2.default)(contents, blockOpts['crop-query']); // TODO
 
-              if (typeof format === "function") {
-                return format(cqResults, blockOpts);
-              }
+                        replacement = void 0;
 
-              switch (format) {
-                case 'gfm':
-                  replacement = formatGfm(cqResults, blockOpts);
-                  break;
-                case 'raw':
-                  replacement = formatRaw(cqResults, blockOpts);
-                  break;
-                default:
-                  throw new Error('unknown format: ' + format);
-              }
+                        if (!(typeof format === "function")) {
+                          _context.next = 8;
+                          break;
+                        }
 
-              return replacement + ws;
-            });
-            return _context.abrupt('return', newText);
+                        return _context.abrupt('return', format(cqResults, blockOpts));
 
-          case 3:
+                      case 8:
+                        _context.t0 = format;
+                        _context.next = _context.t0 === 'gfm' ? 11 : _context.t0 === 'raw' ? 13 : 15;
+                        break;
+
+                      case 11:
+                        replacement = formatGfm(cqResults, blockOpts);
+                        return _context.abrupt('break', 16);
+
+                      case 13:
+                        replacement = formatRaw(cqResults, blockOpts);
+                        return _context.abrupt('break', 16);
+
+                      case 15:
+                        throw new Error('unknown format: ' + format);
+
+                      case 16:
+                        return _context.abrupt('return', replacement + ws);
+
+                      case 17:
+                      case 'end':
+                        return _context.stop();
+                    }
+                  }
+                }, _callee, this);
+              }));
+
+              return function replacer(_x5, _x6, _x7, _x8, _x9, _x10, _x11) {
+                return _ref2.apply(this, arguments);
+              };
+            }();
+
+            _context2.next = 4;
+            return (0, _stringReplaceAsync2.default)(text, /^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, replacer);
+
+          case 4:
+            newText = _context2.sent;
+            return _context2.abrupt('return', newText);
+
+          case 6:
           case 'end':
-            return _context.stop();
+            return _context2.stop();
         }
       }
-    }, _callee, this);
+    }, _callee2, this);
   }));
 
   function cqmd(_x3) {

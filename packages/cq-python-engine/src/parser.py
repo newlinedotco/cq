@@ -39,7 +39,8 @@ def fix_ast(tree, source_lines, tokens):
         """
         lineno, col_offset = node.lineno, node.col_offset
         possible_tokens = list(filter((lambda tok: tok[LINENO] == lineno
-                                       and tok[COL_OFFSET] == col_offset), tokens))
+                                       and tok[COL_OFFSET] == col_offset
+                                       and tok[TYPE] not in [token.DEDENT]), tokens))
 
         # print possible_tokens
         if len(possible_tokens) > 0:
@@ -94,9 +95,13 @@ def tokenize_with_char_offsets(source):
         byte_lines = list(map(lambda line: line.encode(encoding), char_lines))
 
         if token[LINENO][0] == 0 or (token[LINENO][1] == 0 and token[COL_OFFSET][1] == 0):
+            # q: what's even the point of these tokens?
+            # a: at least DEDENT tokens. they confuse the future steps though, so filter them out downstream
             tok = Token(token[TYPE], token[STRING],
                         token[LINENO][0], token[LINENO][1],
                         token[COL_OFFSET][0], token[COL_OFFSET][1])
+            continue
+
         else:
             assert token[LINENO][0] > 0 # lineno is > 0
 
@@ -132,6 +137,7 @@ def tokenize_with_char_offsets(source):
 
             # pprint(tok)
 
+        # pprint(tok)
         tokens.append(tok)
     
     return tokens

@@ -6,7 +6,7 @@ import fs from 'fs';
 
 describe('cqmd core', () => {
 
-  it('should convert to gfm', () => {
+  it('should convert to gfm', async () => {
     let input = `
 # a document
 
@@ -43,7 +43,7 @@ function bye() {
 
 That's all
     `
-    let actual = cqmd(input, {path: __dirname});
+    let actual = await cqmd(input, {path: __dirname});
     assert.equal(actual, expected);
   });
 

@@ -6,6 +6,7 @@ import cq from '@fullstackio/cq';
 import fs from 'fs';
 import path from 'path';
 import { splitNoParen } from './util';
+import stringReplaceAsync from 'string-replace-async';
 
 /*
  * Format's cq results into Github-flavored markdown-style code
@@ -24,8 +25,7 @@ function formatRaw(results, opts={}) {
 export default async function cqmd(text, opts={}) {
   opts.format = opts.format || 'gfm';
 
-  let newText = text.replace(/^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, 
-                             function(match, rawSettings, displayName, actualName, ws, offset, s) {
+  let replacer = async function(match, rawSettings, displayName, actualName, ws, offset, s) {
     let blockOpts = splitNoParen(rawSettings).reduce((acc, pair) => {
       let [k, v] = pair.split('=');
       acc[k] = v;
@@ -56,6 +56,11 @@ export default async function cqmd(text, opts={}) {
     }
 
     return replacement + ws;
-  });
+  }
+
+  let newText = await stringReplaceAsync(
+    text, 
+        /^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, 
+    replacer );
   return newText;
 }

@@ -16,8 +16,9 @@
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",
   "dependencies": {
-    "yargs": "^4.7.1",
-    "@fullstackio/cq": "^2.0.5"
+    "@fullstackio/cq": "^2.0.5",
+    "string-replace-async": "^1.2.0",
+    "yargs": "^4.7.1"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",

@@ -5,7 +5,7 @@ import cqmd from '../src/index';
 import fs from 'fs';
 import { splitNoParen } from '../src/util';
 
-describe.only('cqmd util', () => {
+describe('cqmd util', () => {
   describe('splitNoParen', () => {
 
     it('should split in the simple case', () => {
@@ -20,7 +20,7 @@ describe.only('cqmd util', () => {
       assert.deepEqual(splitNoParen('foo-bar,baz'), ['foo-bar', 'baz']);
     });
 
-    it.only('should functions at the start of ranges', () => {
+    it('should functions at the start of ranges', () => {
       assert.deepEqual(splitNoParen('cats,foo(.fs)-bar,baz'), ['cats', 'foo(.fs)-bar', 'baz']);
     });
 

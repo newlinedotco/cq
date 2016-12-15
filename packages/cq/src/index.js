@@ -416,10 +416,9 @@ export default async function cq(code, query, opts={}) {
   }
 
   debug(code);
-  let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
+  let ast = await Promise.resolve(engine.parse(code, Object.assign({}, opts.parserOpts)));
   debug(ast);
   let root = engine.getInitialRoot(ast);
-
   let results = resolveListOfQueries(ast, root, code, query, engine, opts);
 
   if(opts.undent) {

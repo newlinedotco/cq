@@ -9,10 +9,17 @@ function lines(str, startLine, endLine) {
   return str.split('\n').slice(startLine, endLine + 1).join('\n');
 }
 
-describe.only('python', async () => {
+async function assertQueryLines(rawCode, query, lineRange) {
+  let [ startLine, endLine ] = lineRange;
+  let { code } = await cq(rawCode, query, { engine });
+  const wanted = lines(rawCode, startLine, endLine);
+  assert.equal(code, wanted);
+}
 
-  describe('top level functions', async () => {
-    const someFunctions = `
+describe.only('python', () => {
+
+  describe('top level functions', () => {
+    const src = `
 def hello():
   return "hello";
 
@@ -22,94 +29,76 @@ bye() # -> bye
 
 # never say goodbye`;
 
-    it('should return a function definition', async () => {
-      let { code } = await cq(someFunctions, '.hello', { engine });
-      const wanted = lines(someFunctions, 1, 2);
-      assert.equal(code, wanted);
-    })
+    var tests = [
+      {
+        desc: 'should return a function definition',
+        query: '.hello',
+        lines: [1, 2] 
+      },
+      {
+        desc: 'should return an anonymous function assigned to a variable',
+        query: '.bye',
+        lines: [4, 4] 
+      }
+    ];
 
-    // it('should return an anonymous function assigned to a variable', async () => {
-    //   let { code } = await cq(someFunctions, '.bye', {engine: 'typescript'});
-    //   const wanted = lines(someFunctions, 5, 7);
-    //   assert.equal(code, wanted);
-    // })
-
-    // it('should return an arrow function assigned to a variable', async () => {
-    //   let { code } = await cq(someFunctions, '.Farm', {engine: 'typescript'});
-    //   const wanted = lines(someFunctions, 9, 9);
-    //   assert.equal(code, wanted);
-    // })
+    tests.forEach(function(test) {
+      it(test.desc, async () => {
+        await assertQueryLines(src, test.query, test.lines);
+      })
+    });
 
   });
 
- describe.skip('Angular Code', async () => {
+ describe.only('classes', async () => {
     const src = `
-import {Injectable, provide} from '@angular/core';
+import mycats
 
-@Injectable()
-export class AuthService {
-  login(user: string, password: string): boolean {
-    if (user === 'user' && password === 'password') {
-      localStorage.setItem('username', user);
-      return true;
-    }
+class Cat(object):
 
-    return false;
-  }
+    def __init__(self, name):
+        self.name = name
 
-  logout(): any {
-    localStorage.removeItem('username');
-  }
+    def meow(self):
+        print 'Im a talking cat'
 
-  getUser(): any {
-    return localStorage.getItem('username');
-  }
+pickles = Cat('pickles')
 
-  isLoggedIn(): boolean {
-    return this.getUser() !== null;
-  }
-}
-
-export var AUTH_PROVIDERS: Array<any> = [
-  provide(AuthService, {useClass: AuthService})
-];
+pickles.meow()
 `
-    it('should extract a class', async () => {
-      let { code } = await cq(src, '.AuthService', {engine: 'typescript'});
-      const wanted = lines(src, 4, 25);
-      assert.equal(code, wanted);
-    })
+    var tests = [
+      {
+        desc: 'should return an import line',
+        query: '.mycats',
+        lines: [1, 1] 
+      },
+      {
+        desc: 'should return a class',
+        query: '.Cat',
+        lines: [3, 9] 
+      },
+      {
+        desc: 'should return a constructor',
+        query: '.__init__',
+        lines: [5, 6] 
+      },
+      {
+        desc: 'should return a method',
+        query: '.meow',
+        lines: [8, 9] 
+      },
+      {
+        desc: 'should return an instantiation',
+        query: '.pickles',
+        lines: [11, 11] 
+      }
+    ];
 
-    it('should extract a class with decorator', async () => {
-      let { code } = await cq(src, 'decorators(.AuthService)', {engine: 'typescript'});
-      const wanted = lines(src, 3, 25);
-      assert.equal(code, wanted);
-    })
-
-    it('should extract a specific method', async () => {
-      let { code } = await cq(src, '.AuthService .login', {engine: 'typescript'});
-      const wanted = lines(src, 5, 12);
-      assert.equal(code, wanted);
-    })
-
-    it('should extract export vars ', async () => {
-      let { code } = await cq(src, '.AUTH_PROVIDERS', {engine: 'typescript'});
-      const wanted = lines(src, 27, 29);
-      assert.equal(code, wanted);
-    })
-
-    it('should extract export vars ', async () => {
-      let { code } = await cq(src, '1-(.AuthService .login)', {engine: 'typescript'});
-      const wanted = lines(src, 0, 12);
-      assert.equal(code, wanted);
-    })
-
-    it('should extract ranges from children to parent vars ', async () => {
-      let { code } = await cq(src, '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS', {engine: 'typescript'});
-      const wanted = lines(src, 22, 29);
-      assert.equal(code, wanted);
-    })
-
+    tests.forEach(function(test) {
+      it(test.desc, async () => {
+        await assertQueryLines(src, test.query, test.lines);
+      })
+    });
   });
 
   describe.skip('searching for strings', async () => {

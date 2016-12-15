@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cq",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "query code with selectors",
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq",
@@ -30,7 +30,7 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
-    "@fullstackio/cqmd": "^4.0.2",
+    "@fullstackio/cqmd": "^4.0.3",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.9.1",
     "babel-plugin-add-module-exports": "^0.2.1",

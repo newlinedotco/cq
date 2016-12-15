@@ -504,14 +504,17 @@ $ cq '.HomeComponent .Component' examples/HomeComponent.ts
 
 ## CLI Usage
 
-To pre-process your markdown on the CLI use the [cqmd utility](https://github.com/fullstackio/cqmd).
+To pre-process your markdown on the CLI use the [cqmd utility](https://github.com/fullstackio/cq/packages/cqmd/).
 
 ## Library Usage
 
+The `cq` function is async:
+
 ```javascript
 var cq = require('@fullstackio/cq').default;
-var results = cq(codeString, query);
-console.log(results.code);
+cq(codeString, query).then(function(results) {
+  console.log(results.code);
+});
 ```
 
 ## Future

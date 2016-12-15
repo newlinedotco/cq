@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cq-python-engine",
-  "version": "3.0.1",
+  "version": "4.0.1",
   "description": "python engine for cq",
   "main": "dist/index.js",
   "repository": "fullstackio/cq",
@@ -32,6 +32,5 @@
     "yargs": "^6.5.0",
     "@fullstackio/cq": "^1.0.5"
   },
-  "peerDependencies": {
-  }
+  "peerDependencies": {}
 }

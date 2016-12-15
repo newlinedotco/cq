@@ -25,7 +25,6 @@ bye() # -> bye
     it('should return a function definition', async () => {
       let { code } = await cq(someFunctions, '.hello', { engine });
       const wanted = lines(someFunctions, 1, 2);
-      console.log(code, wanted);
       assert.equal(code, wanted);
     })
 

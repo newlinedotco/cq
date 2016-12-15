@@ -5,6 +5,8 @@
  *
  */
 let babylon = require("babylon");
+import _ from 'lodash';
+import util from 'util';
 import { spawnParseCmd, rangeExtents } from './util';
 
 // const defaultBabylonConfig = {
@@ -30,6 +32,10 @@ function isNode(node) {
 }
 
 function traverse(node, nodeCbs) {
+  console.log();
+
+  console.log('node', node.type, util.inspect(node));
+
   let nodeName = getNodeName(node);
 
   if (nodeCbs.hasOwnProperty(nodeName)) {
@@ -55,19 +61,20 @@ function traverse(node, nodeCbs) {
 }
 
 function nodeToRange(node) {
-  if(node.start && node.end) {
+  if(_.isNumber(node.start) && _.isNumber(node.end)) {
     return { start: node.start, end: node.end };
   }
-  if(node.body && node.body.start && node.body.end) {
+
+  if(node.body && _.isNumber(node.body.start) && _.isNumber(node.body.end)) {
     return { start: node.body.start, end: node.body.end };
   }
 
   switch(node.type) {
-  case 'ObjectProperty':
-    return { 
-      start: nodeToRange(node.key).start, 
-      end: nodeToRange(node.value).end 
-    };
+  // case 'ObjectProperty':
+  //   return { 
+  //     start: nodeToRange(node.key).start, 
+  //     end: nodeToRange(node.value).end 
+  //   };
   default:
     console.log("unknown", node);
     throw new Error('nodeToRange of unknown type: ' + node.type);
@@ -82,7 +89,7 @@ export default function pythonEngine(engineOpts={}) {
               .then(({code, output}) => ({code, output: JSON.parse(output)}));
     },
     getInitialRoot(ast) {
-      return ast.Module;
+      return ast.output;
     },
     nodeToRange,
     commentRange(node, code, getLeading, getTrailing) {
@@ -105,10 +112,22 @@ export default function pythonEngine(engineOpts={}) {
           paths = [...paths, node.parent];
         }
       };
-      traverse(root, {
-        Identifier: nodeCb,
-        JSXIdentifier: nodeCb
-      });
+
+      let traverseCbs = _.reduce(['FunctionDef'], (acc, type) => {
+        acc[type] = nodeCb;
+        return acc;
+      }, {});
+
+      // traverse(root, {
+      //   Identifier: nodeCb,
+      //   JSXIdentifier: nodeCb
+      // });
+
+      traverse(root, traverseCbs);
+
+      console.log('paths', paths);
+
+
       return paths;
     },
     findNodesWithString(ast, root, query) {

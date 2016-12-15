@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import 'babel-polyfill';
 import yargs from 'yargs';
 import fs from 'fs';

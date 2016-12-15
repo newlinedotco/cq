@@ -8,7 +8,7 @@
     "compile": "./node_modules/.bin/babel -d dist/ src/",
     "prepublish": "npm run compile",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
-    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs"
+    "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch"
   },
   "author": "Nate Murray <nate@fullstack.io>",
   "license": "MIT",
@@ -29,7 +29,6 @@
     "babel-preset-syntax-from-presets": "^1.0.1",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
-    "pegjs": "^0.9.0",
     "yargs": "^6.5.0",
     "@fullstackio/cq": "^1.0.5"
   },

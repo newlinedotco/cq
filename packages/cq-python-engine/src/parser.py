@@ -30,6 +30,7 @@ def jsonify_ast(node):
     fields = {}
     for k in node._fields:
         fields[k] = '...'
+
         var = getattr(node, k)
         if isinstance(var, ast.AST):
             if var._fields:
@@ -57,8 +58,11 @@ def jsonify_ast(node):
         else:
             fields[k] = 'unrecognized'
 
-    ret = {classname(node): fields}
-    return ret
+    # fields
+    # fields["type"] = classname(node)
+
+    ret = {classname(node): fields, "type": classname(node)}
+    return fields
 
 
 def make_ast(code):

@@ -1,4 +1,4 @@
-**
+/**
  * cq Python Engine
  *
  * Parse files with Python
@@ -81,7 +81,8 @@ export default function pythonEngine(engineOpts={}) {
       // let AST =
       // shell out to: 
       //     /python-to-ast.py —input somefile.py —json
-      //     then parse that code
+      //     then parse string of python code
+      //      into node AST
       // 
       // let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts));
       // return ast;

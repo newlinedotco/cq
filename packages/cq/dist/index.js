@@ -520,7 +520,8 @@ exports.default = function () {
           case 22:
             ast = _context.sent;
 
-            debug(ast);
+            debug(JSON.stringify(ast, null, 2));
+
             root = engine.getInitialRoot(ast);
             results = resolveListOfQueries(ast, root, code, query, engine, opts);
 

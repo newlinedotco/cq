@@ -29,8 +29,7 @@ var argv = _yargs2.default.usage('Usage: $0 [options] <query> <file>').example("
   describe: 'emit short json result (no code). requires --json'
 }).option('engine', {
   alias: 'e',
-  describe: 'parsing engine',
-  choices: ['auto', 'babylon', 'typescript'],
+  describe: 'parsing engine. e.g. auto, babylon, typescript',
   default: 'auto'
 }).argv;
 
@@ -46,21 +45,35 @@ if (!query) {
 var engine = void 0;
 
 // pick the parsing engine
-switch (argv.engine) {
-  case 'babylon':
-  case 'typescript':
-    engine = argv.engine;
-    break;
-  case 'auto':
-    if (filename && filename.match(/\.tsx?/)) {
-      engine = 'typescript';
-    } else {
-      engine = 'babylon';
-    }
-    break;
-  default:
-    throw new Error('unknown engine: ' + argv.engine);
-}
+
+(function () {
+  switch (argv.engine) {
+    case 'babylon':
+    case 'typescript':
+      engine = argv.engine;
+      break;
+    case 'auto':
+      if (filename && filename.match(/\.tsx?/)) {
+        engine = 'typescript';
+      } else {
+        engine = 'babylon';
+      }
+      break;
+    default:
+      var foundEngine = false;
+      ['@fullstackio/cq-' + engine + '-engine', 'cq-' + engine + '-engine', engine].map(function (potentialEngine) {
+        try {
+          if (!foundEngine) {
+            engine = require(potentialEngine);
+            foundEngine = true;
+          }
+        } catch (err) {}
+      });
+      if (!foundEngine) {
+        throw new Error('unknown engine: ' + argv.engine);
+      }
+  }
+})();
 
 var inputStream = filename ? _fs2.default.createReadStream(filename) : process.stdin;
 

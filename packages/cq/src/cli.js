@@ -21,8 +21,7 @@ let argv = yargs
     })
     .option('engine', {
       alias: 'e',
-      describe: 'parsing engine',
-      choices: ['auto', 'babylon', 'typescript'],
+      describe: 'parsing engine. e.g. auto, babylon, typescript',
       default: 'auto'
     })
     .argv;
@@ -50,7 +49,23 @@ case 'auto':
   }
   break;
 default:
-  throw new Error('unknown engine: ' + argv.engine);
+    let foundEngine = false;
+    [ 
+      `@fullstackio/cq-${engine}-engine`,
+      `cq-${engine}-engine`,
+      engine
+    ].map((potentialEngine) => {
+      try {
+        if(!foundEngine) {
+          engine = require(potentialEngine);
+          foundEngine = true
+        }
+      } catch (err) {
+      }
+    })
+    if(!foundEngine) {
+      throw new Error('unknown engine: ' + argv.engine);
+    }
 }
 
 let inputStream = filename ? fs.createReadStream(filename) : process.stdin;

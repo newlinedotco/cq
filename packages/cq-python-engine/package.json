@@ -30,7 +30,9 @@
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "pegjs": "^0.9.0",
-    "@fullstackio/cq": "^1.0.5",
-    "yargs": "^6.5.0"
+    "yargs": "^6.5.0",
+    "@fullstackio/cq": "^1.0.5"
+  },
+  "peerDependencies": {
   }
 }

@@ -52,6 +52,34 @@ def fix_ast(tree, source_lines, tokens):
         if hasattr(node, 'lineno') and hasattr(node, 'col_offset'):
             match_tokens(node)
 
+    class ExtendEnds(ast.NodeTransformer):
+        def generic_visit(self, node):
+            pprint(node) 
+            node.foo = "bar"
+            ast.NodeVisitor.generic_visit(self, node)
+            return node
+    # tree = ExtendEnds().visit(tree)
+
+    def fix_ends(node, level=0):
+        nodeEnd = node.end if hasattr(node, 'end') else None
+
+        for field, value in ast.iter_fields(node):
+             if isinstance(value, list):
+                for item in value:
+                    if isinstance(item, ast.AST):
+                        fix_ends(item, level=level+1)
+                        nodeEnd = max(nodeEnd, item.end) if hasattr(item, 'end') else nodeEnd
+             elif isinstance(value, ast.AST):
+                fix_ends(value, level=level+1)
+             nodeEnd = max(nodeEnd, value.end) if hasattr(value, 'end') else nodeEnd
+
+        node.end = nodeEnd
+
+    fix_ends(tree)
+    return tree
+
+    
+
 def tokenize_with_char_offsets(source):
     readline = io.StringIO(source).readline
     encoding = 'utf8'
@@ -143,7 +171,7 @@ def make_ast(code, mode='exec'):
     code = unicode(code)
     tree = ast.parse(code, '<unknown>', mode)
     tokens = tokenize_with_char_offsets(code)
-    fix_ast(tree, code, tokens)
+    tree = fix_ast(tree, code, tokens)
     return parse_ast(tree, tokens, code)
 
 

@@ -57,7 +57,7 @@ def jsonify_ast(node):
         else:
             fields[k] = 'unrecognized'
 
-    ret = {classname(node): fields}
+    ret = {classname(node): fields, "type": classname(node)}
     return ret
 
 

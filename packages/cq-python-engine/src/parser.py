@@ -52,14 +52,6 @@ def fix_ast(tree, source_lines, tokens):
         if hasattr(node, 'lineno') and hasattr(node, 'col_offset'):
             match_tokens(node)
 
-    class ExtendEnds(ast.NodeTransformer):
-        def generic_visit(self, node):
-            pprint(node) 
-            node.foo = "bar"
-            ast.NodeVisitor.generic_visit(self, node)
-            return node
-    # tree = ExtendEnds().visit(tree)
-
     def fix_ends(node, level=0):
         nodeEnd = node.end if hasattr(node, 'end') else None
 
@@ -86,10 +78,16 @@ def tokenize_with_char_offsets(source):
     token_source = tokenize.generate_tokens(readline)
     char_lines = list(map(lambda line: line + "\n", source.split("\n")))
     line_lens = [ len(line) for line in char_lines ]
+
+    # pprint(['char_lines', char_lines])
+    # pprint(['line_lens', line_lens])
+
     byte_lines = None
     tokens = []
 
     for token in token_source:
+        # pprint('\n')
+        # pprint(['token', token])
         # if token[TYPE] == encoding:
             # first token
             # encoding = token[STRING]
@@ -102,10 +100,10 @@ def tokenize_with_char_offsets(source):
         else:
             assert token[LINENO][0] > 0 # lineno is > 0
 
-            start_line = token[LINENO][0]
+            start_line = token[LINENO][0]  # closed [ e.g. includes
             start_char = token[LINENO][1]
             end_line = token[COL_OFFSET][0]
-            end_char = token[COL_OFFSET][1]
+            end_char = token[COL_OFFSET][1] # open ) (e.g. minus 1 to include)
 
             byte_start_line = byte_lines[start_line-1]
             char_start_col = len(byte_start_line[:start_char].decode(encoding))
@@ -113,17 +111,26 @@ def tokenize_with_char_offsets(source):
             byte_end_line = byte_lines[token[COL_OFFSET][0]-1]
             char_end_col = len(byte_end_line[:token[COL_OFFSET][1]].decode(encoding))
 
-            start_lines_offset = reduce(lambda x, y: x + line_lens[y], range(1, start_line), 0)
-            end_lines_offset = reduce(lambda x, y: x + line_lens[y], range(1, end_line), 0)
+            # pprint(['start_line', start_line, range(1, start_line)])
+
+            start_lines_offset = reduce(lambda x, y: x + line_lens[y-1], range(1, start_line), 0)
+            end_lines_offset = reduce(lambda x, y: x + line_lens[y-1], range(1, end_line), 0)
 
             # start position = sum(prevlines) + starting_char
             # end position = sum(prevlines) +  sum(ending_char)
+            
+            # bug in start_lines_offset
+            # pprint(['start_lines_offset', 'char_start_col', start_lines_offset, char_start_col])
+            # pprint(['end_lines_offset', 'char_end_col', end_lines_offset, char_end_col])
+
             start_char_offset = start_lines_offset + char_start_col
             end_char_offset = end_lines_offset + char_end_col
 
             tok = Token(token[TYPE], token[STRING],
                         start_line, start_char,
                         start_char_offset, end_char_offset)
+
+            # pprint(tok)
 
         tokens.append(tok)
     

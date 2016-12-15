@@ -14,8 +14,6 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */
 
 
-exports.default = cq;
-
 var _babelTraverse = require('babel-traverse');
 
 var _babelTraverse2 = _interopRequireDefault(_babelTraverse);
@@ -34,11 +32,19 @@ var _typescript2 = _interopRequireDefault(_typescript);
 
 var _util = require('./engines/util');
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
+
+var debug = (0, _debug2.default)('cq');
 
 var NodeTypes = exports.NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
@@ -454,36 +460,90 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
   });
 }
 
-function cq(code, query) {
-  var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+exports.default = function () {
+  var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(code, query) {
+    var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    var engine, ast, root, results;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            engine = opts.engine || (0, _babylon2.default)();
 
-  var engine = opts.engine || (0, _babylon2.default)();
 
-  if (typeof query === 'string') {
-    query = [_queryParser2.default.parse(query)]; // parser returns single object for now, but eventually an array
+            if (typeof query === 'string') {
+              query = [_queryParser2.default.parse(query)]; // parser returns single object for now, but eventually an array
+            }
+
+            if (!(typeof engine === 'string')) {
+              _context.next = 18;
+              break;
+            }
+
+            _context.t0 = engine;
+            _context.next = _context.t0 === 'typescript' ? 6 : _context.t0 === 'babylon' ? 8 : 10;
+            break;
+
+          case 6:
+            engine = (0, _typescript2.default)();
+            return _context.abrupt('break', 18);
+
+          case 8:
+            engine = (0, _babylon2.default)();
+            return _context.abrupt('break', 18);
+
+          case 10:
+            _context.prev = 10;
+
+            engine = require('cq-' + engine + '-engine');
+            _context.next = 17;
+            break;
+
+          case 14:
+            _context.prev = 14;
+            _context.t1 = _context['catch'](10);
+            throw new Error('unknown engine: ' + engine);
+
+          case 17:
+            return _context.abrupt('break', 18);
+
+          case 18:
+
+            if (typeof engine === 'function') {
+              // then just use it
+            }
+
+            debug(code);
+            console.log('code', code);
+            _context.next = 23;
+            return Promise.resolve(engine.parse(code, Object.assign({}, opts.parserOpts)));
+
+          case 23:
+            ast = _context.sent;
+
+            debug(ast);
+            console.log('ast', ast);
+            root = engine.getInitialRoot(ast);
+            results = resolveListOfQueries(ast, root, code, query, engine, opts);
+
+
+            if (opts.undent) {
+              results.code = undent(results.code);
+            }
+
+            return _context.abrupt('return', results);
+
+          case 30:
+          case 'end':
+            return _context.stop();
+        }
+      }
+    }, _callee, this, [[10, 14]]);
+  }));
+
+  function cq(_x2, _x3) {
+    return _ref6.apply(this, arguments);
   }
 
-  if (typeof engine === 'string') {
-    switch (engine) {
-      case 'typescript':
-        engine = (0, _typescript2.default)();
-        break;
-      case 'babylon':
-        engine = (0, _babylon2.default)();
-        break;
-      default:
-        throw new Error('unknown engine: ' + engine);
-    }
-  }
-
-  var ast = engine.parse(code, Object.assign({}, opts.parserOpts));
-  var root = engine.getInitialRoot(ast);
-
-  var results = resolveListOfQueries(ast, root, code, query, engine, opts);
-
-  if (opts.undent) {
-    results.code = undent(results.code);
-  }
-
-  return results;
-}
+  return cq;
+}();

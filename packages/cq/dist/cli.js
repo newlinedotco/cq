@@ -70,15 +70,16 @@ inputStream.on('data', function (buf) {
   content += buf.toString();
 });
 inputStream.on('end', function () {
-  var result = (0, _index2.default)(content, query, { engine: engine });
+  (0, _index2.default)(content, query, { engine: engine }).then(function (result) {
 
-  if (argv.json === true) {
-    delete result['nodes'];
-    if (argv.short === true) {
-      delete result['code'];
+    if (argv.json === true) {
+      delete result['nodes'];
+      if (argv.short === true) {
+        delete result['code'];
+      }
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log(result.code);
     }
-    console.log(JSON.stringify(result, null, 2));
-  } else {
-    console.log(result.code);
-  }
+  });
 });

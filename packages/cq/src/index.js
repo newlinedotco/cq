@@ -13,7 +13,7 @@ import typescriptEngine from './engines/typescript';
 import { rangeExtents } from './engines/util';
 
 import debugLib from 'debug';
-const debug = debug('cq');
+const debug = debugLib('cq');
 
 export const NodeTypes = {
   IDENTIFIER: 'IDENTIFIER',
@@ -386,7 +386,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
   })
 }
 
-export default function cq(code, query, opts={}) {
+export default async function cq(code, query, opts={}) {
   let engine = opts.engine || babylonEngine();
 
   if(typeof query === 'string') {

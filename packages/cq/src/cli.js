@@ -59,15 +59,16 @@ var content = '';
 inputStream.resume();
 inputStream.on('data', function(buf) { content += buf.toString(); });
 inputStream.on('end', function() {
-  let result = cq(content, query, { engine });
+  cq(content, query, { engine }).then((result) => {
 
-  if(argv.json === true) {
-    delete result['nodes'];
-    if(argv.short === true) {
-      delete result['code'];
+    if(argv.json === true) {
+      delete result['nodes'];
+      if(argv.short === true) {
+        delete result['code'];
+      }
+      console.log( JSON.stringify(result, null, 2) );
+    } else {
+      console.log( result.code );
     }
-    console.log( JSON.stringify(result, null, 2) );
-  } else {
-    console.log( result.code );
-  }
+  })
 });

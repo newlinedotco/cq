@@ -27,17 +27,18 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
+    "@fullstackio/cqmd": "^1.0.5",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.9.1",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-react-transform": "^2.0.2",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-preset-syntax-from-presets": "^1.0.1",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
-    "pegjs": "^0.9.0",
-    "@fullstackio/cqmd": "^1.0.5"
+    "pegjs": "^0.9.0"
   }
 }

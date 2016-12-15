@@ -23,7 +23,6 @@ import collections
 Token = collections.namedtuple("Token", "type string lineno col_offset start end")
 
 from pprint import pprint
-
 from argparse import ArgumentParser
 
 TYPE = 0
@@ -102,7 +101,7 @@ def tokenize_with_char_offsets(source):
     
     return tokens
 
-def parse_ast(node, tokens):
+def parse_ast(node, tokens, code=None):
     """
     Parse the ast into a reasonable JSON object
     """
@@ -111,6 +110,7 @@ def parse_ast(node, tokens):
         result = {
             "type": "Program",
             "start": 0,
+            "end": len(code), # hmm
             "body": parse_ast(node.body, tokens)
         }
         return result
@@ -140,10 +140,11 @@ def make_ast(code, mode='exec'):
     """
     Make an AST tree from a string of code
     """
+    code = unicode(code)
     tree = ast.parse(code, '<unknown>', mode)
-    tokens = tokenize_with_char_offsets(unicode(code))
+    tokens = tokenize_with_char_offsets(code)
     fix_ast(tree, code, tokens)
-    return parse_ast(tree, tokens)
+    return parse_ast(tree, tokens, code)
 
 
 def read_from_stdin():

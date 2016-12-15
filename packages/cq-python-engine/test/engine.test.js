@@ -8,7 +8,7 @@ import { join } from 'path'
 const fixtureDir = join(__dirname, 'data');
 const readFixture = (filepath) => fs.readFileSync(join(fixtureDir, filepath)); 
 
-describe.only('Python engine', () => {
+describe('Python engine', () => {
   let engine, code;
 
   describe('parse', () => {
@@ -25,8 +25,7 @@ describe.only('Python engine', () => {
       code = `
 import tensorflow as tf
 
-print("Hello {}".format("world"))
-      `
+print("Hello {}".format("world"))`
       engine.parse(code)
         .then(res => {
           assert.equal(res.code, 0);

@@ -7,9 +7,8 @@ function lines(str, startLine, endLine) {
   return str.split('\n').slice(startLine, endLine + 1).join('\n');
 }
 
-describe('typescript', async () => {
-
-  describe('top level functions', async () => {
+describe('typescript', () => {
+  describe('top level functions', () => {
     const someFunctions = `
 function hello(): string {
   return 'hello';

@@ -94,14 +94,6 @@ function pythonEngine() {
     parse: function parse(code) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      // let AST =
-      // shell out to: 
-      //     /python-to-ast.py —input somefile.py —json
-      //     then parse string of python code
-      //      into node AST
-      // 
-      // let ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts));
-      // return ast;
       return (0, _util.spawnParseCmd)(code, opts).then(function (_ref) {
         var code = _ref.code,
             output = _ref.output;

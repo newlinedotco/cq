@@ -57,7 +57,7 @@ default:
     ].map((potentialEngine) => {
       try {
         if(!foundEngine) {
-          engine = require(potentialEngine);
+          engine = require(potentialEngine)();
           foundEngine = true
         }
       } catch (err) {

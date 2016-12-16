@@ -164,4 +164,52 @@ def sleep(message):
     });
   });
 
+  describe('objects definitions', () => {
+    const src = `
+# single line
+person = { 'name': 'nate' };
+people = [ person ];
+
+# multiline
+default_port = {
+    'ftp': 21,
+    'telnet': 23,
+    'http': 80
+}
+dogs = [
+    (False, "Henry"),
+    (True, "Zappo")
+]
+
+# bye!`;
+
+    var tests = [
+      {
+        desc: 'should return a single-line object',
+        query: '.person',
+        lines: [2, 2] 
+      },
+      {
+        desc: 'should return a single-line array',
+        query: '.people',
+        lines: [3, 3] 
+      },
+      // {
+      //   desc: 'should return a multi-line object',
+      //   query: '.default_port',
+      //   lines: [6, 10] 
+      // },
+      // {
+      //   desc: 'should return a multi-line array',
+      //   query: '.dogs',
+      //   lines: [11, 14] 
+      // },
+    ];
+
+    tests.forEach(function(test) {
+      it(test.desc, async () => {
+        await assertQueryLines(src, test.query, test.lines);
+      })
+    });
+  });
 });

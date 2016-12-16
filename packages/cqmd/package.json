@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cqmd",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "markdown pre-processor for cq",
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cqmd",
@@ -19,7 +19,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@fullstackio/cq": "^4.0.4",
+    "@fullstackio/cq": "^4.0.5",
     "string-replace-async": "^1.2.0",
     "yargs": "^4.7.1"
   },

@@ -64,7 +64,7 @@ var engine = void 0;
       ['@fullstackio/cq-' + argv.engine + '-engine', 'cq-' + argv.engine + '-engine', argv.engine].map(function (potentialEngine) {
         try {
           if (!foundEngine) {
-            engine = require(potentialEngine);
+            engine = require(potentialEngine)();
             foundEngine = true;
           }
         } catch (err) {}

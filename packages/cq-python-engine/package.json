@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq-python-engine",
   "scripts": {
-    "compile": "./node_modules/.bin/babel -d dist/ src/",
+    "compile": "./node_modules/.bin/babel -d dist/ src/; npm run copy-py-parser",
+    "copy-py-parser": "cp src/parser.py dist/parser.py",
     "prepublish": "npm run compile",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch"

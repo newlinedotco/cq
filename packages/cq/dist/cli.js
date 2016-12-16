@@ -61,7 +61,7 @@ var engine = void 0;
       break;
     default:
       var foundEngine = false;
-      ['@fullstackio/cq-' + engine + '-engine', 'cq-' + engine + '-engine', engine].map(function (potentialEngine) {
+      ['@fullstackio/cq-' + argv.engine + '-engine', 'cq-' + argv.engine + '-engine', argv.engine].map(function (potentialEngine) {
         try {
           if (!foundEngine) {
             engine = require(potentialEngine);

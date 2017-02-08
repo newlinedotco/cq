@@ -2,7 +2,7 @@
   <img src="https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/code-query-image.png" alt="Code Query - extract code snippets using selectors" />
 </p>
 
-# cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com) 
+# cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://d17oy1vhnax1f7.cloudfront.net/items/3A1B470B1O2h0e0j1L47/dolphins.svg)](https://www.fullstackreact.com) 
 
 > A tool to extract code snippets using selectors (instead of line numbers)
 >

@@ -589,6 +589,22 @@ bootstrap(DemoApp, [
         }
       }
     );
+
+    it.pending(
+      "should have comment separators for discontiguous queries",
+      async () => {
+        {
+          let { code } = await cq(src, ".bootstrap, .routes");
+          // console.log('code, wanted', code);
+          // const wanted = lines(src, 8, 13);
+          // assert.equal(code, wanted);
+
+          // test - normal sep case
+          // test - contig case
+          // test - getting class, then render w/ gap
+        }
+      }
+    );
   });
 
   describe("disambiguation", async () => {

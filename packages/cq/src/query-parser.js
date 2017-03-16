@@ -37,6 +37,8 @@ module.exports = (function() {
         peg$startRuleFunction  = peg$parsestart,
 
         peg$c0 = function(head, tail) {
+            // TODO: potentially use this for identifying the discontinuous queries
+            // head.queryType = QueryResultTypes.SELECTION_EXPRESSION;
             return buildList(head, tail, 3);
           },
         peg$c1 = function(head, tail) {
@@ -1108,13 +1110,17 @@ module.exports = (function() {
     }
 
 
-      // ideally we would load this from the other cq code, but this is less hassle for now
+      // ideally we would load this from the other cq code, but module importing here is a bit buggy
       const NodeTypes = {
         IDENTIFIER: 'IDENTIFIER',
         RANGE: 'RANGE',
         LINE_NUMBER: 'LINE_NUMBER',
         CALL_EXPRESSION: 'CALL_EXPRESSION',
         STRING: 'STRING'
+      };
+
+      const QueryResultTypes = {
+        SELECTION_EXPRESSION: 'SELECTION_EXPRESSION'
       };
 
       function extractOptional(optional, index) {
@@ -1138,6 +1144,7 @@ module.exports = (function() {
       function buildList(head, tail, index) {
         return [head].concat(extractList(tail, index));
       }
+
 
 
 

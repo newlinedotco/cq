@@ -18,13 +18,17 @@
  */
 
 {
-  // ideally we would load this from the other cq code, but this is less hassle for now
+  // ideally we would load this from the other cq code, but module importing here is a bit buggy
   const NodeTypes = {
     IDENTIFIER: 'IDENTIFIER',
     RANGE: 'RANGE',
     LINE_NUMBER: 'LINE_NUMBER',
     CALL_EXPRESSION: 'CALL_EXPRESSION',
     STRING: 'STRING'
+  };
+
+  const QueryResultTypes = {
+    SELECTION_EXPRESSION: 'SELECTION_EXPRESSION'
   };
 
   function extractOptional(optional, index) {
@@ -49,6 +53,7 @@
     return [head].concat(extractList(tail, index));
   }
 
+
 }
 
 start
@@ -56,6 +61,8 @@ start
 
 SelectionExpressions
   = head:SelectionExpression tail:(ws comma ws SelectionExpression)* {
+    // TODO: potentially use this for identifying the discontinuous queries
+    // head.queryType = QueryResultTypes.SELECTION_EXPRESSION;
     return buildList(head, tail, 3);
   }
 

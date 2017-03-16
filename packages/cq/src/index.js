@@ -23,6 +23,10 @@ export const NodeTypes = {
   CALL_EXPRESSION: 'CALL_EXPRESSION'
 };
 
+const QueryResultTypes = {
+  SELECTION_EXPRESSION: 'SELECTION_EXPRESSION'
+};
+
 const whitespace = new Set([' ', '\n', '\t', '\r']);
 
 function nextNewlinePos(code, start) {
@@ -367,14 +371,20 @@ function lineNumberOfCharacterIndex(code, idx) {
 function resolveListOfQueries(ast, root, code, query, engine, opts) {
   return query.reduce((acc, q) => {
     let resolved = resolveIndividualQuery(ast, root, code, q, engine, opts);
+
     // thought: maybe do something clever here like put in a comment ellipsis if
     // the queries aren't contiguous
+    // if((acc.nodes.length > 0) && 
+    //    (resolved.queryType === QueryResultTypes.SELECTION_EXPRESSION)) {
+    // }
     acc.code = acc.code + resolved.code;
-    acc.nodes = [...acc.nodes, resolved.node];
+
+    acc.nodes = [...acc.nodes, ...(resolved.nodes || [])];
     acc.start = Math.min(acc.start, resolved.start);
     acc.end = Math.max(acc.end, resolved.end);
     acc.start_line = Math.min(acc.start_line, lineNumberOfCharacterIndex(code, resolved.start));
     acc.end_line = Math.max(acc.end_line, lineNumberOfCharacterIndex(code, resolved.end));
+
     return acc;
   }, {
     code: '',

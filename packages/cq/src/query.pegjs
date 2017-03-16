@@ -7,9 +7,7 @@
  * .Switch
  * .Switch .render
  * .hello
- * .farm:-2,+2
  * .hello-.Farm
- * .hello-.Farm:-2,+2
  * 10-12
  * .Switch .renderOtherStuff-.render
  * .Polygon .distance-.area
@@ -54,7 +52,12 @@
 }
 
 start
-  = SelectionExpression
+  = SelectionExpressions
+
+SelectionExpressions
+  = head:SelectionExpression tail:(ws comma ws SelectionExpression)* {
+    return buildList(head, tail, 3);
+  }
 
 SelectionExpression
   = head:TermWithModifiers tail:(ws TermWithModifiers)* {
@@ -127,7 +130,7 @@ Arguments
     }
 
 ArgumentList
-  = head:FunctionArgument tail:(ws "," ws FunctionArgument)* {
+  = head:FunctionArgument tail:(ws comma ws FunctionArgument)* {
       return buildList(head, tail, 3);
     }
 
@@ -161,8 +164,6 @@ SpecialLineNumber
 
 dot = "."
 dash = "-"
-plus = "+"
-minus = "-"
 colon = ":"
 comma = ","
 openParen = "("

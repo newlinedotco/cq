@@ -386,11 +386,12 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
   })
 }
 
-export default async function cq(code, query, opts={}) {
+export default async function cq(code, queries, opts={}) {
   let engine = opts.engine || babylonEngine();
 
-  if(typeof query === 'string') {
-    query = [ parser.parse(query) ]; // parser returns single object for now, but eventually an array
+  if(typeof queries === 'string') {
+    // parse into an array
+    queries = parser.parse(queries);
   }
 
   if(typeof engine === 'string') {
@@ -420,7 +421,7 @@ export default async function cq(code, query, opts={}) {
   // debug(JSON.stringify(ast, null, 2));
   
   let root = engine.getInitialRoot(ast);
-  let results = resolveListOfQueries(ast, root, code, query, engine, opts);
+  let results = resolveListOfQueries(ast, root, code, queries, engine, opts);
 
   if(opts.undent) {
     results.code = undent(results.code);

@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cq-python-engine",
-  "version": "4.0.5",
+  "version": "5.0.1",
   "description": "python engine for cq",
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq-python-engine",

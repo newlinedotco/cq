@@ -1,4 +1,4 @@
-1. Update the `package.json` with the new version. We follow SemVer:
+1. Update the `lerna.json` with the new version. We follow SemVer:
 
 ```
 "version": "<major>.<minor>.<patch>",

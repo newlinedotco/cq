@@ -80,37 +80,41 @@ exports.default = function () {
                         format = blockOpts['format'] ? blockOpts['format'] : opts.format;
                         fullFilename = _path2.default.join(opts.path, actualName);
                         contents = _fs2.default.readFileSync(fullFilename).toString();
-                        cqResults = (0, _cq2.default)(contents, blockOpts['crop-query']); // TODO
+                        _context.next = 6;
+                        return (0, _cq2.default)(contents, blockOpts['crop-query']);
 
+                      case 6:
+                        cqResults = _context.sent;
+                        // TODO
                         replacement = void 0;
 
                         if (!(typeof format === "function")) {
-                          _context.next = 8;
+                          _context.next = 10;
                           break;
                         }
 
                         return _context.abrupt('return', format(cqResults, blockOpts));
 
-                      case 8:
+                      case 10:
                         _context.t0 = format;
-                        _context.next = _context.t0 === 'gfm' ? 11 : _context.t0 === 'raw' ? 13 : 15;
+                        _context.next = _context.t0 === 'gfm' ? 13 : _context.t0 === 'raw' ? 15 : 17;
                         break;
 
-                      case 11:
-                        replacement = formatGfm(cqResults, blockOpts);
-                        return _context.abrupt('break', 16);
-
                       case 13:
-                        replacement = formatRaw(cqResults, blockOpts);
-                        return _context.abrupt('break', 16);
+                        replacement = formatGfm(cqResults, blockOpts);
+                        return _context.abrupt('break', 18);
 
                       case 15:
-                        throw new Error('unknown format: ' + format);
-
-                      case 16:
-                        return _context.abrupt('return', replacement + ws);
+                        replacement = formatRaw(cqResults, blockOpts);
+                        return _context.abrupt('break', 18);
 
                       case 17:
+                        throw new Error('unknown format: ' + format);
+
+                      case 18:
+                        return _context.abrupt('return', replacement + ws);
+
+                      case 19:
                       case 'end':
                         return _context.stop();
                     }

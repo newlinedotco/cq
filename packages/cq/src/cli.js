@@ -43,6 +43,10 @@ if (!query) {
 
 let engine;
 
+if(argv.gapFiller) {
+  argv.gapFiller = argv.gapFiller.replace(/\\n/g, "\n");
+}
+
 // pick the parsing engine
 switch (argv.engine) {
   case "babylon":

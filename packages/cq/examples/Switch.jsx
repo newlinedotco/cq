@@ -11,6 +11,7 @@
  * cq '.Switch .select-.render' examples/Switch.jsx
  * cq 'context(.Switch .select, 2, 2)' examples/Switch.jsx
  * cq 'context(.Switch .select-.render, 4, 4)' examples/Switch.jsx
+ * cq  --gapFiller "\n  //...\n" 'window(.Switch, 0, 0), .renderChoice, window(.Switch, 0, 0, true)' ./examples/Switch.jsx
  * ```
  *
  * Fwiw, this partifular component is an excerpt from the book "Fullstack React".

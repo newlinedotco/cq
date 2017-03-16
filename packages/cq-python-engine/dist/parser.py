@@ -54,6 +54,10 @@ def fix_ast(tree, source_lines, tokens):
             node.start = tok[START]
             node.end = tok[END]
 
+    # TODO - combine both of these steps into a single breadth first search.
+    # what we need to change is
+    # if a token t1 has a sibling t2, then the end of t1 is the beginning of t2-1
+
     for node in ast.walk(tree):
         if hasattr(node, 'lineno') and hasattr(node, 'col_offset'):
             match_tokens(node)

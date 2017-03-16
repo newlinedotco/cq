@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -14,25 +14,25 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */
 
 
-var _babelTraverse = require('babel-traverse');
+var _babelTraverse = require("babel-traverse");
 
 var _babelTraverse2 = _interopRequireDefault(_babelTraverse);
 
-var _queryParser = require('./query-parser');
+var _queryParser = require("./query-parser");
 
 var _queryParser2 = _interopRequireDefault(_queryParser);
 
-var _babylon = require('./engines/babylon');
+var _babylon = require("./engines/babylon");
 
 var _babylon2 = _interopRequireDefault(_babylon);
 
-var _typescript = require('./engines/typescript');
+var _typescript = require("./engines/typescript");
 
 var _typescript2 = _interopRequireDefault(_typescript);
 
-var _util = require('./engines/util');
+var _util = require("./engines/util");
 
-var _debug = require('debug');
+var _debug = require("debug");
 
 var _debug2 = _interopRequireDefault(_debug);
 
@@ -44,21 +44,25 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
-var debug = (0, _debug2.default)('cq');
+var debug = (0, _debug2.default)("cq");
 
 var NodeTypes = exports.NodeTypes = {
-  IDENTIFIER: 'IDENTIFIER',
-  RANGE: 'RANGE',
-  LINE_NUMBER: 'LINE_NUMBER',
-  STRING: 'STRING',
-  CALL_EXPRESSION: 'CALL_EXPRESSION'
+  IDENTIFIER: "IDENTIFIER",
+  RANGE: "RANGE",
+  LINE_NUMBER: "LINE_NUMBER",
+  STRING: "STRING",
+  CALL_EXPRESSION: "CALL_EXPRESSION"
 };
 
-var whitespace = new Set([' ', '\n', '\t', '\r']);
+var QueryResultTypes = {
+  SELECTION_EXPRESSION: "SELECTION_EXPRESSION"
+};
+
+var whitespace = new Set([" ", "\n", "\t", "\r"]);
 
 function nextNewlinePos(code, start) {
   var pos = start;
-  while (pos < code.length && code[pos] !== '\n') {
+  while (pos < code.length && code[pos] !== "\n") {
     pos++;
   }
   return pos;
@@ -76,7 +80,7 @@ function movePositionByLines(code, numLines, position) {
     position--;
     while (position > 0 && numPreviousLines > 0) {
       position--;
-      if (code[position] === '\n') {
+      if (code[position] === "\n") {
         numPreviousLines--;
       }
     }
@@ -85,7 +89,7 @@ function movePositionByLines(code, numLines, position) {
     var numFollowingLines = numLines;
     position++;
     while (position < code.length && numFollowingLines > 0) {
-      if (code[position] === '\n') {
+      if (code[position] === "\n") {
         numFollowingLines--;
       }
       position++;
@@ -102,7 +106,9 @@ function adjustRangeWithContext(code, linesBefore, linesAfter, _ref) {
 
   if (linesBefore && linesBefore !== 0) {
     var trimNewline = linesBefore > 0 ? true : false;
-    start = movePositionByLines(code, -1 * linesBefore, start, { trimNewline: trimNewline });
+    start = movePositionByLines(code, -1 * linesBefore, start, {
+      trimNewline: trimNewline
+    });
   }
 
   if (linesAfter && linesAfter !== 0) {
@@ -115,7 +121,15 @@ function adjustRangeWithContext(code, linesBefore, linesAfter, _ref) {
 
 function adjustRangeWithWindow(code, startingLine, endingLine, _ref2) {
   var start = _ref2.start,
-      end = _ref2.end;
+      end = _ref2.end,
+      reverse = _ref2.reverse;
+
+  if (reverse) {
+    start = end;
+    start = movePositionByLines(code, -1, start, { trimNewline: true });
+  }
+
+  var forward = !reverse;
 
   // start, end are the range for the whole node
   var originalStart = start;
@@ -125,7 +139,7 @@ function adjustRangeWithWindow(code, startingLine, endingLine, _ref2) {
     start = movePositionByLines(code, startingLine, start, { trimNewline: trimNewline });
   }
 
-  if (endingLine === 0) {
+  if (forward && endingLine === 0) {
     end = nextNewlinePos(code, start);
     return { start: start, end: end };
   }
@@ -133,7 +147,9 @@ function adjustRangeWithWindow(code, startingLine, endingLine, _ref2) {
   if (isNumeric(endingLine)) {
     var _trimNewline2 = endingLine > 0 ? true : false;
     var eol = nextNewlinePos(code, originalStart);
-    end = movePositionByLines(code, endingLine, eol /* <- notice */, { trimNewline: _trimNewline2 });
+    end = movePositionByLines(code, endingLine, eol /* <- notice */, {
+      trimNewline: _trimNewline2
+    });
   }
 
   return { start: start, end: end };
@@ -177,7 +193,7 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
       nodes = _ref5.nodes;
 
   switch (callee) {
-    case 'upto':
+    case "upto":
       start--;
       // trim all of the whitespace before. TODO could be to make this optional
       while (start > 0 && whitespace.has(code[start])) {
@@ -186,29 +202,45 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
       start++;
       return { start: start, end: start };
       break;
-    case 'context':
+    case "context":
       var _args = _slicedToArray(args, 2),
           linesBefore = _args[0],
           linesAfter = _args[1];
 
-      return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, { start: start, end: end });
+      return adjustRangeWithContext(code, linesBefore.value, linesAfter.value, {
+        start: start,
+        end: end
+      });
       break;
-    case 'window':
-      var _args2 = _slicedToArray(args, 2),
+    case "window":
+      var _args2 = _slicedToArray(args, 3),
           startingLine = _args2[0],
-          endingLine = _args2[1];
+          endingLine = _args2[1],
+          reverse = _args2[2];
 
-      return adjustRangeWithWindow(code, startingLine.value, endingLine.value, { start: start, end: end });
+      return adjustRangeWithWindow(code, startingLine.value, endingLine.value, {
+        start: start,
+        end: end,
+        reverse: reverse
+      });
       break;
-    case 'comments':
+    case "comments":
       var leading = true,
           trailing = false;
-      return adjustRangeForComments(ast, code, leading, trailing, engine, { start: start, end: end, nodes: nodes });
+      return adjustRangeForComments(ast, code, leading, trailing, engine, {
+        start: start,
+        end: end,
+        nodes: nodes
+      });
       break;
-    case 'decorators':
-      return adjustRangeForDecorators(ast, code, leading, trailing, engine, { start: start, end: end, nodes: nodes });
+    case "decorators":
+      return adjustRangeForDecorators(ast, code, leading, trailing, engine, {
+        start: start,
+        end: end,
+        nodes: nodes
+      });
     default:
-      throw new Error('Unknown function call: ' + callee);
+      throw new Error("Unknown function call: " + callee);
   }
 }
 
@@ -222,14 +254,14 @@ function nodeToRangeLines(node, code, engine) {
   // we want to keep starting indentation, so search back to the previous
   // newline
   var start = range.start;
-  while (start > 0 && code[start] !== '\n') {
+  while (start > 0 && code[start] !== "\n") {
     start--;
   }
   start++; // don't include the newline
 
   // we also want to read to the end of the line for the node we found
   var end = range.end;
-  while (end < code.length && code[end] !== '\n') {
+  while (end < code.length && code[end] !== "\n") {
     end++;
   }
 
@@ -258,7 +290,7 @@ function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, op
   }
 
   if (!nextRoot) {
-    var unknownQueryError = new Error('Cannot find node for query: ' + query.matcher + ' (match ' + nodeIdx + ')');
+    var unknownQueryError = new Error("Cannot find node for query: " + query.matcher + " (match " + nodeIdx + ")");
     unknownQueryError.query = query;
     throw unknownQueryError;
   }
@@ -310,7 +342,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         // e.g. after() actually has two queries
         // TODO clean this up to unify design with `modifyAnswerWithCall`. `handled` is icky
         switch (callee) {
-          case 'after':
+          case "after":
             handled = true;
 
             var _args3 = _slicedToArray(args, 1),
@@ -319,7 +351,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
             var goalpostNode = resolveIndividualQuery(ast, root, code, goalpostQuery, engine, opts);
             opts.after = goalpostNode.end;
             break;
-          case 'choose':
+          case "choose":
             handled = true;
 
             var _args4 = _slicedToArray(args, 1),
@@ -332,7 +364,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         var answer = resolveIndividualQuery(ast, root, code, childQuery, engine, opts);
 
         // whatever the child answer is, now we modify it given our callee
-        // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end 
+        // TODO - modifying the asnwer needs to be given not only the answer start and end range, but the child node which returned that start and end
         if (!handled) {
           answer = modifyAnswerWithCall(ast, code, callee, args, engine, answer);
         }
@@ -371,25 +403,23 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
       }
     case NodeTypes.LINE_NUMBER:
       {
-
         // Parse special line numbers like EOF
-        if (typeof query.value === 'string') {
+        if (typeof query.value === "string") {
           switch (query.value) {
-            case 'EOF':
-              return { code: '', start: code.length, end: code.length };
+            case "EOF":
+              return { code: "", start: code.length, end: code.length };
               break;
             default:
-              throw new Error('Unknown LINE_NUMBER: ' + query.value);
+              throw new Error("Unknown LINE_NUMBER: " + query.value);
           }
         } else {
-
           if (query.value === 0) {
-            throw new Error('Line numbers start at 1, not 0');
+            throw new Error("Line numbers start at 1, not 0");
           }
 
           // find the acutal line number
-          var lines = code.split('\n');
-          var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER 
+          var lines = code.split("\n");
+          var line = lines[query.value - 1]; // one-indexed arguments to LINE_NUMBER
 
           // to get the starting index of this line...
           // we take the sum of all prior lines:
@@ -428,30 +458,49 @@ function undent(code) {
   // remove the indentation from each line
   return lines.map(function (line) {
     return line.substring(minIndent);
-  }).join('\n');
+  }).join("\n");
 }
 
-// given character index idx in code, returns the 1-indexed line number 
+// given character index idx in code, returns the 1-indexed line number
 function lineNumberOfCharacterIndex(code, idx) {
   var everythingUpUntilTheIndex = code.substring(0, idx);
   // computer science!
-  return everythingUpUntilTheIndex.split('\n').length;
+  return everythingUpUntilTheIndex.split("\n").length;
 }
 
 function resolveListOfQueries(ast, root, code, query, engine, opts) {
   return query.reduce(function (acc, q) {
     var resolved = resolveIndividualQuery(ast, root, code, q, engine, opts);
-    // thought: maybe do something clever here like put in a comment ellipsis if
-    // the queries aren't contiguous
-    acc.code = acc.code + resolved.code;
-    acc.nodes = [].concat(_toConsumableArray(acc.nodes), [resolved.node]);
+
+    var resolvedStartLine = lineNumberOfCharacterIndex(code, resolved.start);
+    var resolvedEndLine = lineNumberOfCharacterIndex(code, resolved.end);
+
+    var oldStartLine = acc.start_line;
+    var newStartLine = Math.min(acc.start_line, resolvedStartLine);
+
+    var oldEndLine = acc.end_line;
+    var newEndLine = Math.max(acc.end_line, resolvedEndLine);
+
+    if (opts.gapFiller && acc.code.length > 0 && oldEndLine + 1 < resolvedStartLine // there's a gap
+    ) {
+        // TODO - something clever about the indentation of the gapFiller?
+        acc.code = acc.code + opts.gapFiller + resolved.code;
+      } else if (opts.gapFiller && acc.code.length > 0 && oldEndLine + 1 === resolvedStartLine // they're contiguous
+    ) {
+        acc.code = acc.code + "\n" + resolved.code;
+      } else {
+      acc.code = acc.code + resolved.code;
+    }
+
+    acc.nodes = [].concat(_toConsumableArray(acc.nodes), _toConsumableArray(resolved.nodes || []));
     acc.start = Math.min(acc.start, resolved.start);
     acc.end = Math.max(acc.end, resolved.end);
-    acc.start_line = Math.min(acc.start_line, lineNumberOfCharacterIndex(code, resolved.start));
-    acc.end_line = Math.max(acc.end_line, lineNumberOfCharacterIndex(code, resolved.end));
+    acc.start_line = newStartLine;
+    acc.end_line = newEndLine;
+
     return acc;
   }, {
-    code: '',
+    code: "",
     nodes: [],
     start: Number.MAX_VALUE,
     end: Number.MIN_VALUE,
@@ -461,7 +510,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
 }
 
 exports.default = function () {
-  var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(code, query) {
+  var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(code, queries) {
     var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
     var engine, ast, root, results;
     return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -471,45 +520,46 @@ exports.default = function () {
             engine = opts.engine || (0, _babylon2.default)();
 
 
-            if (typeof query === 'string') {
-              query = [_queryParser2.default.parse(query)]; // parser returns single object for now, but eventually an array
+            if (typeof queries === "string") {
+              // parse into an array
+              queries = _queryParser2.default.parse(queries);
             }
 
-            if (!(typeof engine === 'string')) {
+            if (!(typeof engine === "string")) {
               _context.next = 18;
               break;
             }
 
             _context.t0 = engine;
-            _context.next = _context.t0 === 'typescript' ? 6 : _context.t0 === 'babylon' ? 8 : 10;
+            _context.next = _context.t0 === "typescript" ? 6 : _context.t0 === "babylon" ? 8 : 10;
             break;
 
           case 6:
             engine = (0, _typescript2.default)();
-            return _context.abrupt('break', 18);
+            return _context.abrupt("break", 18);
 
           case 8:
             engine = (0, _babylon2.default)();
-            return _context.abrupt('break', 18);
+            return _context.abrupt("break", 18);
 
           case 10:
             _context.prev = 10;
 
-            engine = require('cq-' + engine + '-engine');
+            engine = require("cq-" + engine + "-engine");
             _context.next = 17;
             break;
 
           case 14:
             _context.prev = 14;
-            _context.t1 = _context['catch'](10);
-            throw new Error('unknown engine: ' + engine);
+            _context.t1 = _context["catch"](10);
+            throw new Error("unknown engine: " + engine);
 
           case 17:
-            return _context.abrupt('break', 18);
+            return _context.abrupt("break", 18);
 
           case 18:
 
-            if (typeof engine === 'function') {
+            if (typeof engine === "function") {
               // then just use it
             }
 
@@ -523,17 +573,17 @@ exports.default = function () {
             // debug(JSON.stringify(ast, null, 2));
 
             root = engine.getInitialRoot(ast);
-            results = resolveListOfQueries(ast, root, code, query, engine, opts);
+            results = resolveListOfQueries(ast, root, code, queries, engine, opts);
 
 
             if (opts.undent) {
               results.code = undent(results.code);
             }
 
-            return _context.abrupt('return', results);
+            return _context.abrupt("return", results);
 
           case 27:
-          case 'end':
+          case "end":
             return _context.stop();
         }
       }

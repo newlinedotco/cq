@@ -20,7 +20,7 @@ var babylon = require("babylon");
 
 var defaultBabylonConfig = {
   sourceType: "module",
-  plugins: ['jsx', 'flow', 'asyncFunctions', 'classConstructorCall', 'doExpressions', 'trailingFunctionCommas', 'objectRestSpread', 'decorators', 'classProperties', 'exportExtensions', 'exponentiationOperator', 'asyncGenerators', 'functionBind', 'functionSent']
+  plugins: ["jsx", "flow", "asyncFunctions", "classConstructorCall", "doExpressions", "trailingFunctionCommas", "objectRestSpread", "decorators", "classProperties", "exportExtensions", "exponentiationOperator", "asyncGenerators", "functionBind", "functionSent"]
 };
 
 /*
@@ -29,7 +29,7 @@ var defaultBabylonConfig = {
  *   * figure out if we should unify `traverse` w/ typescript's
  */
 
-var ignoredProperties = new Set(['constructor', 'parent']);
+var ignoredProperties = new Set(["constructor", "parent"]);
 
 function getNodeName(node) {
   if (node.type) {
@@ -46,10 +46,10 @@ function traverse(node, nodeCbs) {
 
   if (nodeCbs.hasOwnProperty(nodeName)) {
     nodeCbs[nodeName](node);
-  };
+  }
 
   for (var prop in node) {
-    if (ignoredProperties.has(prop) || prop.charAt(0) === '_') {
+    if (ignoredProperties.has(prop) || prop.charAt(0) === "_") {
       continue;
     }
 
@@ -59,7 +59,8 @@ function traverse(node, nodeCbs) {
       propValue.filter(function (v) {
         return isNode(v);
       }).map(function (v) {
-        v.parent = node;return v;
+        v.parent = node;
+        return v;
       }).map(function (v) {
         return traverse(v, nodeCbs);
       });
@@ -79,14 +80,14 @@ function nodeToRange(node) {
   }
 
   switch (node.type) {
-    case 'ObjectProperty':
+    case "ObjectProperty":
       return {
         start: nodeToRange(node.key).start,
         end: nodeToRange(node.value).end
       };
     default:
       console.log("unknown", node);
-      throw new Error('nodeToRange of unknown type: ' + node.type);
+      throw new Error("nodeToRange of unknown type: " + node.type);
       break;
   }
 }

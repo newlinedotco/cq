@@ -1,15 +1,15 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = typescriptEngine;
 
-var _typescript = require('typescript');
+var _typescript = require("typescript");
 
 var ts = _interopRequireWildcard(_typescript);
 
-var _util = require('./util');
+var _util = require("./util");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -23,7 +23,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                                                                                                                                                                                                      */
 
 
-var ignoredProperties = new Set(['constructor', 'parent']);
+var ignoredProperties = new Set(["constructor", "parent"]);
 
 function getNodeName(node) {
   if (node.kind) {
@@ -39,10 +39,10 @@ function traverse(node, nodeCbs) {
   var nodeName = getNodeName(node);
   if (nodeCbs.hasOwnProperty(nodeName)) {
     nodeCbs[nodeName](node);
-  };
+  }
 
   for (var prop in node) {
-    if (ignoredProperties.has(prop) || prop.charAt(0) === '_') {
+    if (ignoredProperties.has(prop) || prop.charAt(0) === "_") {
       continue;
     }
 
@@ -67,9 +67,9 @@ function nodeToRange(node) {
   // specified
   var range = void 0;
 
-  if (typeof node.getStart === 'function' && typeof node.getEnd === 'function') {
+  if (typeof node.getStart === "function" && typeof node.getEnd === "function") {
     range = { start: node.getStart(), end: node.getEnd() };
-  } else if (typeof node.pos !== 'undefined' && typeof node.end !== 'undefined') {
+  } else if (typeof node.pos !== "undefined" && typeof node.end !== "undefined") {
     range = { start: node.pos, end: node.end };
   }
 
@@ -90,7 +90,7 @@ function typescriptEngine() {
     parse: function parse(code) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      return ts.createSourceFile(opts.filename || '(no filename)', code, ts.ScriptTarget.Latest, true);
+      return ts.createSourceFile(opts.filename || "(no filename)", code, ts.ScriptTarget.Latest, true);
     },
     getInitialRoot: function getInitialRoot(ast) {
       return ast;
@@ -127,7 +127,7 @@ function typescriptEngine() {
           // `constructor` is a special node in TypeScript (vs. babylon where
           // it's an Identifier) If the query is looking for a constructor by
           // identifier, then we will accept this Constructor node
-          if ('constructor' === query.matcher && 'IDENTIFIER' === query.type) {
+          if ("constructor" === query.matcher && "IDENTIFIER" === query.type) {
             paths = [].concat(_toConsumableArray(paths), [node]);
           }
         }
@@ -147,4 +147,4 @@ function typescriptEngine() {
     }
   };
 }
-module.exports = exports['default'];
+module.exports = exports["default"];

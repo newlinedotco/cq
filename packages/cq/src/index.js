@@ -83,7 +83,19 @@ function adjustRangeWithContext(code, linesBefore, linesAfter, { start, end }) {
   return { start, end };
 }
 
-function adjustRangeWithWindow(code, startingLine, endingLine, { start, end }) {
+function adjustRangeWithWindow(
+  code,
+  startingLine,
+  endingLine,
+  { start, end, reverse }
+) {
+  if (reverse) {
+    start = end;
+    start = movePositionByLines(code, -1, start, { trimNewline: true });
+  }
+
+  const forward = !reverse;
+
   // start, end are the range for the whole node
   let originalStart = start;
 
@@ -92,7 +104,7 @@ function adjustRangeWithWindow(code, startingLine, endingLine, { start, end }) {
     start = movePositionByLines(code, startingLine, start, { trimNewline });
   }
 
-  if (endingLine === 0) {
+  if (forward && endingLine === 0) {
     end = nextNewlinePos(code, start);
     return { start, end };
   }
@@ -174,10 +186,11 @@ function modifyAnswerWithCall(
       });
       break;
     case "window":
-      let [startingLine, endingLine] = args;
+      let [startingLine, endingLine, reverse] = args;
       return adjustRangeWithWindow(code, startingLine.value, endingLine.value, {
         start,
-        end
+        end,
+        reverse
       });
       break;
     case "comments":
@@ -467,24 +480,37 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
     (acc, q) => {
       let resolved = resolveIndividualQuery(ast, root, code, q, engine, opts);
 
-      // thought: maybe do something clever here like put in a comment ellipsis if
-      // the queries aren't contiguous
-      // if((acc.nodes.length > 0) &&
-      //    (resolved.queryType === QueryResultTypes.SELECTION_EXPRESSION)) {
-      // }
-      acc.code = acc.code + resolved.code;
+      let resolvedStartLine = lineNumberOfCharacterIndex(code, resolved.start);
+      let resolvedEndLine = lineNumberOfCharacterIndex(code, resolved.end);
+
+      let oldStartLine = acc.start_line;
+      let newStartLine = Math.min(acc.start_line, resolvedStartLine);
+
+      let oldEndLine = acc.end_line;
+      let newEndLine = Math.max(acc.end_line, resolvedEndLine);
+
+      if (
+        opts.gapFiller &&
+        acc.code.length > 0 &&
+        oldEndLine + 1 < resolvedStartLine // there's a gap
+      ) {
+        // TODO - something clever about the indentation of the gapFiller?
+        acc.code = acc.code + opts.gapFiller + resolved.code;
+      } else if (
+        opts.gapFiller &&
+        acc.code.length > 0 &&
+        oldEndLine + 1 === resolvedStartLine // they're contiguous
+      ) {
+        acc.code = acc.code + "\n" + resolved.code;
+      } else {
+        acc.code = acc.code + resolved.code;
+      }
 
       acc.nodes = [...acc.nodes, ...(resolved.nodes || [])];
       acc.start = Math.min(acc.start, resolved.start);
       acc.end = Math.max(acc.end, resolved.end);
-      acc.start_line = Math.min(
-        acc.start_line,
-        lineNumberOfCharacterIndex(code, resolved.start)
-      );
-      acc.end_line = Math.max(
-        acc.end_line,
-        lineNumberOfCharacterIndex(code, resolved.end)
-      );
+      acc.start_line = newStartLine;
+      acc.end_line = newEndLine;
 
       return acc;
     },

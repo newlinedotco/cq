@@ -246,6 +246,71 @@ module.exports = Switch;
 
       assert.equal(code, wanted);
     });
+
+    it("should extract code with gaps", async () => {
+      let {
+        code
+      } = await cq(
+        reactCreateClass,
+        "window(.Switch, 0, 0), .renderOtherStuff, window(.Switch, 0, 0, true)",
+        { gapFiller: "\n  // ...\n" }
+      );
+
+      console.log("code", code);
+      const wanted = `const Switch = React.createClass({
+  // ...
+  renderOtherStuff() {
+    return <div>Other Stuff</div>;
+  },
+  // ...
+});`;
+
+      assert.equal(code, wanted);
+    });
+
+    it("should extract code with gaps and contiguous", async () => {
+      let {
+        code
+      } = await cq(
+        reactCreateClass,
+        "window(.Switch, 0, 0), .render, window(.Switch, 0, 0, true)",
+        { gapFiller: "\n  // ...\n" }
+      );
+
+      console.log("code", code);
+      const wanted = `const Switch = React.createClass({
+  // ...
+  render() {
+    return <div>{this.renderOtherStuff()}</div>;
+  }
+});`;
+
+      assert.equal(code, wanted);
+    });
+
+    describe("reverseWindow", async () => {
+      it("should extract code from the end", async () => {
+        let { code } = await cq(
+          reactCreateClass,
+          "window(.Switch, -2, 0, true)"
+        );
+
+        const wanted = `    return <div>{this.renderOtherStuff()}</div>;
+  }
+});`;
+
+        assert.equal(code, wanted);
+      });
+
+      it("should extract code from the end", async () => {
+        let { code } = await cq(
+          reactCreateClass,
+          "window(.Switch, 0, 0, true)"
+        );
+        const wanted = `});`;
+        assert.equal(code, wanted);
+      });
+    });
   });
 
   describe("ES6 Classes", async () => {
@@ -590,21 +655,25 @@ bootstrap(DemoApp, [
       }
     );
 
-    it.pending(
-      "should have comment separators for discontiguous queries",
-      async () => {
-        {
-          let { code } = await cq(src, ".bootstrap, .routes");
-          // console.log('code, wanted', code);
-          // const wanted = lines(src, 8, 13);
-          // assert.equal(code, wanted);
+    it("should have comment separators for discontiguous queries", async () => {
+      {
+        let { code } = await cq(src, ".bootstrap, .routes", {
+          gapFiller: "\n// ...\n"
+        });
 
-          // test - normal sep case
-          // test - contig case
-          // test - getting class, then render w/ gap
-        }
+        const wanted = `import { bootstrap } from 'frobular';
+// ...
+const routes = [ 
+  { path: '', component: DemoApp },
+  { path: '/home' }
+];`;
+
+        assert.equal(code, wanted);
+        // test - normal sep case
+        // test - contig case
+        // test - getting class, then render w/ gap
       }
-    );
+    });
   });
 
   describe("disambiguation", async () => {

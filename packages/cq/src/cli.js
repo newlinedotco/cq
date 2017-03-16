@@ -22,6 +22,12 @@ let argv = yargs
     type: "boolean",
     describe: "emit short json result (no code). requires --json"
   })
+  .option("gapFiller", {
+    alias: "g",
+    type: "string",
+    describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
+    default: "\n// ...\n"
+  })
   .option("engine", {
     alias: "e",
     describe: "parsing engine. e.g. auto, babylon, typescript",
@@ -78,7 +84,9 @@ inputStream.on("data", function(buf) {
   content += buf.toString();
 });
 inputStream.on("end", function() {
-  cq(content, query, { engine }).then(result => {
+  let gapFiller = argv.gapFiller === 'false' ? false : argv.gapFiller;
+
+  cq(content, query, { engine, gapFiller }).then(result => {
     if (argv.json === true) {
       delete result["nodes"];
       if (argv.short === true) {

@@ -1,16 +1,16 @@
-import 'babel-polyfill';
-import chai from 'chai';
+import "babel-polyfill";
+import chai from "chai";
 let babel = require("babel-core");
 let babylon = require("babylon");
 const assert = chai.assert;
-import cq, { NodeTypes } from '../src/index';
+import cq, { NodeTypes } from "../src/index";
 
 function lines(str, startLine, endLine) {
-  return str.split('\n').slice(startLine, endLine + 1).join('\n');
+  return str.split("\n").slice(startLine, endLine + 1).join("\n");
 }
 
-describe('babylon', async () => {
-  describe('createClass', async () => {
+describe("babylon", async () => {
+  describe("createClass", async () => {
     const src = `
 import React, { PropTypes } from 'react';
 
@@ -23,48 +23,54 @@ const Switch = React.createClass({
 module.exports = Switch;
     `;
 
-    it('should return a top level identifier', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Switch'
-      }];
+    it("should return a top level identifier", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "Switch"
+        }
+      ];
 
       let { code } = await cq(src, query);
       const wanted = lines(src, 3, 7);
       assert.equal(code, wanted);
     });
 
-    it('should return an inner function', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Switch',
-        children: [{
+    it("should return an inner function", async () => {
+      let query = [
+        {
           type: NodeTypes.IDENTIFIER,
-          matcher: 'render'
-        }]
-      }];
+          matcher: "Switch",
+          children: [
+            {
+              type: NodeTypes.IDENTIFIER,
+              matcher: "render"
+            }
+          ]
+        }
+      ];
 
       let { code } = await cq(src, query);
       const wanted = lines(src, 4, 6);
       assert.equal(code, wanted);
     });
 
-    it('should parse string queries', async () => {
-      let query = '.Switch .render';
+    it("should parse string queries", async () => {
+      let query = ".Switch .render";
       let { code } = await cq(src, query);
       const wanted = lines(src, 4, 6);
       assert.equal(code, wanted);
     });
 
-    it('should parse to the EOF', async () => {
-      let query = '.Switch-EOF';
+    it("should parse to the EOF", async () => {
+      let query = ".Switch-EOF";
       let { code } = await cq(src, query);
       const wanted = lines(src, 3, 10);
       assert.equal(code, wanted);
     });
   });
 
-  describe('top level functions', async () => {
+  describe("top level functions", async () => {
     const someFunctions = `
 function hello() {
   return 'hello';
@@ -79,110 +85,120 @@ bye(); // -> 'bye'
 // never say goodbye
     `;
 
-    it('should return a function definition', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'hello'
-      }];
+    it("should return a function definition", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "hello"
+        }
+      ];
 
       let { code } = await cq(someFunctions, query);
       const wanted = lines(someFunctions, 1, 3);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('should return an anonymous function assigned to a variable', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'bye'
-      }];
+    it(
+      "should return an anonymous function assigned to a variable",
+      async () => {
+        let query = [
+          {
+            type: NodeTypes.IDENTIFIER,
+            matcher: "bye"
+          }
+        ];
 
-      let { code } = await cq(someFunctions, query);
-      const wanted = lines(someFunctions, 5, 7);
-      assert.equal(code, wanted);
-    })
+        let { code } = await cq(someFunctions, query);
+        const wanted = lines(someFunctions, 5, 7);
+        assert.equal(code, wanted);
+      }
+    );
 
-    it('should return an arrow function assigned to a variable', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Farm'
-      }];
+    it("should return an arrow function assigned to a variable", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "Farm"
+        }
+      ];
 
       let { code } = await cq(someFunctions, query);
       const wanted = lines(someFunctions, 9, 9);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('should include extra lines after given a modifier', async () => {
-      let { code } = await cq(someFunctions, 'context(.Farm, 0, 1)');
+    it("should include extra lines after given a modifier", async () => {
+      let { code } = await cq(someFunctions, "context(.Farm, 0, 1)");
       const wanted = lines(someFunctions, 9, 10);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('should include extra lines given a modifier', async () => {
-      let { code } = await cq(someFunctions, 'context(.Farm, 2, 2)');
+    it("should include extra lines given a modifier", async () => {
+      let { code } = await cq(someFunctions, "context(.Farm, 2, 2)");
       const wanted = lines(someFunctions, 7, 11);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('should include upto something', async () => {
-      let { code } = await cq(someFunctions, '1-upto(.Farm)');
+    it("should include upto something", async () => {
+      let { code } = await cq(someFunctions, "1-upto(.Farm)");
       const wanted = lines(someFunctions, 0, 7);
       assert.equal(code, wanted);
-    })
+    });
 
-
-    it('should get a range', async () => {
-      let query = [{
-        type: NodeTypes.RANGE,
-        start: {
-          type: NodeTypes.IDENTIFIER,
-          matcher: 'hello'
-        },
-        end: {
-          type: NodeTypes.IDENTIFIER,
-          matcher: 'Farm'
+    it("should get a range", async () => {
+      let query = [
+        {
+          type: NodeTypes.RANGE,
+          start: {
+            type: NodeTypes.IDENTIFIER,
+            matcher: "hello"
+          },
+          end: {
+            type: NodeTypes.IDENTIFIER,
+            matcher: "Farm"
+          }
         }
-      }];
+      ];
 
       let { code } = await cq(someFunctions, query);
       const wanted = lines(someFunctions, 1, 9);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('should get a range with line numbers', async () => {
-      let query = [{
-        type: NodeTypes.RANGE,
-        start: {
-          type: NodeTypes.LINE_NUMBER,
-          value: 10
-        },
-        end: {
-          type: NodeTypes.LINE_NUMBER,
-          value: 12
+    it("should get a range with line numbers", async () => {
+      let query = [
+        {
+          type: NodeTypes.RANGE,
+          start: {
+            type: NodeTypes.LINE_NUMBER,
+            value: 10
+          },
+          end: {
+            type: NodeTypes.LINE_NUMBER,
+            value: 12
+          }
         }
-      }];
+      ];
 
       let { code } = await cq(someFunctions, query);
       const wanted = lines(someFunctions, 9, 11);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('should allow two modifiers', async () => {
-      let { code } = await cq(someFunctions, 'context(1-upto(.Farm), 2, 4)');
+    it("should allow two modifiers", async () => {
+      let { code } = await cq(someFunctions, "context(1-upto(.Farm), 2, 4)");
       const wanted = lines(someFunctions, 0, 11);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('should not fail to undent top-level code', async () => {
-      let { code } = await cq(someFunctions, '.hello', {undent: true});
+    it("should not fail to undent top-level code", async () => {
+      let { code } = await cq(someFunctions, ".hello", { undent: true });
       const wanted = lines(someFunctions, 1, 3);
       assert.equal(code, wanted);
-    })
+    });
+  });
 
-  })
-
-
-  describe('createClass Plus', async () => {
+  describe("createClass Plus", async () => {
     const reactCreateClass = `
 import React, { PropTypes } from 'react';
 
@@ -203,22 +219,26 @@ const Switch = React.createClass({
 module.exports = Switch;
     `;
 
-    it('should return an inner range function', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Switch',
-        children: [{
-          type: NodeTypes.RANGE,
-          start: {
-            type: NodeTypes.IDENTIFIER,
-            matcher: 'renderOtherStuff'
-          }, 
-          end: {
-            type: NodeTypes.IDENTIFIER,
-            matcher: 'render'
-          }
-        }]
-      }];
+    it("should return an inner range function", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "Switch",
+          children: [
+            {
+              type: NodeTypes.RANGE,
+              start: {
+                type: NodeTypes.IDENTIFIER,
+                matcher: "renderOtherStuff"
+              },
+              end: {
+                type: NodeTypes.IDENTIFIER,
+                matcher: "render"
+              }
+            }
+          ]
+        }
+      ];
 
       let { code } = await cq(reactCreateClass, query);
       const wanted = lines(reactCreateClass, 8, 14);
@@ -228,7 +248,7 @@ module.exports = Switch;
     });
   });
 
-  describe('ES6 Classes', async () => {
+  describe("ES6 Classes", async () => {
     const es6Class = `
 class Polygon {
   static distance(a, b) {
@@ -256,11 +276,13 @@ const square = new Polygon(10, 10);
 console.log(square.area);
     `;
 
-    it('return an ES6 class', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Polygon',
-       }];
+    it("return an ES6 class", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "Polygon"
+        }
+      ];
 
       let { code } = await cq(es6Class, query);
       const wanted = lines(es6Class, 1, 20);
@@ -268,22 +290,26 @@ console.log(square.area);
       assert.equal(code, wanted);
     });
 
-    it('return functions from within a class', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'Polygon',
-        children: [{
-          type: NodeTypes.RANGE,
-          start: {
-            type: NodeTypes.IDENTIFIER,
-            matcher: 'distance'
-          },
-          end: {
-            type: NodeTypes.IDENTIFIER,
-            matcher: 'area'
-          }
-        }]
-       }];
+    it("return functions from within a class", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "Polygon",
+          children: [
+            {
+              type: NodeTypes.RANGE,
+              start: {
+                type: NodeTypes.IDENTIFIER,
+                matcher: "distance"
+              },
+              end: {
+                type: NodeTypes.IDENTIFIER,
+                matcher: "area"
+              }
+            }
+          ]
+        }
+      ];
 
       let { code } = await cq(es6Class, query);
       const wanted = lines(es6Class, 2, 15);
@@ -291,47 +317,49 @@ console.log(square.area);
       assert.equal(code, wanted);
     });
 
-    it('should allow negative context first', async () => {
-      let { code } = await cq(es6Class, 'context(.distance, -1, -1)');
+    it("should allow negative context first", async () => {
+      let { code } = await cq(es6Class, "context(.distance, -1, -1)");
       const wanted = lines(es6Class, 3, 5);
       assert.equal(code, wanted);
     });
 
-    it('should allow negative context', async () => {
-      let { code } = await cq(es6Class, 'context(.Polygon, -4, -4)');
+    it("should allow negative context", async () => {
+      let { code } = await cq(es6Class, "context(.Polygon, -4, -4)");
       const wanted = lines(es6Class, 5, 16);
       assert.equal(code, wanted);
     });
 
-    it('should get a constructor', async () => {
-      let { code } = await cq(es6Class, '.constructor');
+    it("should get a constructor", async () => {
+      let { code } = await cq(es6Class, ".constructor");
       const wanted = lines(es6Class, 8, 11);
       assert.equal(code, wanted);
     });
 
-    it('should get a constructor as a child of the class', async () => {
-      let { code } = await cq(es6Class, '.Polygon .constructor');
+    it("should get a constructor as a child of the class", async () => {
+      let { code } = await cq(es6Class, ".Polygon .constructor");
       const wanted = lines(es6Class, 8, 11);
       assert.equal(code, wanted);
     });
 
-    it('should get a constructor as a child of the class in a range', async () => {
-      let { code } = await cq(es6Class, '.Polygon-(.Polygon .constructor)');
-      const wanted = lines(es6Class, 1, 11);
-      assert.equal(code, wanted);
-    });
+    it(
+      "should get a constructor as a child of the class in a range",
+      async () => {
+        let { code } = await cq(es6Class, ".Polygon-(.Polygon .constructor)");
+        const wanted = lines(es6Class, 1, 11);
+        assert.equal(code, wanted);
+      }
+    );
 
-    it('should undent indented code', async () => {
-      let { code } = await cq(es6Class, '.area', {undent: true});
+    it("should undent indented code", async () => {
+      let { code } = await cq(es6Class, ".area", { undent: true });
       const wanted = `get area() {
   return this.calcArea();
-}`
+}`;
       assert.equal(code, wanted);
-    })
-
+    });
   });
 
-  describe('JSX', async () => {
+  describe("JSX", async () => {
     const funcWithJSX = `
 function submitButton (props) {
   const submitText = props.isCreate ? 'Create' : 'Update';
@@ -353,11 +381,13 @@ function submitButton (props) {
 }
     `;
 
-    it('returns a multi-line JSX element', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'SubmitButton',
-       }];
+    it("returns a multi-line JSX element", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "SubmitButton"
+        }
+      ];
 
       let { code } = await cq(funcWithJSX, query);
       const wanted = lines(funcWithJSX, 12, 15);
@@ -365,11 +395,13 @@ function submitButton (props) {
       assert.equal(code, wanted);
     });
 
-    it('returns a single-line JSX element', async () => {
-      let query = [{
-        type: NodeTypes.IDENTIFIER,
-        matcher: 'label',
-       }];
+    it("returns a single-line JSX element", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "label"
+        }
+      ];
 
       let { code } = await cq(funcWithJSX, query);
       const wanted = lines(funcWithJSX, 6, 6);
@@ -377,8 +409,8 @@ function submitButton (props) {
       assert.equal(code, wanted);
     });
 
-    it('returns an in-line code expression', async () => {
-      let query = 'choose(.submitText, 1)'
+    it("returns an in-line code expression", async () => {
+      let query = "choose(.submitText, 1)";
 
       let { code } = await cq(funcWithJSX, query);
       const wanted = lines(funcWithJSX, 13, 13);
@@ -386,8 +418,8 @@ function submitButton (props) {
       assert.equal(code, wanted);
     });
 
-    it('returns an attribute on a JSX element', async () => {
-      let query = '.SubmitButton.onSubmit'
+    it("returns an attribute on a JSX element", async () => {
+      let query = ".SubmitButton.onSubmit";
 
       let { code } = await cq(funcWithJSX, query);
       const wanted = lines(funcWithJSX, 14, 14);
@@ -395,8 +427,8 @@ function submitButton (props) {
       assert.equal(code, wanted);
     });
 
-    it('returns a range of attributes on a JSX element', async () => {
-      let query = '.SubmitButton .submitText-.onSubmit'
+    it("returns a range of attributes on a JSX element", async () => {
+      let query = ".SubmitButton .submitText-.onSubmit";
 
       let { code } = await cq(funcWithJSX, query);
       const wanted = lines(funcWithJSX, 13, 14);
@@ -405,7 +437,7 @@ function submitButton (props) {
     });
   });
 
-  describe('more ES6 Classes', async () => {
+  describe("more ES6 Classes", async () => {
     const src = `
 class Square {
   area() {
@@ -420,15 +452,14 @@ class Circle {
 }
     `;
 
-    it('return disambiguate based on parent', async () => {
-      let { code } = await cq(src, '.Circle .area');
+    it("return disambiguate based on parent", async () => {
+      let { code } = await cq(src, ".Circle .area");
       const wanted = lines(src, 8, 10);
       assert.equal(code, wanted);
     });
-
   });
 
-  describe('searching for strings', async () => {
+  describe("searching for strings", async () => {
     const src = `
 import foo from 'bar';
 // here is a nice test
@@ -445,32 +476,32 @@ describe('Other Test', async () => {
 });
     `;
 
-    it('find a whole test', async () => {
+    it("find a whole test", async () => {
       let { code } = await cq(src, "'My Test'");
       const wanted = lines(src, 3, 7);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('find a child should', async () => {
+    it("find a child should", async () => {
       let { code } = await cq(src, "'My Test' 'should pass'");
       const wanted = lines(src, 4, 6);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('find a child should with the same name', async () => {
+    it("find a child should with the same name", async () => {
       let { code } = await cq(src, "'Other Test' 'should pass'");
       const wanted = lines(src, 10, 12);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('find strings in a range', async () => {
+    it("find strings in a range", async () => {
       let { code } = await cq(src, "1-'My Test'");
       const wanted = lines(src, 0, 7);
       assert.equal(code, wanted);
-    })
+    });
   });
 
-  describe('getting comments', async () => {
+  describe("getting comments", async () => {
     const src = `
 // hello says hello
 // it's the best
@@ -490,28 +521,29 @@ function noComments() {
 }
 `;
 
-    it('find a group of single-line comments preceeding', async () => {
+    it("find a group of single-line comments preceeding", async () => {
       let { code } = await cq(src, "comments(.hello)");
       const wanted = lines(src, 1, 5);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('find a block comment preceeding', async () => {
+    it("find a block comment preceeding", async () => {
       let { code } = await cq(src, "comments(.bye)");
       const wanted = lines(src, 7, 12);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('shouldnt fail if you try to get comments where there are none', async () => {
-      let { code } = await cq(src, "comments(.noComments)");
-      const wanted = lines(src, 14, 16);
-      assert.equal(code, wanted);
-    })
-
-
+    it(
+      "shouldnt fail if you try to get comments where there are none",
+      async () => {
+        let { code } = await cq(src, "comments(.noComments)");
+        const wanted = lines(src, 14, 16);
+        assert.equal(code, wanted);
+      }
+    );
   });
 
-  describe('ranges', async () => {
+  describe("ranges", async () => {
     const src = `
 import { bootstrap } from 'frobular';
 
@@ -532,28 +564,34 @@ bootstrap(DemoApp, [
 ]);
 `;
 
-    it('should find ranges for identifiers only if they are beyond the start of the range', async () => {
-      let { code } = await cq(src, ".routes-.bootstrap");
-      const wanted = lines(src, 8, 17);
-      assert.equal(code, wanted);
-    })
-
-    it('should find ranges for strings only if they are beyond the start of the range', async () => {
-      {
-        let { code } = await cq(src, "'hi'");
-        const wanted = lines(src, 6, 6);
+    it(
+      "should find ranges for identifiers only if they are beyond the start of the range",
+      async () => {
+        let { code } = await cq(src, ".routes-.bootstrap");
+        const wanted = lines(src, 8, 17);
         assert.equal(code, wanted);
       }
+    );
 
-      {
-        let { code } = await cq(src, ".routes-'hi'");
-        const wanted = lines(src, 8, 13);
-        assert.equal(code, wanted);
+    it(
+      "should find ranges for strings only if they are beyond the start of the range",
+      async () => {
+        {
+          let { code } = await cq(src, "'hi'");
+          const wanted = lines(src, 6, 6);
+          assert.equal(code, wanted);
+        }
+
+        {
+          let { code } = await cq(src, ".routes-'hi'");
+          const wanted = lines(src, 8, 13);
+          assert.equal(code, wanted);
+        }
       }
-    })
+    );
   });
 
-  describe('disambiguation', async () => {
+  describe("disambiguation", async () => {
     const src = `
 /*
  * Shows the photos
@@ -569,20 +607,20 @@ export class PhotosComponent {
 }
 `;
 
-    it('choose should pick the right element', async () => {
+    it("choose should pick the right element", async () => {
       let { code } = await cq(src, "choose(.search, 1)");
       const wanted = lines(src, 9, 11);
       assert.equal(code, wanted);
-    })
+    });
 
-    it('choose should pick the right child selection', async () => {
+    it("choose should pick the right child selection", async () => {
       let { code } = await cq(src, "choose(.PhotosComponent .search, 1)");
       const wanted = lines(src, 9, 11);
       assert.equal(code, wanted);
-    })
-  })
+    });
+  });
 
-  describe('More JSX', async () => {
+  describe("More JSX", async () => {
     const src = `
     const EditableTimerList = React.createClass({
       render: function () {
@@ -618,20 +656,16 @@ export class PhotosComponent {
     });
     `;
 
-    it('Find a JSXIdentifier as an identifier', async () => {
+    it("Find a JSXIdentifier as an identifier", async () => {
       let { code } = await cq(src, ".Timer");
       const wanted = lines(src, 26, 29);
       assert.equal(code, wanted);
     });
 
-    it('Find a JSXIdentifier child identifier', async () => {
+    it("Find a JSXIdentifier child identifier", async () => {
       let { code } = await cq(src, ".EditableTimer .Timer");
       const wanted = lines(src, 26, 29);
       assert.equal(code, wanted);
     });
-
   });
-
-
-
 });

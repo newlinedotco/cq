@@ -37,7 +37,8 @@ export default async function cqmd(text, opts={}) {
 
     let fullFilename = path.join(opts.path, actualName);
     let contents = fs.readFileSync(fullFilename).toString();
-    let cqResults = cq(contents, blockOpts['crop-query']); // TODO
+
+    let cqResults = await cq(contents, blockOpts['crop-query']); // TODO
     let replacement;
 
     if(typeof format === "function") {

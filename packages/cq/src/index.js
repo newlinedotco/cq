@@ -496,6 +496,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
       ) {
         // TODO - something clever about the indentation of the gapFiller?
         acc.code = acc.code + opts.gapFiller + resolved.code;
+        acc.disjoint = true
       } else if (
         opts.gapFiller &&
         acc.code.length > 0 &&
@@ -520,7 +521,8 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
       start: Number.MAX_VALUE,
       end: Number.MIN_VALUE,
       start_line: Number.MAX_VALUE,
-      end_line: Number.MIN_VALUE
+      end_line: Number.MIN_VALUE,
+      disjoint: false
     }
   );
 }

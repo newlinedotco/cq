@@ -26,7 +26,7 @@ let argv = yargs
     alias: "g",
     type: "string",
     describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
-    default: "\n// ...\n"
+    default: "\n  // ...\n"
   })
   .option("engine", {
     alias: "e",

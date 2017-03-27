@@ -1,10 +1,4 @@
-1. Update the `lerna.json` with the new version. We follow SemVer:
-
-```
-"version": "<major>.<minor>.<patch>",
-```
-
-2. Release on npm:
+1. Run lerna to bump and publish on npm
 
 ```
 npm login # if you aren't already logged in

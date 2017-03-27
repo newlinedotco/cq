@@ -302,8 +302,46 @@ describe('queryParserTest', () => {
       assert.deepEqual(actual, expected);
     });
 
+    it('should return two top level identifiers with parens', () => {
+      let actual = parser.parse('(.Switch, .Cow)');
+      let expected = [{
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'Switch'
+      },
+      {
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'Cow'
+      }];
+      assert.deepEqual(actual, expected);
+    });
+
+
     it('should return two top level identifiers, even with functions', () => {
       let actual = parser.parse('.Switch, context(.foo, -2, -3)');
+      let expected = [{
+        type: NodeTypes.IDENTIFIER,
+        matcher: 'Switch'
+      },
+      {
+        type: NodeTypes.CALL_EXPRESSION,
+        callee: 'context',
+        arguments: [{
+          matcher: 'foo',
+          type: NodeTypes.IDENTIFIER,
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: -2 
+        }, {
+          type: NodeTypes.LINE_NUMBER,
+          value: -3 
+        }]
+      }];
+      assert.deepEqual(actual, expected);
+    });
+
+
+    it('should return two top level identifiers, even with functions with parens', () => {
+      let actual = parser.parse('(.Switch, context(.foo, -2, -3))');
       let expected = [{
         type: NodeTypes.IDENTIFIER,
         matcher: 'Switch'

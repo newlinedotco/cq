@@ -57,7 +57,11 @@
 }
 
 start
-  = SelectionExpressions
+  = openParenWs selExps:SelectionExpressions closeParenWs {
+    return selExps;
+  }
+  / SelectionExpressions
+
 
 SelectionExpressions
   = head:SelectionExpression tail:(ws comma ws SelectionExpression)* {
@@ -111,7 +115,7 @@ Selection
   / CallExpression
 
 SelectionGroup
-  = openParen node:SelectionExpression closeParen {
+  = openParenWs node:SelectionExpression closeParenWs {
     return node;
   }
 
@@ -169,16 +173,18 @@ Boolean "boolean"
 SpecialLineNumber
   = eof
 
+ws "whitespace" = [ \t\n\r]*
 dot = "."
 dash = "-"
 colon = ":"
 comma = ","
 openParen = "("
+openParenWs = openParen ws
 closeParen = ")"
+closeParenWs = closeParen ws
 eof = "EOF"
 true = "true" { return true; }
 false = "false" { return false; }
-ws "whitespace" = [ \t\n\r]*
 singleQuote = "'"
 char = [A-Za-z0-9_$]
 innerString = [^\n\']*

@@ -57,10 +57,10 @@
 }
 
 start
-  = openParenWs selExps:SelectionExpressions closeParenWs {
+  = SelectionExpressions
+  / openParenWs selExps:SelectionExpressions closeParenWs {
     return selExps;
   }
-  / SelectionExpressions
 
 
 SelectionExpressions

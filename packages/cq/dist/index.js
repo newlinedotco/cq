@@ -192,6 +192,7 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
       end = _ref5.end,
       nodes = _ref5.nodes;
 
+
   switch (callee) {
     case "upto":
       start--;
@@ -222,6 +223,20 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
         start: start,
         end: end,
         reverse: reverse
+      });
+      break;
+    case "firstLineOf":
+      return adjustRangeWithWindow(code, 0, 0, {
+        start: start,
+        end: end,
+        reverse: false
+      });
+      break;
+    case "lastLineOf":
+      return adjustRangeWithWindow(code, 0, 0, {
+        start: start,
+        end: end,
+        reverse: true
       });
       break;
     case "comments":

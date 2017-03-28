@@ -31,7 +31,7 @@ var argv = _yargs2.default.usage("Usage: $0 [options] <query> <file>").example("
   alias: "g",
   type: "string",
   describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
-  default: "\n// ...\n"
+  default: "\n  // ...\n"
 }).option("engine", {
   alias: "e",
   describe: "parsing engine. e.g. auto, babylon, typescript",

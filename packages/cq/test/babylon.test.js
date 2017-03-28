@@ -753,4 +753,91 @@ export class PhotosComponent {
       assert.equal(code, wanted);
     });
   });
+
+  describe("more components", async () => {
+    const src = `
+import React, { PropTypes } from 'react';
+
+class ThreadList extends React.Component {
+  static contextTypes = {
+    users: PropTypes.array,
+  };
+
+  render() {
+    return (
+      <div className={styles.threadList}>
+      </div>
+    );
+  }
+}
+
+class ChatWindow extends React.Component {
+  static propTypes = {
+    messages: PropTypes.object,
+  };
+
+  static contextTypes = {
+    userMap: PropTypes.object,
+  };
+
+  render() {
+    return (
+      <div className={styles.chat}>
+      </div>
+    );
+  }
+}
+
+`;
+
+    it("should grab firstLineOf", async () => {
+      let { code } = await cq(src, "firstLineOf(.ThreadList),.ThreadList .contextTypes,lastLineOf(.ThreadList)", {
+        gapFiller: "\n  // ...\n"
+      });
+      const wanted = `class ThreadList extends React.Component {
+  static contextTypes = {
+    users: PropTypes.array,
+  };
+  // ...
+}`;
+      assert.equal(code, wanted);
+    });
+
+    it("should properly add continuous newlines", async () => {
+      let { code } = await cq(src, "window(.ThreadList,0,0),.contextTypes,window(.ThreadList,0,0,true)", {
+        gapFiller: "\n  // ...\n"
+      });
+      const wanted = `class ThreadList extends React.Component {
+  static contextTypes = {
+    users: PropTypes.array,
+  };
+  // ...
+}`;
+      assert.equal(code, wanted);
+    });
+
+   it("should properly add continuous newlines again", async () => {
+      let { code } = await cq(src, "window(.ThreadList,0,0),.contextTypes,window(.ThreadList,0,0,true),window(.ChatWindow,0,0),.ChatWindow .contextTypes,window(.ChatWindow,0,0,true)", {
+        gapFiller: "\n  // ...\n"
+      });
+//       let { code } = await cq(src, "firstLineOf(.ThreadList),.contextTypes,lastLineOf(.ThreadList),firstLineOf(.ChatWindow),.ChatWindow .contextTypes,lastLineOf(.ChatWindow)", {
+      const wanted = `class ThreadList extends React.Component {
+  static contextTypes = {
+    users: PropTypes.array,
+  };
+  // ...
+}
+  // ...
+class ChatWindow extends React.Component {
+  // ...
+  static contextTypes = {
+    userMap: PropTypes.object,
+  };
+  // ...
+}`;
+      assert.equal(code, wanted);
+    });
+
+  });
+
 });

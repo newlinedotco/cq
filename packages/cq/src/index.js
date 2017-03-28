@@ -168,6 +168,7 @@ function modifyAnswerWithCall(
   engine,
   { start, end, nodes }
 ) {
+
   switch (callee) {
     case "upto":
       start--;
@@ -191,6 +192,20 @@ function modifyAnswerWithCall(
         start,
         end,
         reverse
+      });
+      break;
+    case "firstLineOf":
+      return adjustRangeWithWindow(code, 0, 0, {
+        start,
+        end,
+        reverse: false
+      });
+      break;
+    case "lastLineOf":
+      return adjustRangeWithWindow(code, 0, 0, {
+        start,
+        end,
+        reverse: true
       });
       break;
     case "comments":

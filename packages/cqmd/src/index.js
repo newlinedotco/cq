@@ -24,6 +24,7 @@ function formatRaw(results, opts={}) {
 
 export default async function cqmd(text, opts={}) {
   opts.format = opts.format || 'gfm';
+  opts.gapFiller = (typeof opts.gapFiller != 'undefined') ? opts.gapFiller : "\n  // ...\n";
 
   let replacer = async function(match, rawSettings, displayName, actualName, ws, offset, s) {
     let blockOpts = splitNoParen(rawSettings).reduce((acc, pair) => {
@@ -37,8 +38,13 @@ export default async function cqmd(text, opts={}) {
 
     let fullFilename = path.join(opts.path, actualName);
     let contents = fs.readFileSync(fullFilename).toString();
+    let cqOpts = {};
 
-    let cqResults = await cq(contents, blockOpts['crop-query']); // TODO
+    if (typeof opts.gapFiller != 'undefined') {
+      cqOpts['gapFiller'] = opts.gapFiller;
+    }
+
+    let cqResults = await cq(contents, blockOpts['crop-query'], cqOpts); // TODO
     let replacement;
 
     if(typeof format === "function") {

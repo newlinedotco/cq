@@ -22,6 +22,12 @@ let argv = yargs
       type: 'string',
       describe: 'The root path for the code '
     })
+    .option("gapFiller", {
+      alias: "g",
+      type: "string",
+      describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
+      default: "\n  // ...\n"
+    })
     .option('format', {
       alias: 'f',
       describe: 'the format to convert codeblocks into',
@@ -46,6 +52,8 @@ var content = '';
 inputStream.resume();
 inputStream.on('data', function(buf) { content += buf.toString(); });
 inputStream.on('end', function() {
+  argv.gapFiller = argv.gapFiller === 'false' ? false : argv.gapFiller;
+
   cqmd(content, argv).then((result) => {
     if(argv.output) {
       fs.writeFileSync(argv.output, result);

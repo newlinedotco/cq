@@ -414,13 +414,27 @@ Keep in mind that the `selection` denotes a node which can span multiple lines. 
 
 #### `window()`
 
-- `window(selection, startNumLinesAfter, endNumLinesAfter)`
+- `window(selection, startNumLinesAfter, endNumLinesAfter, reverse=false)`
 
 `window()` returns a specific number of lines relative to `selection`. For example, `window(.foo, 0, 4)` would give 5 lines, the `foo` identifier and the four lines following.
 
 It differs from `context()` in that both arguments to `window()` are relative to the _start_ of the `selection`. 
 
 `window()` is useful for extracting a specific range of lines near a particular `selection`. The `selection` is considered to start at index `0`, which means negative numbers denote the lines before the start of the selection. 
+
+If `reverse` is true, start the window at the _end_ of the selection.
+
+#### `firstLineOf()`
+
+- `firstLineOf(selection)`
+
+Sugar - same as `window(selection, 0, 0)`
+
+#### `lastLineOf()`
+
+- `lastLineOf(selection)`
+
+Sugar - same as `window(selection, 0, 0, true)`
 
 #### `upto()`
 
@@ -501,6 +515,29 @@ $ cq '.HomeComponent .Component' examples/HomeComponent.ts
   template: `<h1>Welcome!</h1>`
 })
 ```
+
+## Other Features
+
+### Multiple Queries with Gap Filling
+
+You can have multiple queries and any if they are not contiguous they can be filled with a gap filler:
+
+```typescript
+$ cq '(firstLineOf(.AuthService),.logout,.isLoggedIn,lastLineOf(.AuthService))' examples/AuthService.ts
+
+export class AuthService {
+  // ...
+  logout(): any {
+    localStorage.removeItem('username');
+  }
+  // ...
+  isLoggedIn(): boolean {
+    return this.getUser() !== null;
+  }
+}
+```
+
+This gap filler can be customized with the `--gapFiller` option on the commandline.
 
 ## CLI Usage
 

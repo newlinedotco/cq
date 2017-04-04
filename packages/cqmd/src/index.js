@@ -44,6 +44,16 @@ export default async function cqmd(text, opts={}) {
       cqOpts['gapFiller'] = opts.gapFiller;
     }
 
+    if (typeof blockOpts['gapFiller'] != 'undefined') {
+      cqOpts['gapFiller'] = blockOpts['gapFiller'];
+    }
+
+    if (typeof cqOpts['gapFiller'] != 'undefined') {
+      cqOpts['gapFiller'] = cqOpts['gapFiller'].replace(/\\n/g, "\n");
+      // TODO handle this in ~splitNoParen
+      cqOpts['gapFiller'] = cqOpts['gapFiller'].replace(/^"/, "").replace(/"$/m, "");
+    }
+
     let cqResults = await cq(contents, blockOpts['crop-query'], cqOpts); // TODO
     let replacement;
 

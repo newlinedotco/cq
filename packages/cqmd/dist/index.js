@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -6,21 +6,21 @@ Object.defineProperty(exports, "__esModule", {
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _cq = require('@fullstackio/cq');
+var _cq = require("@fullstackio/cq");
 
 var _cq2 = _interopRequireDefault(_cq);
 
-var _fs = require('fs');
+var _fs = require("fs");
 
 var _fs2 = _interopRequireDefault(_fs);
 
-var _path = require('path');
+var _path = require("path");
 
 var _path2 = _interopRequireDefault(_path);
 
-var _util = require('./util');
+var _util = require("./util");
 
-var _stringReplaceAsync = require('string-replace-async');
+var _stringReplaceAsync = require("string-replace-async");
 
 var _stringReplaceAsync2 = _interopRequireDefault(_stringReplaceAsync);
 
@@ -38,8 +38,8 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 function formatGfm(results) {
   var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-  var lang = opts.lang ? opts.lang : '';
-  return '```' + lang + '\n' + results.code + '\n' + '```';
+  var lang = opts.lang ? opts.lang : "";
+  return "```" + lang + "\n" + results.code + "\n" + "```";
 }
 
 function formatRaw(results) {
@@ -56,8 +56,8 @@ exports.default = function () {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            opts.format = opts.format || 'gfm';
-            opts.gapFiller = typeof opts.gapFiller != 'undefined' ? opts.gapFiller : "\n  // ...\n";
+            opts.format = opts.format || "gfm";
+            opts.gapFiller = typeof opts.gapFiller != "undefined" ? opts.gapFiller : "\n  // ...\n";
 
             replacer = function () {
               var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(match, rawSettings, displayName, actualName, ws, offset, s) {
@@ -67,7 +67,7 @@ exports.default = function () {
                     switch (_context.prev = _context.next) {
                       case 0:
                         blockOpts = (0, _util.splitNoParen)(rawSettings).reduce(function (acc, pair) {
-                          var _pair$split = pair.split('='),
+                          var _pair$split = pair.split("="),
                               _pair$split2 = _slicedToArray(_pair$split, 2),
                               k = _pair$split2[0],
                               v = _pair$split2[1];
@@ -78,28 +78,28 @@ exports.default = function () {
 
                         // blocks override the global setting
 
-                        format = blockOpts['format'] ? blockOpts['format'] : opts.format;
+                        format = blockOpts["format"] ? blockOpts["format"] : opts.format;
                         fullFilename = _path2.default.join(opts.path, actualName);
                         contents = _fs2.default.readFileSync(fullFilename).toString();
                         cqOpts = {};
 
 
-                        if (typeof opts.gapFiller != 'undefined') {
-                          cqOpts['gapFiller'] = opts.gapFiller;
+                        if (typeof opts.gapFiller != "undefined") {
+                          cqOpts["gapFiller"] = opts.gapFiller;
                         }
 
-                        if (typeof blockOpts['gapFiller'] != 'undefined') {
-                          cqOpts['gapFiller'] = blockOpts['gapFiller'];
+                        if (typeof blockOpts["gapFiller"] != "undefined") {
+                          cqOpts["gapFiller"] = blockOpts["gapFiller"];
                         }
 
-                        if (typeof cqOpts['gapFiller'] != 'undefined') {
-                          cqOpts['gapFiller'] = cqOpts['gapFiller'].replace(/\\n/g, "\n");
+                        if (typeof cqOpts["gapFiller"] != "undefined") {
+                          cqOpts["gapFiller"] = cqOpts["gapFiller"].replace(/\\n/g, "\n");
                           // TODO handle this in ~splitNoParen
-                          cqOpts['gapFiller'] = cqOpts['gapFiller'].replace(/^"/, "").replace(/"$/m, "");
+                          cqOpts["gapFiller"] = cqOpts["gapFiller"].replace(/^"/, "").replace(/"$/m, "");
                         }
 
                         _context.next = 10;
-                        return (0, _cq2.default)(contents, blockOpts['crop-query'], cqOpts);
+                        return (0, _cq2.default)(contents, blockOpts["crop-query"], cqOpts);
 
                       case 10:
                         cqResults = _context.sent;
@@ -111,29 +111,29 @@ exports.default = function () {
                           break;
                         }
 
-                        return _context.abrupt('return', format(cqResults, blockOpts));
+                        return _context.abrupt("return", format(cqResults, blockOpts));
 
                       case 14:
                         _context.t0 = format;
-                        _context.next = _context.t0 === 'gfm' ? 17 : _context.t0 === 'raw' ? 19 : 21;
+                        _context.next = _context.t0 === "gfm" ? 17 : _context.t0 === "raw" ? 19 : 21;
                         break;
 
                       case 17:
                         replacement = formatGfm(cqResults, blockOpts);
-                        return _context.abrupt('break', 22);
+                        return _context.abrupt("break", 22);
 
                       case 19:
                         replacement = formatRaw(cqResults, blockOpts);
-                        return _context.abrupt('break', 22);
+                        return _context.abrupt("break", 22);
 
                       case 21:
-                        throw new Error('unknown format: ' + format);
+                        throw new Error("unknown format: " + format);
 
                       case 22:
-                        return _context.abrupt('return', replacement + ws);
+                        return _context.abrupt("return", replacement + ws);
 
                       case 23:
-                      case 'end':
+                      case "end":
                         return _context.stop();
                     }
                   }
@@ -150,10 +150,10 @@ exports.default = function () {
 
           case 5:
             newText = _context2.sent;
-            return _context2.abrupt('return', newText);
+            return _context2.abrupt("return", newText);
 
           case 7:
-          case 'end':
+          case "end":
             return _context2.stop();
         }
       }
@@ -167,4 +167,4 @@ exports.default = function () {
   return cqmd;
 }();
 
-module.exports = exports['default'];
+module.exports = exports["default"];

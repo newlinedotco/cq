@@ -840,4 +840,60 @@ class ChatWindow extends React.Component {
 
   });
 
+  describe("even more components", async () => {
+    const src = `
+import React from 'react';
+
+class Clock extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = this.getTime();
+  }
+
+  getTime() {
+    const currentTime = new Date();
+    return {
+      hours: currentTime.getHours(),
+      minutes: currentTime.getMinutes(),
+      seconds: currentTime.getSeconds(),
+      ampm: currentTime.getHours() >= 12 ? 'pm' : 'am'
+    }
+  }
+
+  render() {
+    const {hours, minutes, seconds, ampm} = this.state;
+    return (
+      <div className="clock">
+        {ampm}
+      </div>
+    )
+  }
+}
+
+export default Clock`;
+
+    it("should grab render with ellipsis", async () => {
+      let { code } = await cq(src, "(firstLineOf(.Clock),.render,lastLineOf(.Clock),choose(.Clock,1))", {
+        gapFiller: "\n  // ...\n"
+      });
+      const wanted = `class Clock extends React.Component {
+  // ...
+  render() {
+    const {hours, minutes, seconds, ampm} = this.state;
+    return (
+      <div className="clock">
+        {ampm}
+      </div>
+    )
+  }
+}
+  // ...
+export default Clock`;
+      assert.equal(code, wanted);
+    });
+
+  });
+
+
 });

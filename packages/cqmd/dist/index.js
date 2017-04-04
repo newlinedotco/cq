@@ -57,10 +57,11 @@ exports.default = function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             opts.format = opts.format || 'gfm';
+            opts.gapFiller = typeof opts.gapFiller != 'undefined' ? opts.gapFiller : "\n  // ...\n";
 
             replacer = function () {
               var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(match, rawSettings, displayName, actualName, ws, offset, s) {
-                var blockOpts, format, fullFilename, contents, cqResults, replacement;
+                var blockOpts, format, fullFilename, contents, cqOpts, cqResults, replacement;
                 return regeneratorRuntime.wrap(function _callee$(_context) {
                   while (1) {
                     switch (_context.prev = _context.next) {
@@ -80,41 +81,48 @@ exports.default = function () {
                         format = blockOpts['format'] ? blockOpts['format'] : opts.format;
                         fullFilename = _path2.default.join(opts.path, actualName);
                         contents = _fs2.default.readFileSync(fullFilename).toString();
-                        _context.next = 6;
-                        return (0, _cq2.default)(contents, blockOpts['crop-query']);
+                        cqOpts = {};
 
-                      case 6:
+
+                        if (typeof opts.gapFiller != 'undefined') {
+                          cqOpts['gapFiller'] = opts.gapFiller;
+                        }
+
+                        _context.next = 8;
+                        return (0, _cq2.default)(contents, blockOpts['crop-query'], cqOpts);
+
+                      case 8:
                         cqResults = _context.sent;
                         // TODO
                         replacement = void 0;
 
                         if (!(typeof format === "function")) {
-                          _context.next = 10;
+                          _context.next = 12;
                           break;
                         }
 
                         return _context.abrupt('return', format(cqResults, blockOpts));
 
-                      case 10:
+                      case 12:
                         _context.t0 = format;
-                        _context.next = _context.t0 === 'gfm' ? 13 : _context.t0 === 'raw' ? 15 : 17;
+                        _context.next = _context.t0 === 'gfm' ? 15 : _context.t0 === 'raw' ? 17 : 19;
                         break;
 
-                      case 13:
-                        replacement = formatGfm(cqResults, blockOpts);
-                        return _context.abrupt('break', 18);
-
                       case 15:
-                        replacement = formatRaw(cqResults, blockOpts);
-                        return _context.abrupt('break', 18);
+                        replacement = formatGfm(cqResults, blockOpts);
+                        return _context.abrupt('break', 20);
 
                       case 17:
-                        throw new Error('unknown format: ' + format);
-
-                      case 18:
-                        return _context.abrupt('return', replacement + ws);
+                        replacement = formatRaw(cqResults, blockOpts);
+                        return _context.abrupt('break', 20);
 
                       case 19:
+                        throw new Error('unknown format: ' + format);
+
+                      case 20:
+                        return _context.abrupt('return', replacement + ws);
+
+                      case 21:
                       case 'end':
                         return _context.stop();
                     }
@@ -127,14 +135,14 @@ exports.default = function () {
               };
             }();
 
-            _context2.next = 4;
+            _context2.next = 5;
             return (0, _stringReplaceAsync2.default)(text, /^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, replacer);
 
-          case 4:
+          case 5:
             newText = _context2.sent;
             return _context2.abrupt('return', newText);
 
-          case 6:
+          case 7:
           case 'end':
             return _context2.stop();
         }

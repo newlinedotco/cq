@@ -30,6 +30,11 @@ var argv = _yargs2.default.usage('Usage: $0 [options] <file>').example("$0 post.
   alias: 'p',
   type: 'string',
   describe: 'The root path for the code '
+}).option("gapFiller", {
+  alias: "g",
+  type: "string",
+  describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
+  default: "\n  // ...\n"
 }).option('format', {
   alias: 'f',
   describe: 'the format to convert codeblocks into',
@@ -55,6 +60,8 @@ inputStream.on('data', function (buf) {
   content += buf.toString();
 });
 inputStream.on('end', function () {
+  argv.gapFiller = argv.gapFiller === 'false' ? false : argv.gapFiller;
+
   (0, _index2.default)(content, argv).then(function (result) {
     if (argv.output) {
       _fs2.default.writeFileSync(argv.output, result);

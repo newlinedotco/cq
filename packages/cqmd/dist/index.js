@@ -88,41 +88,51 @@ exports.default = function () {
                           cqOpts['gapFiller'] = opts.gapFiller;
                         }
 
-                        _context.next = 8;
+                        if (typeof blockOpts['gapFiller'] != 'undefined') {
+                          cqOpts['gapFiller'] = blockOpts['gapFiller'];
+                        }
+
+                        if (typeof cqOpts['gapFiller'] != 'undefined') {
+                          cqOpts['gapFiller'] = cqOpts['gapFiller'].replace(/\\n/g, "\n");
+                          // TODO handle this in ~splitNoParen
+                          cqOpts['gapFiller'] = cqOpts['gapFiller'].replace(/^"/, "").replace(/"$/m, "");
+                        }
+
+                        _context.next = 10;
                         return (0, _cq2.default)(contents, blockOpts['crop-query'], cqOpts);
 
-                      case 8:
+                      case 10:
                         cqResults = _context.sent;
                         // TODO
                         replacement = void 0;
 
                         if (!(typeof format === "function")) {
-                          _context.next = 12;
+                          _context.next = 14;
                           break;
                         }
 
                         return _context.abrupt('return', format(cqResults, blockOpts));
 
-                      case 12:
+                      case 14:
                         _context.t0 = format;
-                        _context.next = _context.t0 === 'gfm' ? 15 : _context.t0 === 'raw' ? 17 : 19;
+                        _context.next = _context.t0 === 'gfm' ? 17 : _context.t0 === 'raw' ? 19 : 21;
                         break;
 
-                      case 15:
-                        replacement = formatGfm(cqResults, blockOpts);
-                        return _context.abrupt('break', 20);
-
                       case 17:
-                        replacement = formatRaw(cqResults, blockOpts);
-                        return _context.abrupt('break', 20);
+                        replacement = formatGfm(cqResults, blockOpts);
+                        return _context.abrupt('break', 22);
 
                       case 19:
-                        throw new Error('unknown format: ' + format);
-
-                      case 20:
-                        return _context.abrupt('return', replacement + ws);
+                        replacement = formatRaw(cqResults, blockOpts);
+                        return _context.abrupt('break', 22);
 
                       case 21:
+                        throw new Error('unknown format: ' + format);
+
+                      case 22:
+                        return _context.abrupt('return', replacement + ws);
+
+                      case 23:
                       case 'end':
                         return _context.stop();
                     }

@@ -1,0 +1,35 @@
+{
+  "excludeFiles": [
+    "coverage/",
+    "node_modules/",
+    "remark-inline-links.js",
+    "remark-inline-links.min.js"
+  ],
+  "preset": "yandex",
+  "requireQuotedKeysInObjects": true,
+  "disallowQuotedKeysInObjects": false,
+  "maximumLineLength": {
+    "value": 79,
+    "allExcept": [
+      "regex",
+      "urlComments"
+    ]
+  },
+  "jsDoc": {
+    "checkAnnotations": "jsdoc3",
+    "checkParamExistence": true,
+    "checkParamNames": true,
+    "checkRedundantAccess": true,
+    "checkRedundantParams": true,
+    "checkRedundantReturns": true,
+    "checkReturnTypes": true,
+    "checkTypes": "strictNativeCase",
+    "enforceExistence": true,
+    "requireHyphenBeforeDescription": true,
+    "requireNewlineAfterDescription": true,
+    "requireParamDescription": true,
+    "requireParamTypes": true,
+    "requireReturnDescription": true,
+    "requireReturnTypes": true
+  }
+}

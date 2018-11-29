@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cq-python-engine",
-  "version": "5.0.1",
+  "version": "5.1.3",
   "description": "python engine for cq",
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq-python-engine",
@@ -23,6 +23,7 @@
     "babylon": "^6.8.1"
   },
   "devDependencies": {
+    "@fullstackio/cq": "^4.0.5",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.9.1",
     "babel-plugin-add-module-exports": "^0.2.1",
@@ -33,8 +34,6 @@
     "babel-preset-syntax-from-presets": "^1.0.1",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
-    "yargs": "^6.5.0",
-    "@fullstackio/cq": "^4.0.5"
-  },
-  "peerDependencies": {}
+    "yargs": "^6.5.0"
+  }
 }

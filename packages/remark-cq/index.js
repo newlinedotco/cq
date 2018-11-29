@@ -61,14 +61,13 @@ function locateCodeImport(value, fromIndex) {
 
     return index;
 }
+codeImportBlock.locator = locateCodeImport;
 
 /**
  * Tokenize a code import
  *
- * (For now, it just strips them, TODO is to actually import this file)
- *
  * @example
- *   tokenizeCodeImport(eat, '\n<<[my-file.js](my-file.js)');
+ *   codeImportBlock(eat, '\n<<[my-file.js](my-file.js)');
  *
  * @property {Function} locator - Mention locator.
  * @param {function(string)} eat - Eater.
@@ -76,60 +75,6 @@ function locateCodeImport(value, fromIndex) {
  * @param {boolean?} [silent] - Whether this is a dry run.
  * @return {Node?|boolean} - `delete` node.
  */
-function codeImport(eat, value, silent) {
-    var match = /^(<<.*?)\s*$/m.exec(value);
-    var handle;
-    var url;
-
-    if (match) {
-        var fileMatches = /<<\[(.*)\]\((.*)\)/.exec(match);
-        var statedFilename = fileMatches[1];
-        var actualFilename = fileMatches[2];
-        console.log("actualFilename: ", actualFilename);
-
-        // todo cache this
-        var codeString = fs
-            .readFileSync(path.join(__options.root, actualFilename))
-            .toString();
-        var array = codeString.split("\n");
-        var lines = "";
-        var language = __lastBlockAttributes["lang"]
-            ? __lastBlockAttributes["lang"].toLowerCase()
-            : "javascript";
-
-        if (__lastBlockAttributes["crop-query"]) {
-            var cqOpts = {};
-            if (__lastBlockAttributes["undent"]) {
-                cqOpts.undent = true;
-            }
-
-            var results = cq(
-                codeString,
-                __lastBlockAttributes["crop-query"],
-                cqOpts
-            );
-            lines = results.code;
-        } else {
-            var cropStartLine = __lastBlockAttributes["crop-start-line"]
-                ? parseInt(__lastBlockAttributes["crop-start-line"])
-                : 1;
-            var cropEndLine = __lastBlockAttributes["crop-end-line"]
-                ? parseInt(__lastBlockAttributes["crop-end-line"])
-                : array.length;
-            lines = array.slice(cropStartLine - 1, cropEndLine).join("\n");
-        }
-
-        // TODO -- if we invent a new type
-        // we may get some benefits when we convert to React
-        return eat(match[0])({
-            type: "code",
-            lang: language || null,
-            meta: null,
-            value: lines
-        });
-    }
-}
-
 function codeImportBlock(eat, value, silent) {
     var index = -1;
     var length = value.length + 1;
@@ -203,7 +148,9 @@ function codeImportBlock(eat, value, silent) {
         : "javascript";
 
     if (__lastBlockAttributes["crop-query"]) {
-        var cqOpts = {};
+        var cqOpts = {
+            undent: __options.undent
+        };
         if (__lastBlockAttributes["undent"]) {
             cqOpts.undent = true;
         }
@@ -233,8 +180,6 @@ function codeImportBlock(eat, value, silent) {
         value: trim(lines)
     });
 }
-
-codeImport.locator = locateCodeImport;
 
 /**
  * Find a possible Block Inline Attribute List
@@ -332,8 +277,6 @@ function dequotifyString(str) {
         innerStringMatch && innerStringMatch[1] ? innerStringMatch[1] : str;
     return destringifiedValue;
 }
-
-// blockInlineAttributeList.locator = locateBlockInlineAttributeList;
 
 /**
  * Tokenise a block inline attribute list
@@ -471,6 +414,9 @@ function attacher(options) {
     )
         ? __options.preserveEmptyLines
         : false;
+    __options.undent = __options.hasOwnProperty("undent")
+        ? __options.undent
+        : true;
 
     /*
      * Add a tokenizer to the `Parser`.

@@ -1,8 +1,8 @@
 /**
  * @author Nate Murray
  * @license MIT
- * @module remark:leanpub:test
- * @fileoverview Test suite for remark-leanpub.
+ * @module remark:cq:test
+ * @fileoverview Test suite for remark-cq.
  */
 
 "use strict";
@@ -26,7 +26,7 @@ const remarkStringify = require("remark-stringify");
 const render = (text, config) =>
     unified()
         .use(reParse)
-        .use(plugin, config)
+        .use(plugin, Object.assign({ root: __dirname }, config))
         .use(remark2rehype)
         .use(stringify)
         .processSync(text);
@@ -38,206 +38,53 @@ const renderMarkdown = (text, config) =>
         .use(plugin, config)
         .processSync(text);
 
-// console.log(render(`hi mom`, {}));
-
-// {lang=javascript,crop-start-line=1,crop-end-line=10}
-
-const markup = `
-Here's some code:
-
-<<[](small.js)`;
-
-console.log(render(markup, { root: __dirname }).contents);
-
-const markup2 = `
-Here's some code:
-
-\`\`\`javascript
-var foo = 1;
-\`\`\`
-`;
-
-console.log(render(markup2, { root: __dirname }).contents);
-
 /*
  * Tests.
  */
 
-/*
-test("remark-cq code imports", function(t) {
+test("remark-cq code imports crop-query works", t => {
+    const dogs = () => "Like snuggles";
     const markup = `
-Here's some code:
+The code:
 
-{lang=javascript,crop-start-line=1,crop-end-line=10}
-<<[](index.js)
-`;
+{lang=javascript,crop-query=.dogs}
+<<[](test.js)`;
+    const actual = render(markup, { root: __dirname }).contents;
+    const expected = `<p>The code:</p>
 
-    t.equal(render(markup, { root: __dirname }), "\n\n");
-
-    //   t.equal(
-    //     remark().use(leanpub).process([
-    //       '',
-    //       '<<[my-file.js](my-file.js)',
-    //       '',
-    //       '    <<EOF',
-    //       '    okay'
-    //       ].join('\n')),
-    //     ['',
-    //      '',
-    //      '',
-    //      '    <<EOF',
-    //      '    okay',
-    //      ''
-    //     ].join('\n'))
-
-    t.end();
-});
-*/
-
-/*
-test("remark-leanpub blockquotes", function(t) {
-    t.equal(
-        remark()
-            .use(leanpub)
-            .process(
-                ["", "> hello", "> here is", "> a blockquote", ""].join("\n")
-            ).contents,
-        ["> hello", "> here is", "> a blockquote", ""].join("\n")
-    );
-
-    t.equal(
-        remark()
-            .use(leanpub)
-            .process(
-                ["", "A> hello", "A> here is", "A> a blockquote", ""].join("\n")
-            ).contents,
-        ["> hello", "> here is", "> a blockquote", ""].join("\n")
-    );
-
+<pre><code class="language-javascript">const dogs = () => "Like snuggles";
+</code></pre>`;
+    t.equal(actual, expected);
     t.end();
 });
 
-test("remark-leanpub block attribute lists", function(t) {
-    t.equal(
-        remark()
-            .use(leanpub)
-            .process("\n{foo=bar}").contents,
-        "  \n\n"
-    );
+test("remark-cq code imports line numbers works", t => {
+    const markup = `
+The code:
 
-    t.equal(
-        remark()
-            .use(leanpub)
-            .process("\n{foo: 1,\nbar: 2}").contents,
-        "{foo: 1,\nbar: 2}\n"
-    );
+{lang=javascript,crop-start-line=1,crop-end-line=2}
+<<[](test.js)`;
+    const actual = render(markup, { root: __dirname }).contents;
+    const expected = `<p>The code:</p>
 
-    t.equal(
-        remark()
-            .use(leanpub)
-            .process(
-                [
-                    "",
-                    "{baz=bam}",
-                    "    var foo = 1;",
-                    "    var bar = {cat: dog};"
-                ].join("\n")
-            ).contents,
-        [
-            "  ",
-            "",
-            "",
-            "    var foo = 1;",
-            "    var bar = {cat: dog};",
-            ""
-        ].join("\n")
-    );
-
-    t.equal(
-        remark()
-            .use(leanpub, { preserveEmptyLines: false })
-            .process(
-                [
-                    "",
-                    "{baz=bam}",
-                    "    var foo = 1;",
-                    "    var bar = {cat: dog};"
-                ].join("\n")
-            ).contents,
-        ["", "", "    var foo = 1;", "    var bar = {cat: dog};", ""].join("\n")
-    );
-
-    t.equal(
-        remark()
-            .use(leanpub)
-            .process(
-                [
-                    "",
-                    "{lang=javascript}",
-                    "    var foo = 1;",
-                    "    var bar = {cat: dog};"
-                ].join("\n")
-            ).contents,
-        [
-            "  ",
-            "",
-            "",
-            "```javascript",
-            "var foo = 1;",
-            "var bar = {cat: dog};",
-            "```",
-            ""
-        ].join("\n")
-    );
-
-    t.equal(
-        remark()
-            .use(leanpub, { preserveEmptyLines: false })
-            .process(
-                [
-                    "",
-                    "{lang=javascript}",
-                    "    var foo = 1;",
-                    "    var bar = {cat: dog};"
-                ].join("\n")
-            ).contents,
-        [
-            "",
-            "",
-            "```javascript",
-            "var foo = 1;",
-            "var bar = {cat: dog};",
-            "```",
-            ""
-        ].join("\n")
-    );
-
+<pre><code class="language-javascript">/**
+ * @author Nate Murray
+</code></pre>`;
+    t.equal(actual, expected);
     t.end();
 });
-*/
 
-/*
-test('remark-leanpub code imports', function(t) { 
-  t.equal(
-    remark().use(leanpub).process("\n<<[my-file.js](my-file.js)"),
-    '\n\n')
+test("remark-cq code doesn't break normal blocks", t => {
+    const markup = `
+The code:
 
-  t.equal(
-    remark().use(leanpub).process([
-      '',
-      '<<[my-file.js](my-file.js)',
-      '',
-      '    <<EOF',
-      '    okay'
-      ].join('\n')),
-    ['',
-     '',
-     '',
-     '    <<EOF',
-     '    okay',
-     ''
-    ].join('\n'))
-
-  t.end();
-})
- */
+\`\`\`javascript
+var foo = 1;
+\`\`\``;
+    const actual = render(markup, { root: __dirname }).contents;
+    const expected = `<p>The code:</p>
+<pre><code class="language-javascript">var foo = 1;
+</code></pre>`;
+    t.equal(actual, expected);
+    t.end();
+});

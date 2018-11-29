@@ -1,9 +1,9 @@
 /**
  * @author Nate Murray
  * @license MIT
- * @module remark:inline-links
+ * @module remark:cq
  * @fileoverview
- *   Plug-in to deal w/ leanpub markdown
+ *   Plug-in to import code with cq
  */
 
 "use strict";
@@ -12,7 +12,6 @@
  * Dependencies.
  */
 
-var visit = require("unist-util-visit");
 var trim = require("trim");
 var fs = require("fs");
 var path = require("path");
@@ -20,8 +19,6 @@ var repeat = require("repeat-string");
 var cq = require("@fullstackio/cq").default;
 var debug = require("debug")("remark-cq");
 var trim = require("trim-trailing-lines");
-
-var has = Object.prototype.hasOwnProperty;
 
 var C_NEWLINE = "\n";
 var C_TAB = "\t";
@@ -181,57 +178,6 @@ function codeImportBlock(eat, value, silent) {
     });
 }
 
-/**
- * Find a possible Block Inline Attribute List
- *
- * @example
- *   locateMention('foo \n{lang='js'}'); // 4
- *
- * @param {string} value - Value to search.
- * @param {number} fromIndex - Index to start searching at.
- * @return {number} - Location of possible mention sequence.
- */
-function locateBlockInlineAttributeList(value, fromIndex) {
-    var index = value.indexOf(C_NEWLINE, fromIndex);
-
-    if (value.charAt(index + 1) !== "{") {
-        return;
-    }
-
-    if (value.charAt(index + 2) == "%") {
-        return;
-    }
-
-    return index;
-}
-
-/**
- * Tokenize a block inline attribute list.
- *
- * (For now, it just strips them)
- *
- * @example
- *   tokenizeBlockInlineAttributeList(eat, '\n{foo=bar}');
- *
- * @property {Function} locator - Mention locator.
- * @param {function(string)} eat - Eater.
- * @param {string} value - Rest of content.
- * @param {boolean?} [silent] - Whether this is a dry run.
- * @return {Node?|boolean} - `delete` node.
- */
-function blockInlineAttributeList(eat, value, silent) {
-    var match = /^{(.*?)}\s*$/m.exec(value);
-    var handle;
-    var url;
-
-    if (match) {
-        return eat(match[0])({
-            type: "text",
-            value: ""
-        });
-    }
-}
-
 // http://stackoverflow.com/questions/25058134/javascript-split-a-string-by-comma-except-inside-parentheses
 function splitNoParen(s) {
     let results = [];
@@ -290,7 +236,6 @@ function dequotifyString(str) {
  * @return {Node?|boolean} - `thematicBreak` node.
  */
 function tokenizeBlockInlineAttributeList(eat, value, silent) {
-    // console.log('tokenizeBlockInlineAttributeList');
     var self = this;
     var index = -1;
     var length = value.length + 1;
@@ -333,8 +278,6 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
     while (++index < length) {
         character = value.charAt(index);
 
-        // console.log(character);
-
         if (character !== C_RIGHT_BRACE) {
             // no newlines allowed in the attribute blocks
             if (character === C_NEWLINE) {
@@ -344,10 +287,7 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
             markerCount++;
             subvalue += queue + character;
             queue = EMPTY;
-        } else if (
-            // markerCount >= THEMATIC_BREAK_MARKER_COUNT &&
-            character === C_RIGHT_BRACE
-        ) {
+        } else if (character === C_RIGHT_BRACE) {
             subvalue += queue + C_RIGHT_BRACE;
 
             function parseBlockAttributes(attrString) {
@@ -364,23 +304,16 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
                     return blockAttrs;
                 }
 
-                // var pairs = matches[1].split(/,\s*/);
                 var pairs = splitNoParen(matches[1]);
 
                 pairs.forEach(function(pair) {
                     var kv = pair.split(/=\s*/);
-
-                    // var innerStringMatch = /^'(.*?)'$/.exec(kv[1]);
-                    // var destringifiedValue = (innerStringMatch && innerStringMatch[1]) ? innerStringMatch[1] : kv[1];
-                    // blockAttrs[kv[0]] = destringifiedValue;
-
                     blockAttrs[kv[0]] = kv[1];
                 });
                 return blockAttrs;
             }
 
             __lastBlockAttributes = parseBlockAttributes(subvalue);
-            // console.log('__lastBlockAttributes', __lastBlockAttributes);
 
             if (__options.preserveEmptyLines) {
                 return eat(subvalue)({ type: T_BREAK });
@@ -388,7 +321,6 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
                 return eat(subvalue)({ type: T_TEXT, value: EMPTY });
             }
         } else {
-            // console.log("see ya", subvalue);
             return;
         }
     }
@@ -421,18 +353,9 @@ function attacher(options) {
     /*
      * Add a tokenizer to the `Parser`.
      */
-    // proto.inlineTokenizers.codeImport = codeImport;
-    // methods.splice(methods.indexOf("inlineText"), 0, "codeImport");
 
-    proto.blockTokenizers.codeImport = codeImportBlock;
-    proto.blockMethods.splice(
-        proto.blockMethods.indexOf("newline"),
-        0,
-        "codeImport"
-    );
-
-    // Why do we need to strip blockInlineAttributeLists??
-    // Because it loads some state for any blocks that follow
+    // We need to tokenize blockInlineAttributeLists, because they loads state for any blocks that follow
+    // e.g. {lang=javascript,crop-query=.dogs}
     proto.blockTokenizers.blockInlineAttributeList = tokenizeBlockInlineAttributeList;
     proto.blockMethods.splice(
         proto.blockMethods.indexOf("newline"),
@@ -440,25 +363,14 @@ function attacher(options) {
         "blockInlineAttributeList"
     );
 
-    // Good news -- none of the leanpub stuff is necessary
-    // Tokenize T> W> blocks
-    // proto.blockTokenizers.blockquote = tokenizeAnnotatedBlockquote;
-
-    /*
-    old but maybe useful
-    // proto.blockTokenizers.indentedCode = tokenizeCodeWithOpts;
-    // tokenizeCodeWithOpts.locator = proto.blockTokenizers.code.locator;
-    // proto.blockTokenizers.code = tokenizeCodeWithOpts;
-    */
-
-    /*
-    old but maybe useful?
-    function transformer(node, file) {
-      currentFilePath = file.filePath();
-      console.log(currentFilePath);
-    }
-    return transformer;
-    */
+    // Tokenizing code import blocks
+    // e.g. <<[](test.js)
+    proto.blockTokenizers.codeImport = codeImportBlock;
+    proto.blockMethods.splice(
+        proto.blockMethods.indexOf("newline"),
+        0,
+        "codeImport"
+    );
 }
 
 /*

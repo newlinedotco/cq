@@ -88,3 +88,23 @@ var foo = 1;
     t.equal(actual, expected);
     t.end();
 });
+
+test("remark-cq code imports compile back to markdown", t => {
+    const dogs = () => "Like snuggles";
+    const markup = `
+The code:
+
+{lang=javascript,crop-query=.dogs}
+<<[](test.js)`;
+    const actual = renderMarkdown(markup, { root: __dirname }).contents;
+    const expected = `The code:
+
+
+
+\`\`\`javascript
+const dogs = () => "Like snuggles";
+\`\`\`
+`;
+    t.equal(actual, expected);
+    t.end();
+});

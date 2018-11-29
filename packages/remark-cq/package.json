@@ -1,7 +1,7 @@
 {
-  "name": "@eigenjoy/remark-leanpub",
+  "name": "@fullstackio/remark-cq",
   "version": "0.0.9",
-  "description": "Transform leanpub markdown",
+  "description": "Import code into markdown with cq",
   "license": "MIT",
   "keywords": [
     "leanpub",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wooorm/remark-inline-links.git"
+    "url": "https://github.com/fullstackio/cq.git"
   },
   "author": "Nate Murray <nate@fullstack.io>",
   "files": [

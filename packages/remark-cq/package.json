@@ -20,6 +20,9 @@
   "files": [
     "index.js"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "browserify": "^13.0.0",
     "dedent": "^0.7.0",

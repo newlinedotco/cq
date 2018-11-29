@@ -170,6 +170,7 @@ function codeImportBlock(eat, value, silent) {
 
     // TODO -- if we invent a new type
     // we may get some benefits when we convert to React
+
     return eat(subvalue)({
         type: "code",
         lang: language || null,
@@ -290,6 +291,21 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
         } else if (character === C_RIGHT_BRACE) {
             subvalue += queue + C_RIGHT_BRACE;
 
+            // eat trailing spacing because we don't even want this block to leave a linebreak in the output
+            while (++index < length) {
+                character = value.charAt(index);
+
+                if (
+                    character !== C_TAB &&
+                    character !== C_SPACE &&
+                    character !== C_NEWLINE
+                ) {
+                    break;
+                }
+
+                subvalue += character;
+            }
+
             function parseBlockAttributes(attrString) {
                 // e.g. {lang='JavaScript',starting-line=4,crop-start-line=4,crop-end-line=26}
                 var matches = /{(.*?)}/.exec(attrString);
@@ -318,7 +334,7 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
             if (__options.preserveEmptyLines) {
                 return eat(subvalue)({ type: T_BREAK });
             } else {
-                return eat(subvalue)({ type: T_TEXT, value: EMPTY });
+                return eat(subvalue);
             }
         } else {
             return;

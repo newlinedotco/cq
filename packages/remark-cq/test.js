@@ -47,11 +47,10 @@ test("remark-cq code imports crop-query works", t => {
     const markup = `
 The code:
 
-{lang=javascript,crop-query=.dogs}
+{lang=javascript,crop-query=.dogs}  
 <<[](test.js)`;
     const actual = render(markup, { root: __dirname }).contents;
     const expected = `<p>The code:</p>
-
 <pre><code class="language-javascript">const dogs = () => "Like snuggles";
 </code></pre>`;
     t.equal(actual, expected);
@@ -66,7 +65,6 @@ The code:
 <<[](test.js)`;
     const actual = render(markup, { root: __dirname }).contents;
     const expected = `<p>The code:</p>
-
 <pre><code class="language-javascript">/**
  * @author Nate Murray
 </code></pre>`;
@@ -98,8 +96,6 @@ The code:
 <<[](test.js)`;
     const actual = renderMarkdown(markup, { root: __dirname }).contents;
     const expected = `The code:
-
-
 
 \`\`\`javascript
 const dogs = () => "Like snuggles";

@@ -1,7 +1,16 @@
 import React, { Component } from "react";
 import "./App.css";
-import remark from "remark";
+import unified from "unified";
+import reParse from "remark-parse";
 import remark2react from "remark-react";
+import remarkCq from "../remark-cq/index";
+
+const render = (text, config = {}) =>
+  unified()
+    .use(reParse)
+    // .use(remarkCq, config)
+    .use(remark2react)
+    .processSync(text).contents;
 
 class App extends Component {
   render() {
@@ -10,16 +19,11 @@ class App extends Component {
 
 Hi, *mom*.
     `;
+
     return (
       <div className="App">
         <header className="App-header">
-          <p>
-            {
-              remark()
-                .use(remark2react)
-                .processSync(markdown).contents
-            }
-          </p>
+          <p>{render(markdown)}</p>
         </header>
       </div>
     );

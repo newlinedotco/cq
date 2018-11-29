@@ -170,12 +170,26 @@ function codeImportBlock(eat, value, silent) {
 
     // TODO -- if we invent a new type
     // we may get some benefits when we convert to React
-
+    // return eat(subvalue)({
+    //     type: "cq",
+    //     data: {
+    //         hName: null
+    //     },
+    //     children: [
+    //         {
+    //             type: "code",
+    //             lang: language || null,
+    //             meta: null,
+    //             value: trim(lines)
+    //         }
+    //     ]
+    // });
     return eat(subvalue)({
         type: "code",
         lang: language || null,
         meta: null,
-        value: trim(lines)
+        value: trim(lines),
+        cq: { actualFilename }
     });
 }
 
@@ -387,6 +401,20 @@ function attacher(options) {
         0,
         "codeImport"
     );
+
+    const Compiler = this.Compiler;
+    if (Compiler) {
+        const visitors = Compiler.prototype.visitors;
+        if (!visitors) return;
+
+        // When we compile back to markdown, the `cq` nodes simply compile to a
+        // regular code block
+        function compileCqNode(node) {
+            return visitors.code.bind(this)(node.children[0]);
+        }
+
+        visitors.cq = compileCqNode;
+    }
 }
 
 /*

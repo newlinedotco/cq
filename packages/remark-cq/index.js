@@ -146,7 +146,7 @@ function codeImportBlock(eat, value, silent) {
 
     if (__lastBlockAttributes["crop-query"]) {
         var cqOpts = {
-            undent: __options.undent
+            ...__options
         };
         if (__lastBlockAttributes["undent"]) {
             cqOpts.undent = true;

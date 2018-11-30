@@ -3,12 +3,12 @@ import "./App.css";
 import unified from "unified";
 import reParse from "remark-parse";
 import remark2react from "remark-react";
-import remarkCq from "../remark-cq/index";
+import remarkCq from "@fullstackio/remark-cq";
 
 const render = (text, config = {}) =>
   unified()
     .use(reParse)
-    // .use(remarkCq, config)
+    .use(remarkCq, config)
     .use(remark2react)
     .processSync(text).contents;
 
@@ -18,6 +18,9 @@ class App extends Component {
 # Welcome!
 
 Hi, *mom*.
+
+{lang=javascript,crop-query=.dogs}  
+<<[](test.js)
     `;
 
     return (

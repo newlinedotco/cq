@@ -4,7 +4,8 @@
  * Parse files with Babylon
  *
  */
-let babylon = require("babylon");
+// let babylon = require("babylon");
+import * as babylon from "babylon";
 import { rangeExtents } from "./util";
 
 const defaultBabylonConfig = {

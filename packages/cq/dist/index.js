@@ -14,10 +14,6 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */
 
 
-var _babelTraverse = require("babel-traverse");
-
-var _babelTraverse2 = _interopRequireDefault(_babelTraverse);
-
 var _queryParser = require("./query-parser");
 
 var _queryParser2 = _interopRequireDefault(_queryParser);
@@ -32,10 +28,6 @@ var _typescript2 = _interopRequireDefault(_typescript);
 
 var _util = require("./engines/util");
 
-var _debug = require("debug");
-
-var _debug2 = _interopRequireDefault(_debug);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
@@ -44,7 +36,17 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
-var debug = (0, _debug2.default)("cq");
+var debug = void 0;
+if (process.browser) {
+  debug = function debug() {
+    var _console;
+
+    return (_console = console).log.apply(_console, arguments);
+  };
+} else {
+  var debugLib = require("debug");
+  debug = debugLib("cq");
+}
 
 var NodeTypes = exports.NodeTypes = {
   IDENTIFIER: "IDENTIFIER",
@@ -191,7 +193,6 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
   var start = _ref5.start,
       end = _ref5.end,
       nodes = _ref5.nodes;
-
 
   switch (callee) {
     case "upto":

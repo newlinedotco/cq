@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.rangeExtents = rangeExtents;
 /**
  * cq Engine Util
  *
@@ -26,4 +27,3 @@ function rangeExtents(ranges) {
 exports.default = {
   rangeExtents: rangeExtents
 };
-module.exports = exports["default"];

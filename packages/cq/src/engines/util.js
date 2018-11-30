@@ -5,7 +5,7 @@
  *
  */
 
-function rangeExtents(ranges) {
+export function rangeExtents(ranges) {
   let start = Number.MAX_VALUE;
   let end = Number.MIN_VALUE;
   ranges.map(({ start: rs, end: re }) => {

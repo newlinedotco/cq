@@ -5,15 +5,19 @@
  * code based on that query
  *
  */
-import traverse from "babel-traverse";
 import parser from "./query-parser";
 
 import babylonEngine from "./engines/babylon";
 import typescriptEngine from "./engines/typescript";
 import { rangeExtents } from "./engines/util";
 
-import debugLib from "debug";
-const debug = debugLib("cq");
+let debug;
+if (process.browser) {
+  debug = (...args) => console.log(...args);
+} else {
+  const debugLib = require("debug");
+  debug = debugLib("cq");
+}
 
 export const NodeTypes = {
   IDENTIFIER: "IDENTIFIER",
@@ -43,7 +47,7 @@ function isNumeric(n) {
 
 function movePositionByLines(code, numLines, position, opts = {}) {
   if (numLines < 0) {
-    let numPreviousLines = numLines * (-1);
+    let numPreviousLines = numLines * -1;
     position--;
     while (position > 0 && numPreviousLines > 0) {
       position--;
@@ -70,7 +74,7 @@ function movePositionByLines(code, numLines, position, opts = {}) {
 function adjustRangeWithContext(code, linesBefore, linesAfter, { start, end }) {
   if (linesBefore && linesBefore !== 0) {
     let trimNewline = linesBefore > 0 ? true : false;
-    start = movePositionByLines(code, (-1) * linesBefore, start, {
+    start = movePositionByLines(code, -1 * linesBefore, start, {
       trimNewline
     });
   }
@@ -168,7 +172,6 @@ function modifyAnswerWithCall(
   engine,
   { start, end, nodes }
 ) {
-
   switch (callee) {
     case "upto":
       start--;
@@ -209,7 +212,8 @@ function modifyAnswerWithCall(
       });
       break;
     case "comments":
-      let leading = true, trailing = false;
+      let leading = true,
+        trailing = false;
       return adjustRangeForComments(ast, code, leading, trailing, engine, {
         start,
         end,
@@ -511,7 +515,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
       ) {
         // TODO - something clever about the indentation of the gapFiller?
         acc.code = acc.code + opts.gapFiller + resolved.code;
-        acc.disjoint = true
+        acc.disjoint = true;
       } else if (
         opts.gapFiller &&
         acc.code.length > 0 &&
@@ -542,7 +546,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
   );
 }
 
-export default (async function cq(code, queries, opts = {}) {
+async function cq(code, queries, opts = {}) {
   let engine = opts.engine || babylonEngine();
 
   if (typeof queries === "string") {
@@ -586,4 +590,6 @@ export default (async function cq(code, queries, opts = {}) {
   }
 
   return results;
-});
+}
+
+export default cq;

@@ -6,9 +6,21 @@
  * Thanks to astexplorer for some of this code
  * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
  */
-import * as ts from "typescript";
+// import * as ts from "typescript";
+import {
+  SyntaxKind,
+  createSourceFile,
+  ScriptTarget,
+  getLeadingCommentRanges
+} from "typescript";
 import { rangeExtents } from "./util";
 
+const ts = {
+  SyntaxKind,
+  createSourceFile,
+  ScriptTarget,
+  getLeadingCommentRanges
+};
 const ignoredProperties = new Set(["constructor", "parent"]);
 
 function getNodeName(node) {
@@ -50,11 +62,13 @@ function nodeToRange(node) {
   let range;
 
   if (
-    typeof node.getStart === "function" && typeof node.getEnd === "function"
+    typeof node.getStart === "function" &&
+    typeof node.getEnd === "function"
   ) {
     range = { start: node.getStart(), end: node.getEnd() };
   } else if (
-    typeof node.pos !== "undefined" && typeof node.end !== "undefined"
+    typeof node.pos !== "undefined" &&
+    typeof node.end !== "undefined"
   ) {
     range = { start: node.pos, end: node.end };
   }

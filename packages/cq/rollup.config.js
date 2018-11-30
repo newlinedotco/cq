@@ -7,12 +7,13 @@ import globals from "rollup-plugin-node-globals";
 export default {
   input: "src/index.js",
   output: {
-    file: "dist/browser.js",
+    file: "dist/cq.browser.js",
     name: "cq",
     format: "iife",
     sourcemap: false,
     exports: "default",
     intro: `
+window.noop = function() {};
 window.global = {}
     `,
     globals: {

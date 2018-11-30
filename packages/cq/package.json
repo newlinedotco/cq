@@ -6,12 +6,12 @@
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq",
   "scripts": {
     "compile": "./node_modules/.bin/babel -d dist/ src/",
-    "prepublish": "npm run generate-parser && npm run compile",
+    "prepublish": "npm run generate-parser && npm run compile && npm run rollup",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
     "generate-readme": "node ./node_modules/.bin/cqmd -o ../../README.md -p . doc/readme/README.cq.md",
     "generate-parser": "./node_modules/.bin/pegjs src/query.pegjs src/query-parser.js",
-    "rollup": "BROWSER=true node --max-old-space-size=8192 ./node_modules/rollup/bin/rollup -c > dist/browser.js"
+    "rollup": "BROWSER=true node --max-old-space-size=8192 ./node_modules/rollup/bin/rollup -c > dist/cq.browser.js"
   },
   "bin": {
     "cq": "dist/cli.js"

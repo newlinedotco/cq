@@ -19,13 +19,14 @@ if (process.browser) {
   debug = debugLib("cq");
 }
 
-export const NodeTypes = {
+const NodeTypes = {
   IDENTIFIER: "IDENTIFIER",
   RANGE: "RANGE",
   LINE_NUMBER: "LINE_NUMBER",
   STRING: "STRING",
   CALL_EXPRESSION: "CALL_EXPRESSION"
 };
+cq.NodeTypes = NodeTypes;
 
 const QueryResultTypes = {
   SELECTION_EXPRESSION: "SELECTION_EXPRESSION"

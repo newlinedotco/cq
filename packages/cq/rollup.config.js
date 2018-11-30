@@ -11,7 +11,20 @@ export default {
     name: "cq",
     format: "iife",
     sourcemap: false,
-    exports: "named"
+    exports: "default",
+    intro: `
+window.global = {}
+    `,
+    globals: {
+      /*
+      fs: "noop",
+      path: "noop",
+      os: "noop",
+      crypto: "noop",
+      buffer: "noop",
+      module: "noop"
+    */
+    }
     // sourcemap: true
   },
   plugins: [
@@ -40,8 +53,8 @@ export default {
         ]
         // "./node_modules/babylon/lib/index.js": ["parse"]
       }
-    })
+    }),
     // globals(),
-    // builtins(),
+    builtins()
   ]
 };

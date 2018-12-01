@@ -134,3 +134,16 @@ pre {
 .section-shaped .shape-style-1.shape-default {
   background: linear-gradient(150deg, #0a78ad, #a45ac4);
 }
+
+.header-text {
+  text-align: right;
+  padding-top: 2rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.header-text a,
+.header-text a:visited {
+  color: white;
+}

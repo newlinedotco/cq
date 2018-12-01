@@ -23,6 +23,15 @@ class Header extends Component {
                   selectors
                 </p>
               </div>
+              <div className="col-md-6 header-text">
+                <p>
+                  <small>
+                    <a href="https://github.com/fullstackio/cq">
+                      Documentation on GitHub
+                    </a>
+                  </small>
+                </p>
+              </div>
             </div>
           </div>
           <div className="shape shape-style-1 shape-default" />

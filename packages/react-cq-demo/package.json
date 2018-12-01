@@ -14,10 +14,15 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "now deploy --name cq-demo build"
   },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "now": {
+    "name": "cq-demo",
+    "alias": "cq-demo"
   },
   "browserslist": [
     ">0.2%",

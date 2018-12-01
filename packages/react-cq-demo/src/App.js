@@ -45,7 +45,6 @@ class CodeBox extends Component {
       this.props.status === "success"
         ? [[this.props.startChar, this.props.endChar]]
         : [];
-    console.log("this.props.code: ", this.props.code);
 
     return (
       <form className="code-box">
@@ -55,6 +54,7 @@ class CodeBox extends Component {
           onChange={this.props.onChange}
           highlights={highlights}
         />
+        {/* 
         <textarea
           className="form-control"
           rows="30"
@@ -62,6 +62,7 @@ class CodeBox extends Component {
           value={this.props.code}
           onChange={this.props.onChange}
         />
+        */}
         <div className="hidden">
           {this.props.startChar}
           {this.props.endChar}

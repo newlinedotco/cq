@@ -50,5 +50,5 @@
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-plugin-replace": "1.1.1"
   },
-  "gitHead": "5390b07f185a3cf0aa00de7416153e37a64849a9"
+  "gitHead": "50de67d865d199583a732dcfed52ab40d84151de"
 }

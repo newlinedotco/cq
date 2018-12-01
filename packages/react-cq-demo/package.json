@@ -1,9 +1,9 @@
 {
   "name": "react-cq-demo",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "private": true,
   "dependencies": {
-    "@fullstackio/cq": "^5.2.0",
+    "@fullstackio/cq": "^5.2.1",
     "jquery": "^3.3.1",
     "lodash": "^4.17.11",
     "react": "^16.6.3",

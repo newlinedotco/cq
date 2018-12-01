@@ -5,7 +5,7 @@ import cq from "@fullstackio/cq/dist/cq.browser";
 import examples from "./examples";
 import keyBy from "lodash/keyBy";
 import get from "lodash/get";
-import Highlight from "./Highlight";
+// import Highlight from "./Highlight";
 
 const examplesIdx = keyBy(examples, "name");
 
@@ -49,12 +49,14 @@ class CodeBox extends Component {
     return (
       <form className="code-box">
         <h4>Source code:</h4>
+        {/*
         <Highlight
           value={this.props.code}
           onChange={this.props.onChange}
           highlights={highlights}
+          rows={30}
         />
-        {/* 
+       */}
         <textarea
           className="form-control"
           rows="30"
@@ -62,7 +64,6 @@ class CodeBox extends Component {
           value={this.props.code}
           onChange={this.props.onChange}
         />
-        */}
         <div className="hidden">
           {this.props.startChar}
           {this.props.endChar}

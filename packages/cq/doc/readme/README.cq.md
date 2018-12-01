@@ -482,7 +482,8 @@ Originally written by [Nate Murray](https://twitter.com/eigenjoy).
 
 ## Related
 
-- [`cqmd`](https://github.com/fullstackio/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
+- [`cqmd`](./packages/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
+- [`remark-cq`](./packages/remark-cq) - a remark plugin to slurp code snippets with cq
 - [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
 - [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the command line
 - [ASTExplorer](https://astexplorer.net/) - an online tool to explore the AST of your code

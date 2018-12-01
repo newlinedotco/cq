@@ -6,7 +6,10 @@ const assert = chai.assert;
 import cq, { NodeTypes } from "../src/index";
 
 function lines(str, startLine, endLine) {
-  return str.split("\n").slice(startLine, endLine + 1).join("\n");
+  return str
+    .split("\n")
+    .slice(startLine, endLine + 1)
+    .join("\n");
 }
 
 describe("babylon", async () => {
@@ -98,21 +101,18 @@ bye(); // -> 'bye'
       assert.equal(code, wanted);
     });
 
-    it(
-      "should return an anonymous function assigned to a variable",
-      async () => {
-        let query = [
-          {
-            type: NodeTypes.IDENTIFIER,
-            matcher: "bye"
-          }
-        ];
+    it("should return an anonymous function assigned to a variable", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "bye"
+        }
+      ];
 
-        let { code } = await cq(someFunctions, query);
-        const wanted = lines(someFunctions, 5, 7);
-        assert.equal(code, wanted);
-      }
-    );
+      let { code } = await cq(someFunctions, query);
+      const wanted = lines(someFunctions, 5, 7);
+      assert.equal(code, wanted);
+    });
 
     it("should return an arrow function assigned to a variable", async () => {
       let query = [
@@ -248,9 +248,7 @@ module.exports = Switch;
     });
 
     it("should extract code with gaps", async () => {
-      let {
-        code
-      } = await cq(
+      let { code } = await cq(
         reactCreateClass,
         "window(.Switch, 0, 0), .renderOtherStuff, window(.Switch, 0, 0, true)",
         { gapFiller: "\n  // ...\n" }
@@ -269,9 +267,7 @@ module.exports = Switch;
     });
 
     it("should extract code with gaps and contiguous", async () => {
-      let {
-        code
-      } = await cq(
+      let { code } = await cq(
         reactCreateClass,
         "window(.Switch, 0, 0), .render, window(.Switch, 0, 0, true)",
         { gapFiller: "\n  // ...\n" }
@@ -406,14 +402,11 @@ console.log(square.area);
       assert.equal(code, wanted);
     });
 
-    it(
-      "should get a constructor as a child of the class in a range",
-      async () => {
-        let { code } = await cq(es6Class, ".Polygon-(.Polygon .constructor)");
-        const wanted = lines(es6Class, 1, 11);
-        assert.equal(code, wanted);
-      }
-    );
+    it("should get a constructor as a child of the class in a range", async () => {
+      let { code } = await cq(es6Class, ".Polygon-(.Polygon .constructor)");
+      const wanted = lines(es6Class, 1, 11);
+      assert.equal(code, wanted);
+    });
 
     it("should undent indented code", async () => {
       let { code } = await cq(es6Class, ".area", { undent: true });
@@ -598,14 +591,11 @@ function noComments() {
       assert.equal(code, wanted);
     });
 
-    it(
-      "shouldnt fail if you try to get comments where there are none",
-      async () => {
-        let { code } = await cq(src, "comments(.noComments)");
-        const wanted = lines(src, 14, 16);
-        assert.equal(code, wanted);
-      }
-    );
+    it("shouldnt fail if you try to get comments where there are none", async () => {
+      let { code } = await cq(src, "comments(.noComments)");
+      const wanted = lines(src, 14, 16);
+      assert.equal(code, wanted);
+    });
   });
 
   describe("ranges", async () => {
@@ -629,31 +619,25 @@ bootstrap(DemoApp, [
 ]);
 `;
 
-    it(
-      "should find ranges for identifiers only if they are beyond the start of the range",
-      async () => {
-        let { code } = await cq(src, ".routes-.bootstrap");
-        const wanted = lines(src, 8, 17);
+    it("should find ranges for identifiers only if they are beyond the start of the range", async () => {
+      let { code } = await cq(src, ".routes-.bootstrap");
+      const wanted = lines(src, 8, 17);
+      assert.equal(code, wanted);
+    });
+
+    it("should find ranges for strings only if they are beyond the start of the range", async () => {
+      {
+        let { code } = await cq(src, "'hi'");
+        const wanted = lines(src, 6, 6);
         assert.equal(code, wanted);
       }
-    );
 
-    it(
-      "should find ranges for strings only if they are beyond the start of the range",
-      async () => {
-        {
-          let { code } = await cq(src, "'hi'");
-          const wanted = lines(src, 6, 6);
-          assert.equal(code, wanted);
-        }
-
-        {
-          let { code } = await cq(src, ".routes-'hi'");
-          const wanted = lines(src, 8, 13);
-          assert.equal(code, wanted);
-        }
+      {
+        let { code } = await cq(src, ".routes-'hi'");
+        const wanted = lines(src, 8, 13);
+        assert.equal(code, wanted);
       }
-    );
+    });
 
     it("should have comment separators for discontiguous queries", async () => {
       {
@@ -791,9 +775,13 @@ class ChatWindow extends React.Component {
 `;
 
     it("should grab firstLineOf", async () => {
-      let { code } = await cq(src, "firstLineOf(.ThreadList),.ThreadList .contextTypes,lastLineOf(.ThreadList)", {
-        gapFiller: "\n  // ...\n"
-      });
+      let { code } = await cq(
+        src,
+        "firstLineOf(.ThreadList),.ThreadList .contextTypes,lastLineOf(.ThreadList)",
+        {
+          gapFiller: "\n  // ...\n"
+        }
+      );
       const wanted = `class ThreadList extends React.Component {
   static contextTypes = {
     users: PropTypes.array,
@@ -804,9 +792,13 @@ class ChatWindow extends React.Component {
     });
 
     it("should properly add continuous newlines", async () => {
-      let { code } = await cq(src, "window(.ThreadList,0,0),.contextTypes,window(.ThreadList,0,0,true)", {
-        gapFiller: "\n  // ...\n"
-      });
+      let { code } = await cq(
+        src,
+        "window(.ThreadList,0,0),.contextTypes,window(.ThreadList,0,0,true)",
+        {
+          gapFiller: "\n  // ...\n"
+        }
+      );
       const wanted = `class ThreadList extends React.Component {
   static contextTypes = {
     users: PropTypes.array,
@@ -816,11 +808,15 @@ class ChatWindow extends React.Component {
       assert.equal(code, wanted);
     });
 
-   it("should properly add continuous newlines again", async () => {
-      let { code } = await cq(src, "window(.ThreadList,0,0),.contextTypes,window(.ThreadList,0,0,true),window(.ChatWindow,0,0),.ChatWindow .contextTypes,window(.ChatWindow,0,0,true)", {
-        gapFiller: "\n  // ...\n"
-      });
-//       let { code } = await cq(src, "firstLineOf(.ThreadList),.contextTypes,lastLineOf(.ThreadList),firstLineOf(.ChatWindow),.ChatWindow .contextTypes,lastLineOf(.ChatWindow)", {
+    it("should properly add continuous newlines again", async () => {
+      let { code } = await cq(
+        src,
+        "window(.ThreadList,0,0),.contextTypes,window(.ThreadList,0,0,true),window(.ChatWindow,0,0),.ChatWindow .contextTypes,window(.ChatWindow,0,0,true)",
+        {
+          gapFiller: "\n  // ...\n"
+        }
+      );
+      //       let { code } = await cq(src, "firstLineOf(.ThreadList),.contextTypes,lastLineOf(.ThreadList),firstLineOf(.ChatWindow),.ChatWindow .contextTypes,lastLineOf(.ChatWindow)", {
       const wanted = `class ThreadList extends React.Component {
   static contextTypes = {
     users: PropTypes.array,
@@ -837,7 +833,6 @@ class ChatWindow extends React.Component {
 }`;
       assert.equal(code, wanted);
     });
-
   });
 
   describe("even more components", async () => {
@@ -874,9 +869,13 @@ class Clock extends React.Component {
 export default Clock`;
 
     it("should grab render with ellipsis", async () => {
-      let { code } = await cq(src, "(firstLineOf(.Clock),.render,lastLineOf(.Clock),choose(.Clock,1))", {
-        gapFiller: "\n  // ...\n"
-      });
+      let { code } = await cq(
+        src,
+        "(firstLineOf(.Clock),.render,lastLineOf(.Clock),choose(.Clock,1))",
+        {
+          gapFiller: "\n  // ...\n"
+        }
+      );
       const wanted = `class Clock extends React.Component {
   // ...
   render() {
@@ -892,8 +891,25 @@ export default Clock`;
 export default Clock`;
       assert.equal(code, wanted);
     });
-
   });
 
+  describe("more JavaScript", async () => {
+    const jsCode = `var a = 1;
+function hello() {
+  return 'hello';
+}`;
 
+    it("should return the very first character in a string", async () => {
+      let query = [
+        {
+          type: NodeTypes.IDENTIFIER,
+          matcher: "a"
+        }
+      ];
+
+      let { code } = await cq(jsCode, query);
+      const wanted = "var a = 1;";
+      assert.equal(code, wanted);
+    });
+  });
 });

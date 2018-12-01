@@ -245,7 +245,9 @@ function nodeToRangeLines(node, code, engine) {
   while (start > 0 && code[start] !== "\n") {
     start--;
   }
-  start++; // don't include the newline
+  if (code[start] === "\n") {
+    start++; // don't include the newline
+  }
 
   // we also want to read to the end of the line for the node we found
   let end = range.end;

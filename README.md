@@ -4,7 +4,7 @@
 
 # cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com) 
 
-> A tool to extract code snippets using selectors (instead of line numbers)
+> A suite of tools to extract code snippets using selectors (instead of line numbers)
 >
 > Supports JavaScript ES5, ES6, JSX, and TypeScript
 
@@ -579,7 +579,8 @@ Originally written by [Nate Murray](https://twitter.com/eigenjoy).
 
 ## Related
 
- - [`cqmd`](https://github.com/fullstackio/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
+ - [`cqmd`](./packages/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
+ - [`remark-cq`](./packages/remark-cq) - a remark plugin to slurp code snippets with cq
  - [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
  - [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the command line
  - [ASTExplorer](https://astexplorer.net/) - an online tool to explore the AST of your code

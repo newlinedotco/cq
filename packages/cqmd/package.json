@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cqmd",
-  "version": "5.2.1",
+  "version": "5.2.2",
   "description": "markdown pre-processor for cq",
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cqmd",
@@ -19,8 +19,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@fullstackio/cq": "^5.2.1",
-    "@fullstackio/remark-cq": "^5.2.0",
+    "@fullstackio/cq": "^5.2.2",
+    "@fullstackio/remark-cq": "^5.2.2",
     "rehype-stringify": "^5.0.0",
     "remark": "^5.0.1",
     "remark-lint": "^2.0.0",

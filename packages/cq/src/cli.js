@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import "babel-core/register";
 import "babel-polyfill";
+import "regenerator-runtime";
 import cq from "./index";
 import yargs from "yargs";
 import fs from "fs";
@@ -43,7 +45,7 @@ if (!query) {
 
 let engine;
 
-if(argv.gapFiller) {
+if (argv.gapFiller) {
   argv.gapFiller = argv.gapFiller.replace(/\\n/g, "\n");
 }
 
@@ -72,8 +74,7 @@ switch (argv.engine) {
           engine = require(potentialEngine)();
           foundEngine = true;
         }
-      } catch (err) {
-      }
+      } catch (err) {}
     });
     if (!foundEngine) {
       throw new Error("unknown engine: " + argv.engine);
@@ -88,7 +89,7 @@ inputStream.on("data", function(buf) {
   content += buf.toString();
 });
 inputStream.on("end", function() {
-  let gapFiller = argv.gapFiller === 'false' ? false : argv.gapFiller;
+  let gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
 
   cq(content, query, { engine, gapFiller }).then(result => {
     if (argv.json === true) {

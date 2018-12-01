@@ -7,6 +7,8 @@
  */
 import parser from "./query-parser";
 
+import "babel-polyfill";
+import "regenerator-runtime";
 import babylonEngine from "./engines/babylon";
 import typescriptEngine from "./engines/typescript";
 import { rangeExtents } from "./engines/util";

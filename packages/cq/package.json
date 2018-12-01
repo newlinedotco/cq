@@ -11,7 +11,7 @@
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
     "generate-readme": "node ./node_modules/.bin/cqmd -o ../../README.md -p . doc/readme/README.cq.md",
     "generate-parser": "./node_modules/.bin/pegjs src/query.pegjs src/query-parser.js",
-    "rollup": "BROWSER=true node --max-old-space-size=8192 ./node_modules/rollup/bin/rollup -c > dist/cq.browser.js"
+    "rollup": "BROWSER=true node --max-old-space-size=8192 ./node_modules/rollup/bin/rollup -c rollup.config.js"
   },
   "bin": {
     "cq": "dist/cli.js"

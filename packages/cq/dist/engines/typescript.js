@@ -7,11 +7,7 @@ exports.default = typescriptEngine;
 
 var _typescript = require("typescript");
 
-var ts = _interopRequireWildcard(_typescript);
-
 var _util = require("./util");
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
                                                                                                                                                                                                      * cq TypeScript Engine
@@ -21,8 +17,15 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                                                                                                                                                                                                      * Thanks to astexplorer for some of this code
                                                                                                                                                                                                      * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
                                                                                                                                                                                                      */
+// import * as ts from "typescript";
 
 
+var ts = {
+  SyntaxKind: _typescript.SyntaxKind,
+  createSourceFile: _typescript.createSourceFile,
+  ScriptTarget: _typescript.ScriptTarget,
+  getLeadingCommentRanges: _typescript.getLeadingCommentRanges
+};
 var ignoredProperties = new Set(["constructor", "parent"]);
 
 function getNodeName(node) {

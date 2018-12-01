@@ -7,6 +7,10 @@
 > A tool to extract code snippets using selectors (instead of line numbers)
 >
 > Supports JavaScript ES5, ES6, JSX, and TypeScript
+>
+> `cq` supports sophisticated, production-ready selectors and is used for all of the [Fullstack.io Books](https://fullstack.io)
+
+> If you're a developer and you're interested in writing a programming book, then [read more here](https://www.fullstack.io/write-a-book/)
 
 ## Install
 

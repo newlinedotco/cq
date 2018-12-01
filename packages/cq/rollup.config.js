@@ -6,18 +6,19 @@ import globals from "rollup-plugin-node-globals";
 
 export default {
   input: "src/index.js",
-  output: {
-    file: "dist/cq.browser.js",
-    name: "cq",
-    format: "iife",
-    sourcemap: false,
-    exports: "default",
-    intro: `
+  output: [
+    {
+      file: "dist/cq.browser.js",
+      name: "cq",
+      format: "umd",
+      sourcemap: false,
+      exports: "default",
+      intro: `
 window.noop = function() {};
 window.global = {}
     `,
-    globals: {
-      /*
+      globals: {
+        /*
       fs: "noop",
       path: "noop",
       os: "noop",
@@ -25,9 +26,10 @@ window.global = {}
       buffer: "noop",
       module: "noop"
     */
+      }
+      // sourcemap: true
     }
-    // sourcemap: true
-  },
+  ],
   plugins: [
     resolve(),
     replace({

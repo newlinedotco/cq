@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.NodeTypes = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           * cq Query Resolver
@@ -13,6 +12,92 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           *
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */
 
+
+var cq = function () {
+  var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(code, queries) {
+    var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    var engine, ast, root, results;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            engine = opts.engine || (0, _babylon2.default)();
+
+
+            if (typeof queries === "string") {
+              // parse into an array
+              queries = _queryParser2.default.parse(queries);
+            }
+
+            if (!(typeof engine === "string")) {
+              _context.next = 18;
+              break;
+            }
+
+            _context.t0 = engine;
+            _context.next = _context.t0 === "typescript" ? 6 : _context.t0 === "babylon" ? 8 : 10;
+            break;
+
+          case 6:
+            engine = (0, _typescript2.default)();
+            return _context.abrupt("break", 18);
+
+          case 8:
+            engine = (0, _babylon2.default)();
+            return _context.abrupt("break", 18);
+
+          case 10:
+            _context.prev = 10;
+
+            engine = require("cq-" + engine + "-engine");
+            _context.next = 17;
+            break;
+
+          case 14:
+            _context.prev = 14;
+            _context.t1 = _context["catch"](10);
+            throw new Error("unknown engine: " + engine);
+
+          case 17:
+            return _context.abrupt("break", 18);
+
+          case 18:
+
+            if (typeof engine === "function") {
+              // then just use it
+            }
+
+            debug(code);
+            _context.next = 22;
+            return Promise.resolve(engine.parse(code, Object.assign({}, opts.parserOpts)));
+
+          case 22:
+            ast = _context.sent;
+
+            // debug(JSON.stringify(ast, null, 2));
+
+            root = engine.getInitialRoot(ast);
+            results = resolveListOfQueries(ast, root, code, queries, engine, opts);
+
+
+            if (opts.undent) {
+              results.code = undent(results.code);
+            }
+
+            return _context.abrupt("return", results);
+
+          case 27:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this, [[10, 14]]);
+  }));
+
+  return function cq(_x2, _x3) {
+    return _ref6.apply(this, arguments);
+  };
+}();
 
 var _queryParser = require("./query-parser");
 
@@ -48,13 +133,14 @@ if (process.browser) {
   debug = debugLib("cq");
 }
 
-var NodeTypes = exports.NodeTypes = {
+var NodeTypes = {
   IDENTIFIER: "IDENTIFIER",
   RANGE: "RANGE",
   LINE_NUMBER: "LINE_NUMBER",
   STRING: "STRING",
   CALL_EXPRESSION: "CALL_EXPRESSION"
 };
+cq.NodeTypes = NodeTypes;
 
 var QueryResultTypes = {
   SELECTION_EXPRESSION: "SELECTION_EXPRESSION"
@@ -527,90 +613,5 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
   });
 }
 
-exports.default = function () {
-  var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(code, queries) {
-    var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    var engine, ast, root, results;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            engine = opts.engine || (0, _babylon2.default)();
-
-
-            if (typeof queries === "string") {
-              // parse into an array
-              queries = _queryParser2.default.parse(queries);
-            }
-
-            if (!(typeof engine === "string")) {
-              _context.next = 18;
-              break;
-            }
-
-            _context.t0 = engine;
-            _context.next = _context.t0 === "typescript" ? 6 : _context.t0 === "babylon" ? 8 : 10;
-            break;
-
-          case 6:
-            engine = (0, _typescript2.default)();
-            return _context.abrupt("break", 18);
-
-          case 8:
-            engine = (0, _babylon2.default)();
-            return _context.abrupt("break", 18);
-
-          case 10:
-            _context.prev = 10;
-
-            engine = require("cq-" + engine + "-engine");
-            _context.next = 17;
-            break;
-
-          case 14:
-            _context.prev = 14;
-            _context.t1 = _context["catch"](10);
-            throw new Error("unknown engine: " + engine);
-
-          case 17:
-            return _context.abrupt("break", 18);
-
-          case 18:
-
-            if (typeof engine === "function") {
-              // then just use it
-            }
-
-            debug(code);
-            _context.next = 22;
-            return Promise.resolve(engine.parse(code, Object.assign({}, opts.parserOpts)));
-
-          case 22:
-            ast = _context.sent;
-
-            // debug(JSON.stringify(ast, null, 2));
-
-            root = engine.getInitialRoot(ast);
-            results = resolveListOfQueries(ast, root, code, queries, engine, opts);
-
-
-            if (opts.undent) {
-              results.code = undent(results.code);
-            }
-
-            return _context.abrupt("return", results);
-
-          case 27:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee, this, [[10, 14]]);
-  }));
-
-  function cq(_x2, _x3) {
-    return _ref6.apply(this, arguments);
-  }
-
-  return cq;
-}();
+exports.default = cq;
+module.exports = exports["default"];

@@ -3,6 +3,19 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _assign = require("babel-runtime/core-js/object/assign");
+
+var _assign2 = _interopRequireDefault(_assign);
+
+var _set = require("babel-runtime/core-js/set");
+
+var _set2 = _interopRequireDefault(_set);
+
 exports.default = babylonEngine;
 
 var _babylon = require("babylon");
@@ -13,15 +26,15 @@ var _util = require("./util");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
-                                                                                                                                                                                                     * cq Babylon Engine
-                                                                                                                                                                                                     *
-                                                                                                                                                                                                     * Parse files with Babylon
-                                                                                                                                                                                                     *
-                                                                                                                                                                                                     */
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * cq Babylon Engine
+ *
+ * Parse files with Babylon
+ *
+ */
 // let babylon = require("babylon");
-
-
 var defaultBabylonConfig = {
   sourceType: "module",
   plugins: ["jsx", "flow", "asyncFunctions", "classConstructorCall", "doExpressions", "trailingFunctionCommas", "objectRestSpread", "decorators", "classProperties", "exportExtensions", "exponentiationOperator", "asyncGenerators", "functionBind", "functionSent"]
@@ -33,7 +46,7 @@ var defaultBabylonConfig = {
  *   * figure out if we should unify `traverse` w/ typescript's
  */
 
-var ignoredProperties = new Set(["constructor", "parent"]);
+var ignoredProperties = new _set2.default(["constructor", "parent"]);
 
 function getNodeName(node) {
   if (node.type) {
@@ -103,7 +116,7 @@ function babylonEngine() {
     parse: function parse(code) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      var ast = babylon.parse(code, Object.assign({}, defaultBabylonConfig, opts));
+      var ast = babylon.parse(code, (0, _assign2.default)({}, defaultBabylonConfig, opts));
       return ast;
     },
     getInitialRoot: function getInitialRoot(ast) {
@@ -132,7 +145,7 @@ function babylonEngine() {
       var paths = [];
       var nodeCb = function nodeCb(node) {
         if (node.name === query.matcher) {
-          paths = [].concat(_toConsumableArray(paths), [node.parent]);
+          paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
         }
       };
       traverse(root, {
@@ -146,7 +159,7 @@ function babylonEngine() {
       traverse(root, {
         StringLiteral: function StringLiteral(node) {
           if (node.value === query.matcher) {
-            paths = [].concat(_toConsumableArray(paths), [node.parent]);
+            paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
           }
         }
       });

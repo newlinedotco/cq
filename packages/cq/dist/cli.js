@@ -1,9 +1,19 @@
 #!/usr/bin/env node
 "use strict";
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _stringify = require("babel-runtime/core-js/json/stringify");
+
+var _stringify2 = _interopRequireDefault(_stringify);
+
+var _slicedToArray2 = require("babel-runtime/helpers/slicedToArray");
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
+require("babel-core/register");
 
 require("babel-polyfill");
+
+require("regenerator-runtime");
 
 var _index = require("./index");
 
@@ -38,7 +48,7 @@ var argv = _yargs2.default.usage("Usage: $0 [options] <query> <file>").example("
   default: "auto"
 }).argv;
 
-var _argv$_ = _slicedToArray(argv._, 2),
+var _argv$_ = (0, _slicedToArray3.default)(argv._, 2),
     query = _argv$_[0],
     filename = _argv$_[1];
 
@@ -54,35 +64,32 @@ if (argv.gapFiller) {
 }
 
 // pick the parsing engine
-
-(function () {
-  switch (argv.engine) {
-    case "babylon":
-    case "typescript":
-      engine = argv.engine;
-      break;
-    case "auto":
-      if (filename && filename.match(/\.tsx?/)) {
-        engine = "typescript";
-      } else {
-        engine = "babylon";
-      }
-      break;
-    default:
-      var foundEngine = false;
-      ["@fullstackio/cq-" + argv.engine + "-engine", "cq-" + argv.engine + "-engine", argv.engine].map(function (potentialEngine) {
-        try {
-          if (!foundEngine) {
-            engine = require(potentialEngine)();
-            foundEngine = true;
-          }
-        } catch (err) {}
-      });
-      if (!foundEngine) {
-        throw new Error("unknown engine: " + argv.engine);
-      }
-  }
-})();
+switch (argv.engine) {
+  case "babylon":
+  case "typescript":
+    engine = argv.engine;
+    break;
+  case "auto":
+    if (filename && filename.match(/\.tsx?/)) {
+      engine = "typescript";
+    } else {
+      engine = "babylon";
+    }
+    break;
+  default:
+    var foundEngine = false;
+    ["@fullstackio/cq-" + argv.engine + "-engine", "cq-" + argv.engine + "-engine", argv.engine].map(function (potentialEngine) {
+      try {
+        if (!foundEngine) {
+          engine = require(potentialEngine)();
+          foundEngine = true;
+        }
+      } catch (err) {}
+    });
+    if (!foundEngine) {
+      throw new Error("unknown engine: " + argv.engine);
+    }
+}
 
 var inputStream = filename ? _fs2.default.createReadStream(filename) : process.stdin;
 
@@ -92,7 +99,7 @@ inputStream.on("data", function (buf) {
   content += buf.toString();
 });
 inputStream.on("end", function () {
-  var gapFiller = argv.gapFiller === 'false' ? false : argv.gapFiller;
+  var gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
 
   (0, _index2.default)(content, query, { engine: engine, gapFiller: gapFiller }).then(function (result) {
     if (argv.json === true) {
@@ -100,7 +107,7 @@ inputStream.on("end", function () {
       if (argv.short === true) {
         delete result["code"];
       }
-      console.log(JSON.stringify(result, null, 2));
+      console.log((0, _stringify2.default)(result, null, 2));
     } else {
       console.log(result.code);
     }

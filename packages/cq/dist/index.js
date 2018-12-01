@@ -4,20 +4,43 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * cq Query Resolver
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * This file takes input code and a parsed query and extracts portions of the
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * code based on that query
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */
+var _regenerator = require("babel-runtime/regenerator");
 
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _promise = require("babel-runtime/core-js/promise");
+
+var _promise2 = _interopRequireDefault(_promise);
+
+var _asyncToGenerator2 = require("babel-runtime/helpers/asyncToGenerator");
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
+var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _assign = require("babel-runtime/core-js/object/assign");
+
+var _assign2 = _interopRequireDefault(_assign);
+
+var _toArray2 = require("babel-runtime/helpers/toArray");
+
+var _toArray3 = _interopRequireDefault(_toArray2);
+
+var _slicedToArray2 = require("babel-runtime/helpers/slicedToArray");
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
+var _set = require("babel-runtime/core-js/set");
+
+var _set2 = _interopRequireDefault(_set);
 
 var cq = function () {
-  var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(code, queries) {
+  var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(code, queries) {
     var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
     var engine, ast, root, results;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
+    return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
@@ -69,7 +92,7 @@ var cq = function () {
 
             debug(code);
             _context.next = 22;
-            return Promise.resolve(engine.parse(code, Object.assign({}, opts.parserOpts)));
+            return _promise2.default.resolve(engine.parse(code, (0, _assign2.default)({}, opts.parserOpts)));
 
           case 22:
             ast = _context.sent;
@@ -103,6 +126,10 @@ var _queryParser = require("./query-parser");
 
 var _queryParser2 = _interopRequireDefault(_queryParser);
 
+require("babel-polyfill");
+
+require("regenerator-runtime");
+
 var _babylon = require("./engines/babylon");
 
 var _babylon2 = _interopRequireDefault(_babylon);
@@ -115,12 +142,13 @@ var _util = require("./engines/util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
-
+/**
+ * cq Query Resolver
+ *
+ * This file takes input code and a parsed query and extracts portions of the
+ * code based on that query
+ *
+ */
 var debug = void 0;
 if (process.browser) {
   debug = function debug() {
@@ -146,7 +174,7 @@ var QueryResultTypes = {
   SELECTION_EXPRESSION: "SELECTION_EXPRESSION"
 };
 
-var whitespace = new Set([" ", "\n", "\t", "\r"]);
+var whitespace = new _set2.default([" ", "\n", "\t", "\r"]);
 
 function nextNewlinePos(code, start) {
   var pos = start;
@@ -291,7 +319,7 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
       return { start: start, end: start };
       break;
     case "context":
-      var _args = _slicedToArray(args, 2),
+      var _args = (0, _slicedToArray3.default)(args, 2),
           linesBefore = _args[0],
           linesAfter = _args[1];
 
@@ -301,7 +329,7 @@ function modifyAnswerWithCall(ast, code, callee, args, engine, _ref5) {
       });
       break;
     case "window":
-      var _args2 = _slicedToArray(args, 3),
+      var _args2 = (0, _slicedToArray3.default)(args, 3),
           startingLine = _args2[0],
           endingLine = _args2[1],
           reverse = _args2[2];
@@ -437,7 +465,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
         var callee = query.callee;
         // for now, the first argument is always the inner selection
 
-        var _query$arguments = _toArray(query.arguments),
+        var _query$arguments = (0, _toArray3.default)(query.arguments),
             childQuery = _query$arguments[0],
             args = _query$arguments.slice(1);
 
@@ -449,7 +477,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
           case "after":
             handled = true;
 
-            var _args3 = _slicedToArray(args, 1),
+            var _args3 = (0, _slicedToArray3.default)(args, 1),
                 goalpostQuery = _args3[0];
 
             var goalpostNode = resolveIndividualQuery(ast, root, code, goalpostQuery, engine, opts);
@@ -458,7 +486,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
           case "choose":
             handled = true;
 
-            var _args4 = _slicedToArray(args, 1),
+            var _args4 = (0, _slicedToArray3.default)(args, 1),
                 nodeIdx = _args4[0];
 
             opts.nodeIdx = nodeIdx.value;
@@ -499,10 +527,10 @@ function resolveIndividualQuery(ast, root, code, query, engine, opts) {
       {
         var rangeStart = resolveIndividualQuery(ast, root, code, query.start, engine, opts);
         var start = rangeStart.start;
-        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, Object.assign({}, opts, { after: rangeStart.start }));
+        var rangeEnd = resolveIndividualQuery(ast, root, code, query.end, engine, (0, _assign2.default)({}, opts, { after: rangeStart.start }));
         var end = rangeEnd.end;
         var codeSlice = code.substring(start, end);
-        var nodes = [].concat(_toConsumableArray(rangeStart.nodes || []), _toConsumableArray(rangeEnd.nodes || []));
+        var nodes = [].concat((0, _toConsumableArray3.default)(rangeStart.nodes || []), (0, _toConsumableArray3.default)(rangeEnd.nodes || []));
         return { code: codeSlice, nodes: nodes, start: start, end: end };
       }
     case NodeTypes.LINE_NUMBER:
@@ -597,7 +625,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
       acc.code = acc.code + resolved.code;
     }
 
-    acc.nodes = [].concat(_toConsumableArray(acc.nodes), _toConsumableArray(resolved.nodes || []));
+    acc.nodes = [].concat((0, _toConsumableArray3.default)(acc.nodes), (0, _toConsumableArray3.default)(resolved.nodes || []));
     acc.start = Math.min(acc.start, resolved.start);
     acc.end = Math.max(acc.end, resolved.end);
     acc.start_line = newStartLine;

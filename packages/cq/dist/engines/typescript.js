@@ -3,30 +3,39 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _set = require("babel-runtime/core-js/set");
+
+var _set2 = _interopRequireDefault(_set);
+
 exports.default = typescriptEngine;
 
 var _typescript = require("typescript");
 
 var _util = require("./util");
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
-                                                                                                                                                                                                     * cq TypeScript Engine
-                                                                                                                                                                                                     *
-                                                                                                                                                                                                     * Parse files with TypeScript
-                                                                                                                                                                                                     *
-                                                                                                                                                                                                     * Thanks to astexplorer for some of this code
-                                                                                                                                                                                                     * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
-                                                                                                                                                                                                     */
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * cq TypeScript Engine
+ *
+ * Parse files with TypeScript
+ *
+ * Thanks to astexplorer for some of this code
+ * see: https://github.com/fkling/astexplorer/tree/master/src/parsers/js/typescript.js#L128
+ */
 // import * as ts from "typescript";
-
-
 var ts = {
   SyntaxKind: _typescript.SyntaxKind,
   createSourceFile: _typescript.createSourceFile,
   ScriptTarget: _typescript.ScriptTarget,
   getLeadingCommentRanges: _typescript.getLeadingCommentRanges
 };
-var ignoredProperties = new Set(["constructor", "parent"]);
+var ignoredProperties = new _set2.default(["constructor", "parent"]);
 
 function getNodeName(node) {
   if (node.kind) {
@@ -123,7 +132,7 @@ function typescriptEngine() {
       traverse(root, {
         Identifier: function Identifier(node) {
           if (node.text === query.matcher) {
-            paths = [].concat(_toConsumableArray(paths), [node.parent]);
+            paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
           }
         },
         Constructor: function Constructor(node) {
@@ -131,7 +140,7 @@ function typescriptEngine() {
           // it's an Identifier) If the query is looking for a constructor by
           // identifier, then we will accept this Constructor node
           if ("constructor" === query.matcher && "IDENTIFIER" === query.type) {
-            paths = [].concat(_toConsumableArray(paths), [node]);
+            paths = [].concat((0, _toConsumableArray3.default)(paths), [node]);
           }
         }
       });
@@ -142,7 +151,7 @@ function typescriptEngine() {
       traverse(root, {
         StringLiteral: function StringLiteral(node) {
           if (node.text === query.matcher) {
-            paths = [].concat(_toConsumableArray(paths), [node.parent]);
+            paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
           }
         }
       });

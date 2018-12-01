@@ -3,8 +3,10 @@
   "version": "5.1.3",
   "private": true,
   "dependencies": {
-    "@fullstackio/cq": "^5.1.3",
+    "@fullstackio/cq": "5.1.3",
     "argon-design-system-free": "^1.0.1",
+    "jquery": "^3.3.1",
+    "lodash": "^4.17.11",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-scripts": "2.1.1",

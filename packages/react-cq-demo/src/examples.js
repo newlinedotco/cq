@@ -1,5 +1,4 @@
-const basics = `
-const bye = function() {
+const basics = `const bye = function() {
   return 'bye';
 }
 bye(); // -> 'bye'

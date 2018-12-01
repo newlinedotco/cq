@@ -48,8 +48,9 @@ function formatRaw(results) {
   return results.code;
 }
 
-exports.default = function () {
-  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(text) {
+//export default (async function cqmd(text, opts = {}) {
+(function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(text) {
     var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     var replacer, newText;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
@@ -60,7 +61,7 @@ exports.default = function () {
             opts.gapFiller = typeof opts.gapFiller != "undefined" ? opts.gapFiller : "\n  // ...\n";
 
             replacer = function () {
-              var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(match, rawSettings, displayName, actualName, ws, offset, s) {
+              var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(match, rawSettings, displayName, actualName, ws, offset, s) {
                 var blockOpts, format, fullFilename, contents, cqOpts, cqResults, replacement;
                 return regeneratorRuntime.wrap(function _callee$(_context) {
                   while (1) {
@@ -146,7 +147,7 @@ exports.default = function () {
             }();
 
             _context2.next = 5;
-            return (0, _stringReplaceAsync2.default)(text, /^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg, replacer);
+            return (0, _stringReplaceAsync2.default)(text, /^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/gm, replacer);
 
           case 5:
             newText = _context2.sent;
@@ -162,6 +163,43 @@ exports.default = function () {
 
   function cqmd(_x3) {
     return _ref.apply(this, arguments);
+  }
+
+  return cqmd;
+})();
+
+var unified = require("unified");
+var reParse = require("remark-parse");
+var remark2rehype = require("remark-rehype");
+var remarkStringify = require("remark-stringify");
+var remarkCq = require("@fullstackio/remark-cq");
+
+exports.default = function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(text) {
+    var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var renderMarkdown, renderHtml;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            renderMarkdown = function renderMarkdown(text, config) {
+              return unified().use(reParse).use(remarkStringify).use(remarkCq, config).processSync(text);
+            };
+
+            renderHtml = function renderHtml(text, config) {
+              return unified().use(reParse).use(remarkCq, config).use(remark2rehype).use(stringify).processSync(text);
+            };
+
+          case 2:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3, this);
+  }));
+
+  function cqmd(_x12) {
+    return _ref3.apply(this, arguments);
   }
 
   return cqmd;

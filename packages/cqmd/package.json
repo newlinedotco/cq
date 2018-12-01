@@ -20,8 +20,17 @@
   },
   "dependencies": {
     "@fullstackio/cq": "^5.2.0",
+    "@fullstackio/remark-cq": "^5.2.0",
     "string-replace-async": "^1.2.0",
-    "yargs": "^4.7.1"
+    "yargs": "^4.7.1",
+    "rehype-stringify": "^5.0.0",
+    "remark": "^5.0.1",
+    "remark-lint": "^2.0.0",
+    "remark-parse": "^6.0.3",
+    "remark-rehype": "^4.0.0",
+    "remark-slug": "^4.0.0",
+    "remark-stringify": "^6.0.4",
+    "unified": "^7.0.2"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",

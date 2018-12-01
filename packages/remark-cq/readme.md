@@ -7,7 +7,7 @@
 [npm][npm-install]:
 
 ```bash
-npm install remark-cq
+npm install @fullstackio/remark-cq
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ For example:
 
 ```javascript
 var remark = require("remark");
-var cq = require("remark-cq");
+var cq = require("@fullstackio/remark-cq");
 const unified = require("unified");
 const reParse = require("remark-parse");
 const stringify = require("rehype-stringify");

@@ -2,15 +2,21 @@
   <img src="https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/code-query-image.png" alt="Code Query - extract code snippets using selectors" />
 </p>
 
-# cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com) 
+# cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
 
 > A tool to extract code snippets using selectors (instead of line numbers)
+>
+> **[Try the demo](https://cq-demo.now.sh/)**
 >
 > Supports JavaScript ES5, ES6, JSX, and TypeScript
 >
 > `cq` supports sophisticated, production-ready selectors and is used for all of the [Fullstack.io Books](https://fullstack.io)
 
 > If you're a developer and you're interested in writing a programming book, then [read more here](https://www.fullstack.io/write-a-book/)
+
+## Online Demo
+
+**[Try the demo](https://cq-demo.now.sh/)**
 
 ## Install
 
@@ -31,7 +37,6 @@ $ cat file | cq <query>
 ## Examples
 
 Say we have a file `examples/basics.js` with the following code:
-
 
 ```javascript
 // examples/basics.js
@@ -120,7 +125,7 @@ $ cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
 
 {lang=javascript,crop-query='chai'-EOF}
 <<[](examples/mocha.test.js)
- 
+
 We can get the first test:
 
 ```javascript
@@ -157,7 +162,7 @@ $ cq 'comments(.bye)' comments.js
 ```
 
 > This file was itself [generated using `cq`](./packages/cq/doc/readme/README.cq.md).
-> 
+>
 > See _many_ more examples in the [`/examples`](./packages/cq/examples) directory
 
 ## Features
@@ -206,11 +211,7 @@ In this code:
 ```jsx
 const Simple = React.createClass({
   render() {
-    return (
-      <div>
-        {this.renderName()}
-      </div>
-    )
+    return <div>{this.renderName()}</div>;
   }
 });
 ```
@@ -228,7 +229,7 @@ Searches for identifiers traverse the whole tree, relative to the parent, and re
 
 The space in a query selection expression designates a parent for the next identifier. For instance, the query `.Simple .render` will first look for the identifier `Simple` and then find the `render` function that is a child of `Simple`.
 
-The space indicates to search for the next identifier anywhere within the parent. That is, it does **not** require that the child identifier be a _direct child_ the parent. 
+The space indicates to search for the next identifier anywhere within the parent. That is, it does **not** require that the child identifier be a _direct child_ the parent.
 
 > In this way the space is analogous to the space in a CSS selector. E.g. search for any child that matches.
 > `cq` does not yet support the `>` notation (which would require the identifier to be a direct child), but we may in the future.
@@ -252,14 +253,14 @@ class Barn {
     this.height = height;
     this.width = width;
   }
-  
+
   calcArea() {
     return this.height * this.width;
   }
 }
 ```
 
-A pair of selections (e.g. identifiers) joined by a dash `-` form a _range_. A range will emit the code from the beginning of the match of the first identifier to the end of the match of the last. 
+A pair of selections (e.g. identifiers) joined by a dash `-` form a _range_. A range will emit the code from the beginning of the match of the first identifier to the end of the match of the last.
 
 You can use a parent identifier to limit the scope of the search of the range as in the query: `.Barn .constructor-.calcArea`
 
@@ -282,8 +283,8 @@ You can use a single-quoted string as a selection and `cq` will search for that 
 For instance, given:
 
 ```javascript
-describe('My First Test', () => {
-  it('basic assert', () => {
+describe("My First Test", () => {
+  it("basic assert", () => {
     assert.equal(1, 1);
   });
 });
@@ -304,18 +305,18 @@ Given:
 ```javascript
 // here is the bye function
 const bye = function() {
-  return 'bye';
-}
+  return "bye";
+};
 bye(); // -> 'bye'
 ```
 
-Operators allow you to change the result of the inner selection. 
+Operators allow you to change the result of the inner selection.
 
 #### `context()`
 
 - `context(selection, numLinesBeforeStart, numLinesAfterEnd)`
 
-The `context()` operation takes line numbers before and after the selection. For example, `context(.foo, 2, 2)` will give two lines before and two lines after the `.foo` node. 
+The `context()` operation takes line numbers before and after the selection. For example, `context(.foo, 2, 2)` will give two lines before and two lines after the `.foo` node.
 
 Keep in mind that the `selection` denotes a node which can span multiple lines. With that in mind, positive numbers "expand" the selection and negative numbers "contract". That is, if `numLinesBeforeStart` is negative, then it can be interpreted as moving the _start_ forward (increasing line numbers). Similarly, if `numLinesAfterEnd` is negative, the _end_ is moved backwards (decreasing line numbers, towards the top of the document).
 
@@ -327,9 +328,9 @@ Keep in mind that the `selection` denotes a node which can span multiple lines. 
 
 `window()` returns a specific number of lines relative to `selection`. For example, `window(.foo, 0, 4)` would give 5 lines, the `foo` identifier and the four lines following.
 
-It differs from `context()` in that both arguments to `window()` are relative to the _start_ of the `selection`. 
+It differs from `context()` in that both arguments to `window()` are relative to the _start_ of the `selection`.
 
-`window()` is useful for extracting a specific range of lines near a particular `selection`. The `selection` is considered to start at index `0`, which means negative numbers denote the lines before the start of the selection. 
+`window()` is useful for extracting a specific range of lines near a particular `selection`. The `selection` is considered to start at index `0`, which means negative numbers denote the lines before the start of the selection.
 
 If `reverse` is true, start the window at the _end_ of the selection.
 
@@ -349,13 +350,13 @@ Sugar - same as `window(selection, 0, 0, true)`
 
 - `upto(selection)`
 
-The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines). 
+The `upto()` operation will return the code up-to, but not including, the selection. A convenient (but potentially confusing) default is that **the `upto()` operation trims whitespace**. This is normally what you want, but you have to be careful when using `upto()` and `context()` together (because `upto()` may trim lines).
 
 #### `choose()`
 
 - `choose(selection, matchIdx)`
 
-It's possible for a `selection` to match more than one node. While you can often disambiguate with child selections, the `choose()` operator lets you specify a particular match by index. 
+It's possible for a `selection` to match more than one node. While you can often disambiguate with child selections, the `choose()` operator lets you specify a particular match by index.
 
 `matchIdx` starts at `0`. Without the `choose` operator, the default behavior of any `selection` is: `choose(selection, 0)`. Say you had two instances of the identifier `.foo` then you could grab the second by using `choose(.foo, 1)`.
 
@@ -382,14 +383,15 @@ The `decorators()` operation will return the selection plus the decorators.
 Say we have the following code:
 
 ```typescript
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 @Component({
-  selector: 'home',
-  template: `<h1>Welcome!</h1>`
+  selector: "home",
+  template: `
+    <h1>Welcome!</h1>
+  `
 })
-export class HomeComponent {
-}
+export class HomeComponent {}
 ```
 
 When we grab the selection `.HomeComponent` we'll get just the class
@@ -447,24 +449,24 @@ To pre-process your markdown on the CLI use the [cqmd utility](https://github.co
 ## Library Usage
 
 ```javascript
-var cq = require('@fullstackio/cq').default;
+var cq = require("@fullstackio/cq").default;
 var results = cq(codeString, query);
 console.log(results.code);
 ```
 
 ## Future
 
-* Add queries for header information such as comments, `import`s, and `require`s
-* Add the ability to extract several sections in a single query
-* Create a [remark](https://github.com/wooorm/remark) plugin to pull code into Markdown using queries
-* Support extracting lines of HTML (using regular CSS selectors)
+- Add queries for header information such as comments, `import`s, and `require`s
+- Add the ability to extract several sections in a single query
+- Create a [remark](https://github.com/wooorm/remark) plugin to pull code into Markdown using queries
+- Support extracting lines of HTML (using regular CSS selectors)
 
 ## Limitations
 
-* It's possible to specify invalid queries and the error messages are not helpful
-* Only one selector is possible per query
-* Some sections of code are not directly selectable (because the query language is not yet expressive enough)
-* You can only select whole lines (e.g. comments on the same line after an expression are captured) - this is by design, but it should be configurable
+- It's possible to specify invalid queries and the error messages are not helpful
+- Only one selector is possible per query
+- Some sections of code are not directly selectable (because the query language is not yet expressive enough)
+- You can only select whole lines (e.g. comments on the same line after an expression are captured) - this is by design, but it should be configurable
 
 ## Query API Stability
 
@@ -480,10 +482,10 @@ Originally written by [Nate Murray](https://twitter.com/eigenjoy).
 
 ## Related
 
- - [`cqmd`](https://github.com/fullstackio/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
- - [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
- - [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the command line
- - [ASTExplorer](https://astexplorer.net/) - an online tool to explore the AST of your code
+- [`cqmd`](https://github.com/fullstackio/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
+- [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
+- [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the command line
+- [ASTExplorer](https://astexplorer.net/) - an online tool to explore the AST of your code
 
 ## Dependencies
 

@@ -1,6 +1,10 @@
-# cqmd: A markdown preprocessor for cq code blocks [![npm package](https://img.shields.io/npm/v/@fullstackio/cqmd.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cqmd) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com) 
+# cqmd: A markdown preprocessor for cq code blocks [![npm package](https://img.shields.io/npm/v/@fullstackio/cqmd.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cqmd) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
 
-> cqmd is a markdown preprocessor that parses [cq](https://github.com/fullstackio/cq) query blocks and replaces them with "regular" markdown code blocks.
+> cqmd is a CLI tool markdown preprocessor that parses [cq](https://github.com/fullstackio/cq) query blocks and replaces them with "regular" markdown code blocks.
+
+## Advanced Users Note
+
+If you want fine-grained control over how the markdown is parsed, you may want to use [remark-cq](../remark-cq) instead
 
 ## Install
 
@@ -30,12 +34,11 @@ For example, say we have a file `examples/basics.js` with the following code:
 ```javascript
 // examples/basics.js
 const bye = function() {
-  return 'bye';
-}
+  return "bye";
+};
 bye(); // -> 'bye'
 
-let Farm = () => 'cow';
-
+let Farm = () => "cow";
 ```
 
 In our markdown file we could include the code block by using the following markdown:
@@ -49,7 +52,7 @@ In our markdown file we could include the code block by using the following mark
 
     Isn't that neat?
 
-> Notice that none of the values are quoted. You do **not** quote your crop-query. If you use quotes then you are searching for a string. 
+> Notice that none of the values are quoted. You do **not** quote your crop-query. If you use quotes then you are searching for a string.
 
 Now we can process `document.md` like so:
 
@@ -76,11 +79,13 @@ You can see the full list of possible queries in [the cq manual](https://github.
 ## Library Usage
 
 ```javascript
-var cqmd = require('@fullstackio/cqmd').default;
-cqmd(input, {path: __dirname}).then(function(results) {
+var cqmd = require("@fullstackio/cqmd").default;
+cqmd(input, { path: __dirname }).then(function(results) {
   console.log(results);
 });
 ```
+
+But, this library is just a thin wrapper to provide a CLI tool. If you're using this as a library you may want to use [remark-cq](../remark-cq) instead
 
 If you'd like to create a custom formatting function, use the `format` key in the options.
 
@@ -91,7 +96,7 @@ If you'd like to create a custom formatting function, use the `format` key in th
 
 ## Contributing
 
-Please feel free to submit pull requests!
+Please feel free to submit pull requests.
 
 ## Authors
 

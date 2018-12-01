@@ -20,11 +20,11 @@ function formatRaw(results, opts = {}) {
   return results.code;
 }
 
-export default (async function cqmd(text, opts = {}) {
+//export default (async function cqmd(text, opts = {}) {
+(async function cqmd(text, opts = {}) {
   opts.format = opts.format || "gfm";
-  opts.gapFiller = typeof opts.gapFiller != "undefined"
-    ? opts.gapFiller
-    : "\n  // ...\n";
+  opts.gapFiller =
+    typeof opts.gapFiller != "undefined" ? opts.gapFiller : "\n  // ...\n";
 
   let replacer = async function(
     match,
@@ -35,14 +35,11 @@ export default (async function cqmd(text, opts = {}) {
     offset,
     s
   ) {
-    let blockOpts = splitNoParen(rawSettings).reduce(
-      (acc, pair) => {
-        let [k, v] = pair.split("=");
-        acc[k] = v;
-        return acc;
-      },
-      {}
-    );
+    let blockOpts = splitNoParen(rawSettings).reduce((acc, pair) => {
+      let [k, v] = pair.split("=");
+      acc[k] = v;
+      return acc;
+    }, {});
 
     // blocks override the global setting
     let format = blockOpts["format"] ? blockOpts["format"] : opts.format;
@@ -90,8 +87,31 @@ export default (async function cqmd(text, opts = {}) {
 
   let newText = await stringReplaceAsync(
     text,
-    /^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/mg,
+    /^{(.*?)}\s*\n<<\[(.*?)\]\((.*?)\)(\s*$)/gm,
     replacer
   );
   return newText;
+});
+
+const unified = require("unified");
+const reParse = require("remark-parse");
+const remark2rehype = require("remark-rehype");
+const remarkStringify = require("remark-stringify");
+const remarkCq = require("@fullstackio/remark-cq");
+
+export default (async function cqmd(text, opts = {}) {
+  const renderMarkdown = (text, config) =>
+    unified()
+      .use(reParse)
+      .use(remarkStringify)
+      .use(remarkCq, config)
+      .processSync(text);
+
+  const renderHtml = (text, config) =>
+    unified()
+      .use(reParse)
+      .use(remarkCq, config)
+      .use(remark2rehype)
+      .use(stringify)
+      .processSync(text);
 });

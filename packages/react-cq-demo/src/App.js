@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "argon-design-system-free/assets/css/argon.css";
+import "./argon.css";
 import "./App.css";
 import cq from "@fullstackio/cq/dist/cq.browser";
 import examples from "./examples";
@@ -33,18 +33,14 @@ class Header extends Component {
 }
 
 class CodeBox extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
-    const highlights = () =>
-      this.props.startChar &&
-      this.props.endChar &&
-      this.props.startChar > 0 &&
-      this.props.status === "success"
-        ? [[this.props.startChar, this.props.endChar]]
-        : [];
+    // const highlights = () =>
+    //   this.props.startChar &&
+    //   this.props.endChar &&
+    //   this.props.startChar > 0 &&
+    //   this.props.status === "success"
+    //     ? [[this.props.startChar, this.props.endChar]]
+    //     : [];
 
     return (
       <form className="code-box">
@@ -135,6 +131,14 @@ class ExampleSelectionBox extends Component {
             {options}
           </select>
         </div>
+        <div>
+          <small className="text-muted">
+            For more examples,{" "}
+            <a href="https://github.com/fullstackio/cq">
+              see the documentation
+            </a>
+          </small>
+        </div>
       </div>
     );
   }
@@ -206,7 +210,7 @@ class App extends Component {
         <section className="section section-lg pt-lg-0 bg-secondary">
           <div className="container">
             <div className="row justify-content-center">
-              <div className="col-lg-10 pt-50">
+              <div className="col-lg-12 pt-50">
                 <div className="main-card card shadow border-0">
                   <div className="card-body">
                     <div className="row">
@@ -237,9 +241,10 @@ class App extends Component {
             </div>
             <div className="row justify-content-center">
               <div className="col-md-8">
-                <div className="pt-50">
+                <div className="pt-50 site-info">
                   <small className="text-muted">
-                    cq is MIT licensed. See source.
+                    cq is MIT licensed. See{" "}
+                    <a href="https://github.com/fullstackio/cq">source</a>.
                   </small>
                 </div>
               </div>

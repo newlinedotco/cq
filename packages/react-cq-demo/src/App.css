@@ -126,3 +126,11 @@ pre {
 .hidden {
   display: none;
 }
+
+.site-info {
+  text-align: center;
+}
+
+.section-shaped .shape-style-1.shape-default {
+  background: linear-gradient(150deg, #0a78ad, #a45ac4);
+}

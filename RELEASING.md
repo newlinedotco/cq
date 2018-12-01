@@ -2,7 +2,7 @@
 
 ```
 npm login # if you aren't already logged in
-lerna publish
+lerna publish --git-remote github
 ```
 
 This will automatically: 

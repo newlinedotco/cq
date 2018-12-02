@@ -16,7 +16,7 @@ var trim = require("trim");
 var fs = require("fs");
 var path = require("path");
 var repeat = require("repeat-string");
-var cq = require("@fullstackio/cq").default;
+var cq = require("@fullstackio/cq");
 var debug = require("debug")("remark-cq");
 var trim = require("trim-trailing-lines");
 
@@ -111,19 +111,13 @@ function codeImportBlock(eat, value, silent) {
     while (++index < length) {
         character = value.charAt(index);
 
-        // console.log(character);
-
         if (character !== C_RIGHT_PAREN) {
-            // no newlines allowed in the import blocks
-            if (character === C_NEWLINE) {
-                return;
-            }
-
             markerCount++;
             subvalue += queue + character;
             queue = EMPTY;
         } else if (character === C_RIGHT_PAREN) {
             subvalue += queue + C_RIGHT_PAREN;
+            break;
         }
     }
 
@@ -152,6 +146,13 @@ function codeImportBlock(eat, value, silent) {
             cqOpts.undent = true;
         }
 
+        // console.log(
+        //     "crop query?",
+        //     codeString,
+        //     __lastBlockAttributes["crop-query"]
+        // );
+
+        // TODO - this is going to be a problem when we start importing from engines that are async...
         var results = cq(
             codeString,
             __lastBlockAttributes["crop-query"],

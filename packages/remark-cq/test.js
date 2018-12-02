@@ -104,3 +104,37 @@ const dogs = () => "Like snuggles";
     t.equal(actual, expected);
     t.end();
 });
+
+test("remark-cq code imports compile back to markdown in th emiddle of a document", t => {
+    const dogs = () => "Like snuggles";
+    const markup = `
+The code:
+
+{lang=javascript,crop-query=.dogs}
+<<[](test.js)
+
+and here's the **next** one:
+
+{lang=javascript,crop-query=.dogs}
+<<[](test.js)
+
+see?
+`;
+    const actual = renderMarkdown(markup, { root: __dirname }).contents;
+    const expected = `The code:
+
+\`\`\`javascript
+const dogs = () => "Like snuggles";
+\`\`\`
+
+and here's the **next** one:
+
+\`\`\`javascript
+const dogs = () => "Like snuggles";
+\`\`\`
+
+see?
+`;
+    t.equal(actual, expected);
+    t.end();
+});

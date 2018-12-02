@@ -11,7 +11,7 @@ async function cqmd(text, opts = {}) {
       .use(reParse)
       .use(remarkStringify)
       .use(remarkCq, config)
-      .processSync(text);
+      .process(text);
 
   const renderHtml = (text, config) =>
     unified()
@@ -19,9 +19,9 @@ async function cqmd(text, opts = {}) {
       .use(remarkCq, config)
       .use(remark2rehype)
       .use(rehypeStringify)
-      .processSync(text);
+      .process(text);
 
-  const results = renderMarkdown(text, opts).contents;
+  const results = (await renderMarkdown(text, opts)).contents;
   return results;
 }
 

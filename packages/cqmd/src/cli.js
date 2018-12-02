@@ -20,7 +20,8 @@ let argv = yargs
   .option("path", {
     alias: "p",
     type: "string",
-    describe: "The root path for the code"
+    describe:
+      "The root path for the code (defaults to the dir of the input file)"
   })
   .option("gapFiller", {
     alias: "g",

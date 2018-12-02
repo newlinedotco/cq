@@ -4,17 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _regenerator = require("babel-runtime/regenerator");
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
 var _promise = require("babel-runtime/core-js/promise");
 
 var _promise2 = _interopRequireDefault(_promise);
-
-var _asyncToGenerator2 = require("babel-runtime/helpers/asyncToGenerator");
-
-var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
@@ -35,92 +27,6 @@ var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 var _set = require("babel-runtime/core-js/set");
 
 var _set2 = _interopRequireDefault(_set);
-
-var cq = function () {
-  var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(code, queries) {
-    var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    var engine, ast, root, results;
-    return _regenerator2.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            engine = opts.engine || (0, _babylon2.default)();
-
-
-            if (typeof queries === "string") {
-              // parse into an array
-              queries = _queryParser2.default.parse(queries);
-            }
-
-            if (!(typeof engine === "string")) {
-              _context.next = 18;
-              break;
-            }
-
-            _context.t0 = engine;
-            _context.next = _context.t0 === "typescript" ? 6 : _context.t0 === "babylon" ? 8 : 10;
-            break;
-
-          case 6:
-            engine = (0, _typescript2.default)();
-            return _context.abrupt("break", 18);
-
-          case 8:
-            engine = (0, _babylon2.default)();
-            return _context.abrupt("break", 18);
-
-          case 10:
-            _context.prev = 10;
-
-            engine = require("cq-" + engine + "-engine");
-            _context.next = 17;
-            break;
-
-          case 14:
-            _context.prev = 14;
-            _context.t1 = _context["catch"](10);
-            throw new Error("unknown engine: " + engine);
-
-          case 17:
-            return _context.abrupt("break", 18);
-
-          case 18:
-
-            if (typeof engine === "function") {
-              // then just use it
-            }
-
-            debug(code);
-            _context.next = 22;
-            return _promise2.default.resolve(engine.parse(code, (0, _assign2.default)({}, opts.parserOpts)));
-
-          case 22:
-            ast = _context.sent;
-
-            // debug(JSON.stringify(ast, null, 2));
-
-            root = engine.getInitialRoot(ast);
-            results = resolveListOfQueries(ast, root, code, queries, engine, opts);
-
-
-            if (opts.undent) {
-              results.code = undent(results.code);
-            }
-
-            return _context.abrupt("return", results);
-
-          case 27:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee, this, [[10, 14]]);
-  }));
-
-  return function cq(_x2, _x3) {
-    return _ref6.apply(this, arguments);
-  };
-}();
 
 var _queryParser = require("./query-parser");
 
@@ -641,6 +547,63 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
     end_line: Number.MIN_VALUE,
     disjoint: false
   });
+}
+
+function cq(code, queries) {
+  var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  var engine = opts.engine || (0, _babylon2.default)();
+
+  if (typeof queries === "string") {
+    // parse into an array
+    queries = _queryParser2.default.parse(queries);
+  }
+
+  if (typeof engine === "string") {
+    switch (engine) {
+      case "typescript":
+        engine = (0, _typescript2.default)();
+        break;
+      case "babylon":
+        engine = (0, _babylon2.default)();
+        break;
+      default:
+        try {
+          engine = require("cq-" + engine + "-engine");
+        } catch (err) {
+          throw new Error("unknown engine: " + engine);
+        }
+        break;
+    }
+  }
+
+  if (typeof engine === "function") {
+    // then just use it
+  }
+
+  debug(code);
+
+  var processAst = function processAst(ast) {
+    var root = engine.getInitialRoot(ast);
+    var results = resolveListOfQueries(ast, root, code, queries, engine, opts);
+
+    if (opts.undent) {
+      results.code = undent(results.code);
+    }
+
+    return results;
+  };
+
+  // some engines are async (python), but some are sync
+  // we can only use sync engines for cqmd at the moment
+  if (engine.async || opts.async) {
+    return _promise2.default.resolve(engine.parse(code, (0, _assign2.default)({}, opts.parserOpts))).then(function (ast) {
+      return processAst(ast);
+    });
+  } else {
+    var ast = engine.parse(code, (0, _assign2.default)({}, opts.parserOpts));
+    return processAst(ast);
+  }
 }
 
 exports.default = cq;

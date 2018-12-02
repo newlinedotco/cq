@@ -551,7 +551,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
   );
 }
 
-async function cq(code, queries, opts = {}) {
+function cq(code, queries, opts = {}) {
   let engine = opts.engine || babylonEngine();
 
   if (typeof queries === "string") {
@@ -582,19 +582,30 @@ async function cq(code, queries, opts = {}) {
   }
 
   debug(code);
-  let ast = await Promise.resolve(
-    engine.parse(code, Object.assign({}, opts.parserOpts))
-  );
-  // debug(JSON.stringify(ast, null, 2));
 
-  let root = engine.getInitialRoot(ast);
-  let results = resolveListOfQueries(ast, root, code, queries, engine, opts);
+  const processAst = function(ast) {
+    let root = engine.getInitialRoot(ast);
+    let results = resolveListOfQueries(ast, root, code, queries, engine, opts);
 
-  if (opts.undent) {
-    results.code = undent(results.code);
+    if (opts.undent) {
+      results.code = undent(results.code);
+    }
+
+    return results;
+  };
+
+  // some engines are async (python), but some are sync
+  // we can only use sync engines for cqmd at the moment
+  if (engine.async || opts.async) {
+    return Promise.resolve(
+      engine.parse(code, Object.assign({}, opts.parserOpts))
+    ).then(function(ast) {
+      return processAst(ast);
+    });
+  } else {
+    let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
+    return processAst(ast);
   }
-
-  return results;
 }
 
 export default cq;

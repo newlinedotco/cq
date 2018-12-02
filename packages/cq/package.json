@@ -9,7 +9,8 @@
     "prepublish": "npm run generate-parser && npm run compile && npm run rollup",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watch-extensions pegjs",
-    "generate-readme": "node ./node_modules/.bin/cqmd -o ../../README.md -p . doc/readme/README.cq.md",
+    "generate-readme": "node ../cqmd/src/cli.js -o ../../README.md -p . doc/readme/README.cq.md",
+    "generate-readme-watch": "fswatch -o doc/readme/ | xargs -n1 npm run generate-readme",
     "generate-parser": "./node_modules/.bin/pegjs src/query.pegjs src/query-parser.js",
     "rollup": "BROWSER=true node --max-old-space-size=8192 ./node_modules/rollup/bin/rollup -c rollup.config.js"
   },

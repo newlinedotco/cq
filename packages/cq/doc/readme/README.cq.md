@@ -12,11 +12,18 @@
 >
 > `cq` supports sophisticated, production-ready selectors and is used for all of the [Fullstack.io Books](https://fullstack.io)
 
-> If you're a developer and you're interested in writing a programming book, then [read more here](https://www.fullstack.io/write-a-book/)
+> If you're a developer and you're interested in writing a programming book, but you're not sure where to start, then [read here](https://www.fullstack.io/write-a-book/)
 
 ## Online Demo
 
 **[Try the demo](https://cq-demo.now.sh/)**
+
+## cq Suite
+
+- [`cq`](./packages/cq) - The core cq library -- given a code string and a query, returns the lines of code
+- [`cqmd`](./packages/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
+- [`remark-cq`](./packages/remark-cq) - a [remark](https://github.com/remarkjs/remark) (rehype-compatible) plugin to slurp code snippets with cq
+- [`cq-python-engine`](./packages/cq-python-engine) - an engine for using python with cq
 
 ## Install
 
@@ -38,48 +45,62 @@ $ cat file | cq <query>
 
 Say we have a file `examples/basics.js` with the following code:
 
-```javascript
-// examples/basics.js
-{lang=javascript,crop-query=.bye-EOF,format=raw}
+{lang=javascript,crop-query=.bye-EOF}
 <<[](examples/basics.js)
-```
 
-Get the `bye()` function:
+#### Get the `bye()` function:
 
-```javascript
+Query:
+
+```bash
 $ cq '.bye' examples/basics.js
-
-{lang=javascript,crop-query=.bye,format=raw}
-<<[](examples/basics.js)
 ```
 
-Get the `calcArea()` function on the `Barn` class:
+Result:
 
-```javascript
+{lang=javascript,crop-query=.bye}
+<<[](examples/basics.js)
+
+#### Get the `calcArea()` function on the `Barn` class:
+
+Query:
+
+```bash
 $ cq '.Barn .calcArea' examples/basics.js
-
-{lang=javascript,crop-query=.Barn .calcArea,format=raw}
-<<[](examples/basics.js)
 ```
 
-Get the `bye()` function plus the line after:
+Result:
 
-```javascript
-// `context(identifier, linesBefore, linesAfter)`
+{lang=javascript,crop-query=.Barn .calcArea}
+<<[](examples/basics.js)
+
+#### Get the `bye()` function plus the line after:
+
+This example uses an operator `context`.
+
+The API is: `context(identifier, linesBefore, linesAfter)`
+
+Query:
+
+```bash
 $ cq 'context(.bye,0,1)' examples/basics.js
-
-{lang=javascript,crop-query=context(.bye,0,1),format=raw}
-<<[](examples/basics.js)
 ```
 
-Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` class
+Result:
 
-```javascript
+{lang=javascript,crop-query=context(.bye,0,1)}
+<<[](examples/basics.js)
+
+#### Get the _range_ of `constructor` through `calcArea`, inclusive, of the `Barn` class
+
+```bash
 $ cq '.Barn .constructor-.calcArea' examples/basics.js
-
-{lang=javascript,crop-query=.Barn .constructor-.calcArea,format=raw}
-<<[](examples/basics.js)
 ```
+
+{lang=javascript,crop-query=.Barn .constructor-.calcArea}
+<<[](examples/basics.js)
+
+#### `json` flag
 
 If you pass `--json` you'll get the results in JSON, which can be useful for further processing:
 
@@ -95,31 +116,40 @@ $ cq --json 'context(.bye,0,1)' examples/basics.js
     }
 ```
 
-`cq` works with TypeScript as well. Say we had the following TypeScript File:
+#### TypeScript Support
 
-```typescript
-// AuthService.ts
-{lang=typescript,crop-query=.Injectable-EOF,format=raw}
+`cq` works with TypeScript as well. Say we had the following TypeScript File `AuthService.ts`:
+
+{lang=typescript,crop-query=.Injectable-EOF}
 <<[](examples/AuthService.ts)
-```
 
-Get the `AUTH_PROVIDERS` export:
+#### Get the `AUTH_PROVIDERS` export:
 
-```typescript
+Query:
+
+```bash
 $ cq '.AUTH_PROVIDERS' examples/AuthService.ts
-
-{lang=typescript,crop-query=.AUTH_PROVIDERS,format=raw}
-<<[](examples/AuthService.ts)
 ```
 
-Get the `isLoggedIn()` function through `AUTH_PROVIDERS`
+Result:
 
-```typescript
+{lang=typescript,crop-query=.AUTH_PROVIDERS}
+<<[](examples/AuthService.ts)
+
+#### Get the `isLoggedIn()` function through `AUTH_PROVIDERS`
+
+Query:
+
+```bash
 $ cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
-
-{lang=typescript,crop-query=(.AuthService .isLoggedIn)-.AUTH_PROVIDERS,format=raw}
-<<[](examples/AuthService.ts)
 ```
+
+Result:
+
+{lang=typescript,crop-query=(.AuthService .isLoggedIn)-.AUTH_PROVIDERS}
+<<[](examples/AuthService.ts)
+
+#### Searching for strings
 
 `cq` can search for strings as well as identifiers. Say we have the following test:
 
@@ -128,38 +158,51 @@ $ cq '(.AuthService .isLoggedIn)-.AUTH_PROVIDERS' examples/AuthService.ts
 
 We can get the first test:
 
-```javascript
-$ cq "'My First Test'" examples/mocha.test.js
+Query:
 
-{lang=javascript,crop-query='My First Test',format=raw}
-<<[](examples/mocha.test.js)
+```bash
+$ cq "'My First Test'" examples/mocha.test.js
 ```
+
+Result:
+
+{lang=javascript,crop-query='My First Test'}
+<<[](examples/mocha.test.js)
 
 Or get the `it` block in the second test:
 
-```javascript
-$ cq "'My Second Test' 'basic assert'" examples/mocha.test.js
+Query:
 
-{lang=javascript,crop-query='My Second Test' 'basic assert',format=raw}
-<<[](examples/mocha.test.js)
+```bash
+$ cq "'My Second Test' 'basic assert'" examples/mocha.test.js
 ```
+
+Result:
+
+{lang=javascript,crop-query='My Second Test' 'basic assert'}
+<<[](examples/mocha.test.js)
+
+#### `comments()` operator
 
 Sometimes we want to pull the comments before a selection. `cq` supports this using the `comments()` operator:
 
-```javascript
-// comments.js
-{lang=javascript,crop-query=1-EOF,format=raw}
+File `comments.js`:
+
+{lang=javascript,crop-query=1-EOF}
 <<[](examples/comments.js)
-```
 
 Get the `bye()` function with comments:
 
-```javascript
-$ cq 'comments(.bye)' comments.js
+Query:
 
-{lang=javascript,crop-query=comments(.bye),format=raw}
-<<[](examples/comments.js)
+```bash
+$ cq 'comments(.bye)' comments.js
 ```
+
+Result:
+
+{lang=javascript,crop-query=comments(.bye)}
+<<[](examples/comments.js)
 
 > This file was itself [generated using `cq`](./packages/cq/doc/readme/README.cq.md).
 >
@@ -436,7 +479,7 @@ You can have multiple queries and any if they are not contiguous they can be fil
 ```typescript
 $ cq '(firstLineOf(.AuthService),.logout,.isLoggedIn,lastLineOf(.AuthService))' examples/AuthService.ts
 
-{lang=typescript,crop-query=(firstLineOf(.AuthService),.logout,.isLoggedIn,lastLineOf(.AuthService)),format=raw}
+{lang=typescript,crop-query=(firstLineOf(.AuthService),.logout,.isLoggedIn,lastLineOf(.AuthService))}
 <<[](examples/AuthService.ts)
 ```
 

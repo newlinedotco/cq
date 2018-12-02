@@ -594,18 +594,11 @@ function cq(code, queries, opts = {}) {
     return results;
   };
 
-  // some engines are async (python), but some are sync
-  // we can only use sync engines for cqmd at the moment
-  if (engine.async || opts.async) {
-    return Promise.resolve(
-      engine.parse(code, Object.assign({}, opts.parserOpts))
-    ).then(function(ast) {
-      return processAst(ast);
-    });
-  } else {
-    let ast = engine.parse(code, Object.assign({}, opts.parserOpts));
+  return Promise.resolve(
+    engine.parse(code, Object.assign({}, opts.parserOpts))
+  ).then(function(ast) {
     return processAst(ast);
-  }
+  });
 }
 
 export default cq;

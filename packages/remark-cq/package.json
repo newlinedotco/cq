@@ -8,7 +8,7 @@
     "remark"
   ],
   "dependencies": {
-    "@fullstackio/cq": "^3.0.1",
+    "@fullstackio/cq": "^5.2.2",
     "trim-trailing-lines": "^1.1.1",
     "unist-util-visit": "^1.0.0"
   },
@@ -46,10 +46,9 @@
     "unified": "^7.0.2"
   },
   "scripts": {
-    "build-md": "remark . --quiet --frail",
     "build-bundle": "browserify index.js --no-builtins -s remarkInlineLinks > remark-inline-links.js",
     "build-mangle": "esmangle remark-inline-links.js > remark-inline-links.min.js",
-    "build": "npm run build-md && npm run build-bundle && npm run build-mangle",
+    "build": "npm run build-bundle && npm run build-mangle",
     "lint-api": "eslint .",
     "lint-style": "jscs --reporter inline .",
     "lint": "npm run lint-api && npm run lint-style",

@@ -29,7 +29,7 @@ const render = (text, config) =>
         .use(plugin, Object.assign({ root: __dirname }, config))
         .use(remark2rehype)
         .use(stringify)
-        .processSync(text);
+        .process(text);
 
 const renderMarkdown = (text, config) =>
     unified()
@@ -42,14 +42,14 @@ const renderMarkdown = (text, config) =>
  * Tests.
  */
 
-test("remark-cq code imports crop-query works", t => {
+test("remark-cq code imports crop-query works", async t => {
     const dogs = () => "Like snuggles";
     const markup = `
 The code:
 
 {lang=javascript,crop-query=.dogs}  
 <<[](test.js)`;
-    const actual = render(markup, { root: __dirname }).contents;
+    const actual = (await render(markup, { root: __dirname })).contents;
     const expected = `<p>The code:</p>
 <pre><code class="language-javascript">const dogs = () => "Like snuggles";
 </code></pre>`;
@@ -57,13 +57,13 @@ The code:
     t.end();
 });
 
-test("remark-cq code imports line numbers works", t => {
+test("remark-cq code imports line numbers works", async t => {
     const markup = `
 The code:
 
 {lang=javascript,crop-start-line=1,crop-end-line=2}
 <<[](test.js)`;
-    const actual = render(markup, { root: __dirname }).contents;
+    const actual = (await render(markup, { root: __dirname })).contents;
     const expected = `<p>The code:</p>
 <pre><code class="language-javascript">/**
  * @author Nate Murray
@@ -72,14 +72,14 @@ The code:
     t.end();
 });
 
-test("remark-cq code doesn't break normal blocks", t => {
+test("remark-cq code doesn't break normal blocks", async t => {
     const markup = `
 The code:
 
 \`\`\`javascript
 var foo = 1;
 \`\`\``;
-    const actual = render(markup, { root: __dirname }).contents;
+    const actual = (await render(markup, { root: __dirname })).contents;
     const expected = `<p>The code:</p>
 <pre><code class="language-javascript">var foo = 1;
 </code></pre>`;
@@ -87,7 +87,7 @@ var foo = 1;
     t.end();
 });
 
-test.only("remark-cq code imports compile back to markdown", async t => {
+test("remark-cq code imports compile back to markdown", async t => {
     const dogs = () => "Like snuggles";
     const markup = `
 The code:
@@ -105,7 +105,7 @@ const dogs = () => "Like snuggles";
     t.end();
 });
 
-test("remark-cq code imports compile back to markdown in th emiddle of a document", t => {
+test("remark-cq code imports compile back to markdown in th emiddle of a document", async t => {
     const dogs = () => "Like snuggles";
     const markup = `
 The code:
@@ -120,7 +120,7 @@ and here's the **next** one:
 
 see?
 `;
-    const actual = renderMarkdown(markup, { root: __dirname }).contents;
+    const actual = (await renderMarkdown(markup, { root: __dirname })).contents;
     const expected = `The code:
 
 \`\`\`javascript

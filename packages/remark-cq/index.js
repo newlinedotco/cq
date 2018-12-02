@@ -143,48 +143,21 @@ function codeImportBlock(eat, value, silent) {
         cqOpts.root = __lastBlockAttributes["root"];
     }
 
-    // todo cache this
-    var codeString = fs
-        .readFileSync(path.join(__options.root, actualFilename))
-        .toString();
-    var array = codeString.split("\n");
-    var lines = "";
-
     var query;
 
     if (__lastBlockAttributes["crop-query"]) {
-        // console.log(
-        //     "crop query?",
-        //     codeString,
-        //     __lastBlockAttributes["crop-query"]
-        // );
         query = __lastBlockAttributes["crop-query"];
-
-        // TODO - this is going to be a problem when we start importing from engines that are async...
-        // Also, if cq sucks in remote files, then this has to be async
-        // var results = cq(codeString, query, cqOpts);
-        // lines = results.code;
     } else {
-        // TODO - if cq has richer information about how to fetch the file, then we'll want to convert this to a cq query instead of just slicing lines... (right?)
         var cropStartLine = __lastBlockAttributes["crop-start-line"]
             ? parseInt(__lastBlockAttributes["crop-start-line"])
             : 1;
         var cropEndLine = __lastBlockAttributes["crop-end-line"]
             ? parseInt(__lastBlockAttributes["crop-end-line"])
             : array.length;
-        // lines = array.slice(cropStartLine - 1, cropEndLine).join("\n");
         query = `${cropStartLine}-${cropEndLine}`;
     }
 
     // meta: `{ info=string filename="foo/bar/baz.js" githubUrl="https://github.com/foo/bar"}`
-    // return eat(subvalue)({
-    //     type: "code",
-    //     lang: language || null,
-    //     meta: null,
-    //     value: trim(lines),
-    //     cq: { actualFilename }
-    // });
-
     return eat(subvalue)({
         type: "cq",
         lang: language || null,
@@ -396,6 +369,9 @@ async function visitCq(ast, vFile, options) {
             const cqOpts = node.options;
 
             const results = await cq(codeString, query, cqOpts);
+            //vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
+            //      vFile.message(error, position, PLUGIN_NAME);
+
             const lines = results.code;
             const language = node.lang;
 
@@ -436,58 +412,12 @@ async function visitCq(ast, vFile, options) {
     );
 
     visit(ast, "cq", node => {
-        // const { title } = node;
-        console.log("visitCq", node);
-
-        // if (!title || title.indexOf('gitlab-artifact|') === -1) {
-        //   return node;
-        // }
-        // const language = "javascript";
-        // const lines = `hi mom`;
-
-        // const codeNode = {
-        //     type: "code",
-        //     lang: language || null,
-        //     meta: null,
-        //     value: trim(lines)
-        //     // cq: { actualFilename }
-        // };
-
         // swap nodes by overwriting *this* node object
         Object.assign(node, codeNodes[node.uuid]);
-        console.log("node: ", node);
         return node;
     });
 
     return Promise.resolve(ast);
-
-    /*
-  if (!nodes.length) {
-    return Promise.resolve(ast);
-  }
-  */
-
-    /*
-  return Promise.all(nodes.map(async (node) => {
-    const { title, position } = node;
-    const [, projectId, jobName] = title.split('|');
-
-    try {
-      const artifact = await getArtifact(apiBase, token, projectId, jobName);
-      const destinationDir = getDestinationDir(vFile);
-      await extractArtifact(destinationDir, artifact);
-
-      // eslint-disable-next-line no-param-reassign
-      node.title = '';
-
-      vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
-    } catch (error) {
-      vFile.message(error, position, PLUGIN_NAME);
-    }
-
-    return node;
-  }));
-  */
 }
 
 /**
@@ -553,15 +483,14 @@ function attacher(options) {
         // }
         // visitors.cq = compileCqNode;
 
+        /*
         const oldCode = visitors.code;
         function compileCodeNode(node) {
-            console.log(node);
             const value = oldCode.bind(this)(node);
-            console.log("compile code: ", value);
-
             return value;
         }
         visitors.code = compileCodeNode;
+        */
     }
 
     /**
@@ -577,8 +506,8 @@ function attacher(options) {
         try {
             await visitCq(ast, vFile, options);
         } catch (err) {
-            console.log("cq err", err);
-            // no-op, vFile will have the error message.
+            console.log("WARNING: remark-cq error", err);
+            // also, vFile will have the error message.
         }
 
         if (typeof next === "function") {

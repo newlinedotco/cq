@@ -138,3 +138,35 @@ see?
     t.equal(actual, expected);
     t.end();
 });
+
+test("remark-cq meta doesn't affect html", async t => {
+    const markup = `
+The code:
+
+{lang=javascript,crop-query=.dogs,meta=true}  
+<<[](test.js)`;
+    const actual = (await render(markup, { root: __dirname })).contents;
+    const expected = `<p>The code:</p>
+<pre><code class="language-javascript">const dogs = () => "Like snuggles";
+</code></pre>`;
+    t.equal(actual, expected);
+    t.end();
+});
+
+test("remark-cq code meta compiles back to markdown", async t => {
+    const dogs = () => "Like snuggles";
+    const markup = `
+The code:
+
+{lang=javascript,crop-query=.dogs,meta=all}
+<<[](test.js)`;
+    const actual = (await renderMarkdown(markup, { root: __dirname })).contents;
+    const expected = `The code:
+
+\`\`\`javascript { actualFilename=test.js endChar=999 endLine=46 startChar=960 startLine=46 }
+const dogs = () => "Like snuggles";
+\`\`\`
+`;
+    t.equal(actual, expected);
+    t.end();
+});

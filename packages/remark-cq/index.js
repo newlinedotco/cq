@@ -79,8 +79,6 @@ function codeImportBlock(eat, value, silent) {
     var length = value.length + 1;
     var subvalue = EMPTY;
     var character;
-    var handle;
-    var url;
     var marker;
     var markerCount;
     var queue;
@@ -141,6 +139,9 @@ function codeImportBlock(eat, value, silent) {
     }
     if (__lastBlockAttributes["root"]) {
         cqOpts.root = __lastBlockAttributes["root"];
+    }
+    if (__lastBlockAttributes["meta"]) {
+        cqOpts.meta = __lastBlockAttributes["meta"];
     }
 
     var query;
@@ -376,25 +377,36 @@ async function visitCq(ast, vFile, options) {
             const language = node.lang;
 
             const createMeta = (metaTypes, node) => {
-                const metas = {};
+                const allMetas = {};
 
                 // filenames
-                metas.statedFilename = node.statedFilename;
-                metas.actualFilename = node.actualFilename;
+                allMetas.statedFilename = node.statedFilename;
+                allMetas.actualFilename = node.actualFilename;
 
                 // location
-                metas.startLine = results.start_line;
-                metas.endLine = results.end_line;
-                metas.startChar = results.start;
-                metas.endChar = results.end;
+                allMetas.startLine = results.start_line;
+                allMetas.endLine = results.end_line;
+                allMetas.startChar = results.start;
+                allMetas.endChar = results.end;
 
-                return (
-                    "{ " +
-                    Object.keys(metas)
-                        .map(key => `${key}=${metas[key]}`)
-                        .join(" ") +
-                    " }"
-                );
+                if (metaTypes) {
+                    return (
+                        "{ " +
+                        Object.keys(allMetas)
+                            .sort()
+                            .map(key => {
+                                const value = allMetas[key];
+                                return value === null || value === ""
+                                    ? null
+                                    : `${key}=${value}`;
+                            })
+                            .filter(Boolean)
+                            .join(" ") +
+                        " }"
+                    );
+                } else {
+                    return null;
+                }
             };
 
             const codeNode = {
@@ -402,8 +414,7 @@ async function visitCq(ast, vFile, options) {
                 type: "code",
                 lang: language || null,
                 fence: "`",
-                // meta: createMeta("", node),
-                meta: null,
+                meta: createMeta(cqOpts.meta || false, node),
                 value: trim(lines)
                 // cq: { actualFilename }
             };
@@ -425,6 +436,18 @@ async function visitCq(ast, vFile, options) {
  *
  * Export the attacher which accepts options and returns the transformer to
  * act on the MDAST tree, given a VFile.
+ *
+ * Here's the big idea:
+ * In markdown files we want to be able to import code like this:
+ *
+ *     {lang=javascript,crop-query=.dogs}
+ *     <<[](test.js)
+ *
+ * This plugin works by:
+ *   1. tokenizing the two elements above into a "cq" element into the MDAST
+ *   2. tranforming the "cq" element with `cq` into an expanded, standard `code` element
+ *
+ * @link  * https://github.com/unifiedjs/unified#description
  *
  * @param {Remark} remark - Processor.
  * @return {function(node)} - Transformer.
@@ -476,7 +499,6 @@ function attacher(options) {
         // When we compile back to markdown, the `cq` nodes simply compile to a
         // regular code block
         // function compileCqNode(node) {
-        //     //return visitors.code.bind(this)(node.children[0]);
         //     const value = visitors.code.bind(this)(node.children[0]);
         //     console.log("compile code: ", value);
         //     return value;

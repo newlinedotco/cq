@@ -42,3 +42,4 @@ jspm_packages
 .tern-port
 .\#*
 .vscode
+packages/*/fullstackio-*-*.tgz

@@ -370,8 +370,8 @@ async function visitCq(ast, vFile, options) {
             const cqOpts = node.options;
 
             const results = await cq(codeString, query, cqOpts);
-            //vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
-            //      vFile.message(error, position, PLUGIN_NAME);
+            // vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
+            // vFile.message(error, position, PLUGIN_NAME);
 
             const lines = results.code;
             const language = node.lang;
@@ -416,7 +416,6 @@ async function visitCq(ast, vFile, options) {
                 fence: "`",
                 meta: createMeta(cqOpts.meta || false, node),
                 value: trim(lines)
-                // cq: { actualFilename }
             };
             codeNodes[node.uuid] = codeNode;
         })

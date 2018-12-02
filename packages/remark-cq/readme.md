@@ -2,6 +2,8 @@
 
 [**remark**][remark] plug-in to import code in markdown using [cq](https://github.com/fullstackio/cq)
 
+Supports exporting [remark-attr](https://github.com/arobase-che/remark-attr)-compatable metadata with code blocks.
+
 ## Installation
 
 [npm][npm-install]:
@@ -29,7 +31,7 @@ const render = (text, config) =>
         .use(cq, config)
         .use(remark2rehype)
         .use(stringify)
-        .processSync(text);
+        .process(text);
 
 const markup = `
 The code:
@@ -37,7 +39,7 @@ The code:
 {lang=javascript,crop-query=.dogs}  
 <<[](test.js)`;
 
-const html = render(markup, { root: __dirname }).contents;
+const html = (await render(markup, { root: __dirname })).contents;
 
 console.log(html);
 ```
@@ -67,7 +69,7 @@ const renderMarkdown = (text, config) =>
         .use(reParse)
         .use(remarkStringify)
         .use(cq, config)
-        .processSync(text);
+        .process(text);
 ```
 
 and then above example would render into:

@@ -36,7 +36,7 @@ const renderMarkdown = (text, config) =>
         .use(reParse)
         .use(remarkStringify)
         .use(plugin, config)
-        .processSync(text);
+        .process(text);
 
 /*
  * Tests.
@@ -87,14 +87,14 @@ var foo = 1;
     t.end();
 });
 
-test("remark-cq code imports compile back to markdown", t => {
+test.only("remark-cq code imports compile back to markdown", async t => {
     const dogs = () => "Like snuggles";
     const markup = `
 The code:
 
 {lang=javascript,crop-query=.dogs}
 <<[](test.js)`;
-    const actual = renderMarkdown(markup, { root: __dirname }).contents;
+    const actual = (await renderMarkdown(markup, { root: __dirname })).contents;
     const expected = `The code:
 
 \`\`\`javascript

@@ -19,6 +19,8 @@ var repeat = require("repeat-string");
 var cq = require("@fullstackio/cq");
 var debug = require("debug")("remark-cq");
 var trim = require("trim-trailing-lines");
+var visit = require("unist-util-visit");
+var uuid = require("uuid/v4");
 
 var C_NEWLINE = "\n";
 var C_TAB = "\t";
@@ -124,9 +126,22 @@ function codeImportBlock(eat, value, silent) {
     var match = /^(<<.*?)\s*$/m.exec(subvalue);
     if (!match) return;
 
-    var fileMatches = /<<\[(.*)\]\((.*)\)/.exec(match);
+    var fileMatches = /<<\[(.*)\]\((.*)\)/.exec(match[0]);
     var statedFilename = fileMatches[1];
     var actualFilename = fileMatches[2];
+    var language = __lastBlockAttributes["lang"]
+        ? __lastBlockAttributes["lang"].toLowerCase()
+        : "javascript";
+
+    var cqOpts = {
+        ...__options
+    };
+    if (__lastBlockAttributes["undent"]) {
+        cqOpts.undent = true;
+    }
+    if (__lastBlockAttributes["root"]) {
+        cqOpts.root = __lastBlockAttributes["root"];
+    }
 
     // todo cache this
     var codeString = fs
@@ -134,63 +149,49 @@ function codeImportBlock(eat, value, silent) {
         .toString();
     var array = codeString.split("\n");
     var lines = "";
-    var language = __lastBlockAttributes["lang"]
-        ? __lastBlockAttributes["lang"].toLowerCase()
-        : "javascript";
+
+    var query;
 
     if (__lastBlockAttributes["crop-query"]) {
-        var cqOpts = {
-            ...__options
-        };
-        if (__lastBlockAttributes["undent"]) {
-            cqOpts.undent = true;
-        }
-
         // console.log(
         //     "crop query?",
         //     codeString,
         //     __lastBlockAttributes["crop-query"]
         // );
+        query = __lastBlockAttributes["crop-query"];
 
         // TODO - this is going to be a problem when we start importing from engines that are async...
-        var results = cq(
-            codeString,
-            __lastBlockAttributes["crop-query"],
-            cqOpts
-        );
-        lines = results.code;
+        // Also, if cq sucks in remote files, then this has to be async
+        // var results = cq(codeString, query, cqOpts);
+        // lines = results.code;
     } else {
+        // TODO - if cq has richer information about how to fetch the file, then we'll want to convert this to a cq query instead of just slicing lines... (right?)
         var cropStartLine = __lastBlockAttributes["crop-start-line"]
             ? parseInt(__lastBlockAttributes["crop-start-line"])
             : 1;
         var cropEndLine = __lastBlockAttributes["crop-end-line"]
             ? parseInt(__lastBlockAttributes["crop-end-line"])
             : array.length;
-        lines = array.slice(cropStartLine - 1, cropEndLine).join("\n");
+        // lines = array.slice(cropStartLine - 1, cropEndLine).join("\n");
+        query = `${cropStartLine}-${cropEndLine}`;
     }
 
-    // TODO -- if we invent a new type
-    // we may get some benefits when we convert to React
+    // meta: `{ info=string filename="foo/bar/baz.js" githubUrl="https://github.com/foo/bar"}`
     // return eat(subvalue)({
-    //     type: "cq",
-    //     data: {
-    //         hName: null
-    //     },
-    //     children: [
-    //         {
-    //             type: "code",
-    //             lang: language || null,
-    //             meta: null,
-    //             value: trim(lines)
-    //         }
-    //     ]
+    //     type: "code",
+    //     lang: language || null,
+    //     meta: null,
+    //     value: trim(lines),
+    //     cq: { actualFilename }
     // });
+
     return eat(subvalue)({
-        type: "code",
+        type: "cq",
         lang: language || null,
-        meta: null,
-        value: trim(lines),
-        cq: { actualFilename }
+        statedFilename,
+        actualFilename,
+        query,
+        options: cqOpts
     });
 }
 
@@ -358,10 +359,144 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
 }
 
 /**
+ * If links have a title attribute `gitlab-artifact:<project_id>:<job_name>`,
+ * then download the build artifact to sit alongside this markdown (`vFile`).
+ *
+ * @param {object} ast
+ * @param {object} vFile
+ * @param {object} options
+ * @return {Promise}
+ */
+async function visitCq(ast, vFile, options) {
+    const nodes = [];
+
+    // Gather all cq nodes
+    // visit is sync, so we have to make two passes :\
+    visit(ast, "cq", node => {
+        node.uuid = uuid();
+        nodes.push(node);
+        return node;
+    });
+
+    if (!nodes.length) {
+        return Promise.resolve(ast);
+    }
+
+    const codeNodes = {};
+    await Promise.all(
+        nodes.map(async node => {
+            // For each cq node, produce a code node and save, by uuid, in codeNodes
+            // We can replace them in a sync visit below
+            const root = node.options.root;
+            const actualFilename = node.actualFilename;
+            const codeString = fs
+                .readFileSync(path.join(root, actualFilename))
+                .toString();
+            const query = node.query;
+            const cqOpts = node.options;
+
+            const results = await cq(codeString, query, cqOpts);
+            const lines = results.code;
+            const language = node.lang;
+
+            const createMeta = (metaTypes, node) => {
+                const metas = {};
+
+                // filenames
+                metas.statedFilename = node.statedFilename;
+                metas.actualFilename = node.actualFilename;
+
+                // location
+                metas.startLine = results.start_line;
+                metas.endLine = results.end_line;
+                metas.startChar = results.start;
+                metas.endChar = results.end;
+
+                return (
+                    "{ " +
+                    Object.keys(metas)
+                        .map(key => `${key}=${metas[key]}`)
+                        .join(" ") +
+                    " }"
+                );
+            };
+
+            const codeNode = {
+                uuid: node.uuid,
+                type: "code",
+                lang: language || null,
+                fence: "`",
+                // meta: createMeta("", node),
+                meta: null,
+                value: trim(lines)
+                // cq: { actualFilename }
+            };
+            codeNodes[node.uuid] = codeNode;
+        })
+    );
+
+    visit(ast, "cq", node => {
+        // const { title } = node;
+        console.log("visitCq", node);
+
+        // if (!title || title.indexOf('gitlab-artifact|') === -1) {
+        //   return node;
+        // }
+        // const language = "javascript";
+        // const lines = `hi mom`;
+
+        // const codeNode = {
+        //     type: "code",
+        //     lang: language || null,
+        //     meta: null,
+        //     value: trim(lines)
+        //     // cq: { actualFilename }
+        // };
+
+        // swap nodes by overwriting *this* node object
+        Object.assign(node, codeNodes[node.uuid]);
+        console.log("node: ", node);
+        return node;
+    });
+
+    return Promise.resolve(ast);
+
+    /*
+  if (!nodes.length) {
+    return Promise.resolve(ast);
+  }
+  */
+
+    /*
+  return Promise.all(nodes.map(async (node) => {
+    const { title, position } = node;
+    const [, projectId, jobName] = title.split('|');
+
+    try {
+      const artifact = await getArtifact(apiBase, token, projectId, jobName);
+      const destinationDir = getDestinationDir(vFile);
+      await extractArtifact(destinationDir, artifact);
+
+      // eslint-disable-next-line no-param-reassign
+      node.title = '';
+
+      vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
+    } catch (error) {
+      vFile.message(error, position, PLUGIN_NAME);
+    }
+
+    return node;
+  }));
+  */
+}
+
+/**
  * Attacher.
  *
- * @param {Remark} remark - Processor.
+ * Export the attacher which accepts options and returns the transformer to
+ * act on the MDAST tree, given a VFile.
  *
+ * @param {Remark} remark - Processor.
  * @return {function(node)} - Transformer.
  */
 function attacher(options) {
@@ -410,12 +545,48 @@ function attacher(options) {
 
         // When we compile back to markdown, the `cq` nodes simply compile to a
         // regular code block
-        function compileCqNode(node) {
-            return visitors.code.bind(this)(node.children[0]);
+        // function compileCqNode(node) {
+        //     //return visitors.code.bind(this)(node.children[0]);
+        //     const value = visitors.code.bind(this)(node.children[0]);
+        //     console.log("compile code: ", value);
+        //     return value;
+        // }
+        // visitors.cq = compileCqNode;
+
+        const oldCode = visitors.code;
+        function compileCodeNode(node) {
+            console.log(node);
+            const value = oldCode.bind(this)(node);
+            console.log("compile code: ", value);
+
+            return value;
+        }
+        visitors.code = compileCodeNode;
+    }
+
+    /**
+     * @link https://github.com/unifiedjs/unified#function-transformernode-file-next
+     * @link https://github.com/syntax-tree/mdast
+     * @link https://github.com/vfile/vfile
+     * @param {object} ast MDAST
+     * @param {object} vFile
+     * @param {function} next
+     * @return {object}
+     */
+    return async function transformer(ast, vFile, next) {
+        try {
+            await visitCq(ast, vFile, options);
+        } catch (err) {
+            console.log("cq err", err);
+            // no-op, vFile will have the error message.
         }
 
-        visitors.cq = compileCqNode;
-    }
+        if (typeof next === "function") {
+            return next(null, ast, vFile);
+        }
+
+        return ast;
+    };
 }
 
 /*

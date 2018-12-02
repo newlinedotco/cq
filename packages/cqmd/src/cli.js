@@ -29,6 +29,14 @@ let argv = yargs
     describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
     default: "\n  // ...\n"
   })
+  // .option("watch", {
+  //   alias: "w",
+  //   describe: "watch for changes"
+  // })
+  // .option("watchRegex", {
+  //   type: "string",
+  //   describe: "regex for what to watch"
+  // })
   // .option("format", {
   //   alias: "f",
   //   describe: "the format to convert codeblocks into",
@@ -42,13 +50,13 @@ let [filename] = argv._;
 argv.absoluteFilePath = path.resolve(filename);
 argv.path = argv.path || path.dirname(argv.absoluteFilePath);
 
-let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
-
 // no filename nor stdin, so show the help
 if (!filename && process.stdin.isTTY) {
   yargs.showHelp();
   process.exit();
 }
+
+let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
 
 var content = "";
 inputStream.resume();

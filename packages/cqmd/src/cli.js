@@ -32,6 +32,7 @@ let argv = yargs
   })
   .option("watch", {
     alias: "w",
+    type: "boolean",
     describe: "watch for changes"
   })
   .option("watchGlob", {
@@ -48,8 +49,10 @@ let argv = yargs
   .version().argv;
 
 let [filename] = argv._;
+console.log("filename", filename);
 argv.absoluteFilePath = path.resolve(filename);
 argv.path = argv.path || path.dirname(argv.absoluteFilePath);
+argv.output = path.resolve(argv.output);
 
 // no filename nor stdin, so show the help
 if (!filename && process.stdin.isTTY) {
@@ -70,7 +73,8 @@ if (argv.watch) {
   ];
 
   var watcher = chokidar.watch(watchGlob, {
-    ignored: /(^|[\/\\])\../,
+    ignored: [/(^|[\/\\])\../, argv.output],
+    followSymlinks: false,
     persistent: true
   });
 

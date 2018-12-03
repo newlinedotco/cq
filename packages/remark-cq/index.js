@@ -372,19 +372,23 @@ async function visitCq(ast, vFile, options) {
         );
         vFile.message(err, node.position, "remark-cq");
 
-        const codeNode = {
-          uuid: node.uuid,
-          type: "blockquote",
-          lang: null,
-          children: [
-            {
-              type: "text",
-              value: `WARNING: cq couldn't find file ${actualFilename}`
-            }
-          ]
-        };
-        codeNodes[node.uuid] = codeNode;
-        return;
+        if (options.warnErrors) {
+          const codeNode = {
+            uuid: node.uuid,
+            type: "blockquote",
+            lang: null,
+            children: [
+              {
+                type: "text",
+                value: `WARNING: cq couldn't find file ${actualFilename}`
+              }
+            ]
+          };
+          codeNodes[node.uuid] = codeNode;
+          return;
+        } else {
+          throw err;
+        }
       }
       const query = node.query;
       const cqOpts = node.options;

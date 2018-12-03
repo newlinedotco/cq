@@ -360,9 +360,32 @@ async function visitCq(ast, vFile, options) {
       // We can replace them in a sync visit below
       const root = node.options.root;
       const actualFilename = node.actualFilename;
-      const codeString = fs
-        .readFileSync(path.join(root, actualFilename))
-        .toString();
+      try {
+        const codeString = fs
+          .readFileSync(path.join(root, actualFilename))
+          .toString();
+      } catch (err) {
+        console.warn(
+          `WARNING: cq couldn't find ${actualFilename} at ${
+            node.position.start.line
+          }:${node.position.start.column}`
+        );
+        vFile.message(err, node.position, "remark-cq");
+
+        const codeNode = {
+          uuid: node.uuid,
+          type: "blockquote",
+          lang: null,
+          children: [
+            {
+              type: "text",
+              value: `WARNING: cq couldn't find file ${actualFilename}`
+            }
+          ]
+        };
+        codeNodes[node.uuid] = codeNode;
+        return;
+      }
       const query = node.query;
       const cqOpts = node.options;
 

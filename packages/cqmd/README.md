@@ -26,8 +26,10 @@ $ cat file | cqmd --path <path>
 
 To use `cqmd` you write a normal markdown file but instead of using indented code blocks you use the following syntax:
 
-    {lang=myLang,crop-query=myQuery,format=myFormat}
-    <<[](path/to/file.js)
+```md
+{lang=myLang,crop-query=myQuery,format=myFormat}
+<<[](path/to/file.js)
+```
 
 For example, say we have a file `examples/basics.js` with the following code:
 

@@ -360,8 +360,9 @@ async function visitCq(ast, vFile, options) {
       // We can replace them in a sync visit below
       const root = node.options.root;
       const actualFilename = node.actualFilename;
+      let codeString = "";
       try {
-        const codeString = fs
+        codeString = fs
           .readFileSync(path.join(root, actualFilename))
           .toString();
       } catch (err) {

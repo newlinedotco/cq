@@ -3,6 +3,7 @@ const yargs = require("yargs");
 const fs = require("fs");
 const cqmd = require("./index");
 const path = require("path");
+const chokidar = require("chokidar");
 
 /*
  * A markdown preprocessor that parses cq directives and replaces them with code blocks
@@ -29,14 +30,14 @@ let argv = yargs
     describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
     default: "\n  // ...\n"
   })
-  // .option("watch", {
-  //   alias: "w",
-  //   describe: "watch for changes"
-  // })
-  // .option("watchRegex", {
-  //   type: "string",
-  //   describe: "regex for what to watch"
-  // })
+  .option("watch", {
+    alias: "w",
+    describe: "watch for changes"
+  })
+  .option("watchGlob", {
+    type: "string",
+    describe: "glob for what to watch"
+  })
   // .option("format", {
   //   alias: "f",
   //   describe: "the format to convert codeblocks into",
@@ -56,26 +57,55 @@ if (!filename && process.stdin.isTTY) {
   process.exit();
 }
 
-let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
+argv.gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
+const cqOptions = {
+  gapFiller: argv.gapFiller,
+  root: argv.path
+};
 
-var content = "";
-inputStream.resume();
-inputStream.on("data", function(buf) {
-  content += buf.toString();
-});
-inputStream.on("end", function() {
-  argv.gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
+if (argv.watch) {
+  const watchGlob = argv.watchGlob || [
+    argv.absoluteFilePath,
+    argv.path + "/**/*"
+  ];
 
-  const cqOptions = {
-    gapFiller: argv.gapFiller,
-    root: argv.path
-  };
+  var watcher = chokidar.watch(watchGlob, {
+    ignored: /(^|[\/\\])\../,
+    persistent: true
+  });
 
-  cqmd(content, cqOptions).then(result => {
+  async function processCqFile(filename, cqOptions) {
+    const content = fs.readFileSync(filename);
+    const result = await cqmd(content, cqOptions);
     if (argv.output) {
       fs.writeFileSync(argv.output, result);
+      console.log(`Wrote ${argv.output}`);
     } else {
       process.stdout.write(result);
     }
+  }
+
+  watcher.on("change", async path => {
+    console.log(`File ${path} changed`);
+    await processCqFile(filename);
   });
-});
+
+  processCqFile(filename);
+} else {
+  let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
+
+  var content = "";
+  inputStream.resume();
+  inputStream.on("data", function(buf) {
+    content += buf.toString();
+  });
+  inputStream.on("end", function() {
+    cqmd(content, cqOptions).then(result => {
+      if (argv.output) {
+        fs.writeFileSync(argv.output, result);
+      } else {
+        process.stdout.write(result);
+      }
+    });
+  });
+}

@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/remark-cq",
-  "version": "5.2.2",
+  "version": "5.3.0",
   "description": "Import code into markdown with cq",
   "license": "MIT",
   "keywords": [
@@ -8,7 +8,7 @@
     "remark"
   ],
   "dependencies": {
-    "@fullstackio/cq": "^5.2.2",
+    "@fullstackio/cq": "^5.3.0",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.11",
     "trim-trailing-lines": "^1.1.1",

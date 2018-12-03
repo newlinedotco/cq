@@ -9,6 +9,8 @@
   ],
   "dependencies": {
     "@fullstackio/cq": "^5.2.2",
+    "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.17.11",
     "trim-trailing-lines": "^1.1.1",
     "unist-util-visit": "^1.0.0",
     "uuid": "^3.3.2"

@@ -127,9 +127,6 @@ function codeImportBlock(eat, value, silent) {
   var fileMatches = /<<\[(.*)\]\((.*)\)/.exec(match[0]);
   var statedFilename = fileMatches[1];
   var actualFilename = fileMatches[2];
-  var language = __lastBlockAttributes["lang"]
-    ? __lastBlockAttributes["lang"].toLowerCase()
-    : "javascript";
 
   var cqOpts = {
     ...__options
@@ -144,29 +141,35 @@ function codeImportBlock(eat, value, silent) {
     cqOpts.meta = __lastBlockAttributes["meta"];
   }
 
-  var query;
+  let newNode = {
+    type: "cq",
+    lang: null,
+    statedFilename,
+    actualFilename,
+    query: null,
+    cropStartLine: null,
+    cropEndLine: null,
+    options: cqOpts
+  };
+
+  if (__lastBlockAttributes["lang"]) {
+    newNode.lang = __lastBlockAttributes["lang"].toLowerCase();
+  }
 
   if (__lastBlockAttributes["crop-query"]) {
-    query = __lastBlockAttributes["crop-query"];
-  } else {
-    var cropStartLine = __lastBlockAttributes["crop-start-line"]
-      ? parseInt(__lastBlockAttributes["crop-start-line"])
-      : 1;
-    var cropEndLine = __lastBlockAttributes["crop-end-line"]
-      ? parseInt(__lastBlockAttributes["crop-end-line"])
-      : array.length;
-    query = `${cropStartLine}-${cropEndLine}`;
+    newNode.query = __lastBlockAttributes["crop-query"];
+  }
+
+  if (__lastBlockAttributes["crop-start-line"]) {
+    newNode.cropStartLine = parseInt(__lastBlockAttributes["crop-start-line"]);
+  }
+
+  if (__lastBlockAttributes["crop-end-line"]) {
+    newNode.cropEndLine = parseInt(__lastBlockAttributes["crop-end-line"]);
   }
 
   // meta: `{ info=string filename="foo/bar/baz.js" githubUrl="https://github.com/foo/bar"}`
-  return eat(subvalue)({
-    type: "cq",
-    lang: language || null,
-    statedFilename,
-    actualFilename,
-    query,
-    options: cqOpts
-  });
+  return eat(subvalue)(newNode);
 }
 
 // http://stackoverflow.com/questions/25058134/javascript-split-a-string-by-comma-except-inside-parentheses
@@ -394,7 +397,31 @@ async function visitCq(ast, vFile, options) {
       const query = node.query;
       const cqOpts = node.options;
 
-      const results = await cq(codeString, query, cqOpts);
+      let results;
+
+      if (query) {
+        results = await cq(codeString, query, cqOpts);
+      } else if (node.cropStartLine) {
+        const lines = codeString.split("\n");
+        const endSlice = node.cropEndLine || lines.length;
+        results = {
+          code: lines.slice(node.cropStartLine - 1, endSlice).join("\n"),
+          start_line: node.cropStartLine,
+          end_line: endSlice,
+          start: null, // TODO
+          end: null // TODO
+        };
+      } else {
+        // the whole file
+        const lines = codeString.split("\n");
+        results = {
+          code: codeString,
+          start_line: 1,
+          end_line: lines.length,
+          start: 0,
+          end: codeString.length
+        };
+      }
       // vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
       // vFile.message(error, position, PLUGIN_NAME);
 

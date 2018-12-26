@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cqmd",
-  "version": "5.4.0",
+  "version": "5.5.0",
   "description": "markdown pre-processor for cq",
   "main": "src/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cqmd",

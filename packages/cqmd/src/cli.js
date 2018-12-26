@@ -39,6 +39,11 @@ let argv = yargs
     type: "string",
     describe: "glob for what to watch"
   })
+  .option("remarkExtensions", {
+    type: "string",
+    describe: "comma-separated string of remark extensions to use"
+  })
+
   // .option("format", {
   //   alias: "f",
   //   describe: "the format to convert codeblocks into",
@@ -49,10 +54,9 @@ let argv = yargs
   .version().argv;
 
 let [filename] = argv._;
-console.log("filename", filename);
 argv.absoluteFilePath = path.resolve(filename);
 argv.path = argv.path || path.dirname(argv.absoluteFilePath);
-argv.output = path.resolve(argv.output);
+argv.output = argv.output ? path.resolve(argv.output) : null;
 
 // no filename nor stdin, so show the help
 if (!filename && process.stdin.isTTY) {
@@ -65,6 +69,10 @@ const cqOptions = {
   gapFiller: argv.gapFiller,
   root: argv.path
 };
+
+if (argv.remarkExtensions) {
+  cqOptions.extensions = argv.remarkExtensions.split(",");
+}
 
 if (argv.watch) {
   const watchGlob = argv.watchGlob || [

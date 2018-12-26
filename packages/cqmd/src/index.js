@@ -4,14 +4,26 @@ const remark2rehype = require("remark-rehype");
 const rehypeStringify = require("rehype-stringify");
 const remarkStringify = require("remark-stringify");
 const remarkCq = require("@fullstackio/remark-cq");
+const frontmatter = require("remark-frontmatter");
+const yamlConfig = require("remark-yaml-config");
 
 async function cqmd(text, opts = {}) {
-  const renderMarkdown = (text, config) =>
-    unified()
+  const renderMarkdown = (text, config) => {
+    let processor = unified()
       .use(reParse)
       .use(remarkStringify)
       .use(remarkCq, config)
-      .process(text);
+      .use(frontmatter)
+      .use(yamlConfig);
+
+    if (opts.extensions) {
+      opts.extensions.map(extension => {
+        processor = processor.use(require(extension));
+      });
+    }
+
+    return processor.process(text);
+  };
 
   const renderHtml = (text, config) =>
     unified()

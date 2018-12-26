@@ -78,6 +78,14 @@ Which emits:
 
 You can see the full list of possible queries in [the cq manual](https://github.com/fullstackio/cq).
 
+## Using Remark Extensions
+
+To `use` a remark extension, pass the `remarkExtensions` option like this:
+
+```
+./src/cli.js --remarkExtensions="remark-frontmatter,remark-yaml-config"  examples/frontmatter.md
+```
+
 ## Library Usage
 
 ```javascript

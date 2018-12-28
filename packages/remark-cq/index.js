@@ -441,6 +441,14 @@ async function visitCq(ast, vFile, options) {
         allMetas.startChar = results.start;
         allMetas.endChar = results.end;
 
+        // attach a URL
+        if (cqOpts.defaultMetaRootUrl && !allMetas.url) {
+          const importedPath = allMetas.actualFilename.replace(/\.\//, ""); // e.g. ./foo.js
+          allMetas.url = `${cqOpts.defaultMetaRootUrl}/${importedPath}#L${
+            allMetas.startLine
+          }`;
+        }
+
         if (metaTypes) {
           return (
             "{ " +

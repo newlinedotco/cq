@@ -8,6 +8,7 @@
 "use strict";
 
 /* eslint-env node */
+const dogs = () => "Like snuggles";
 
 /*
  * Dependencies.
@@ -43,7 +44,6 @@ const renderMarkdown = (text, config) =>
  */
 
 test("remark-cq code imports crop-query works", async t => {
-  const dogs = () => "Like snuggles";
   const markup = `
 The code:
 
@@ -88,7 +88,6 @@ var foo = 1;
 });
 
 test("remark-cq code imports compile back to markdown", async t => {
-  const dogs = () => "Like snuggles";
   const markup = `
 The code:
 
@@ -106,7 +105,6 @@ const dogs = () => "Like snuggles";
 });
 
 test("remark-cq code imports compile back to markdown in the middle of a document", async t => {
-  const dogs = () => "Like snuggles";
   const markup = `
 The code:
 
@@ -154,7 +152,6 @@ The code:
 });
 
 test("remark-cq code meta compiles back to markdown", async t => {
-  const dogs = () => "Like snuggles";
   const markup = `
 The code:
 
@@ -163,7 +160,7 @@ The code:
   const actual = (await renderMarkdown(markup, { root: __dirname })).contents;
   const expected = `The code:
 
-\`\`\`javascript { actualFilename=test.js endChar=957 endLine=46 startChar=920 startLine=46 }
+\`\`\`javascript { actualFilename=test.js endChar=189 endLine=11 startChar=154 startLine=11 }
 const dogs = () => "Like snuggles";
 \`\`\`
 `;
@@ -172,7 +169,6 @@ const dogs = () => "Like snuggles";
 });
 
 test("remark-cq code meta as top-level config should work", async t => {
-  const dogs = () => "Like snuggles";
   const markup = `
 The code:
 
@@ -182,10 +178,34 @@ The code:
     .contents;
   const expected = `The code:
 
-\`\`\`javascript { actualFilename=test.js endChar=957 endLine=46 startChar=920 startLine=46 }
+\`\`\`javascript { actualFilename=test.js endChar=189 endLine=11 startChar=154 startLine=11 }
 const dogs = () => "Like snuggles";
 \`\`\`
 `;
   t.equal(actual, expected);
   t.end();
 });
+
+test("remark-cq code meta should allow specifying a source root URL", async t => {
+  const markup = `
+The code:
+
+{lang=javascript,crop-query=.dogs}
+<<[](test.js)`;
+  const actual = (await renderMarkdown(markup, {
+    root: __dirname,
+    meta: true,
+    defaultMetaRootUrl:
+      "https://github.com/fullstackio/cq/blob/master/packages/remark-cq"
+  })).contents;
+  const expected = `The code:
+
+\`\`\`javascript { actualFilename=test.js endChar=189 endLine=11 startChar=154 startLine=11 url=https&#x3A;//github.com/fullstackio/cq/blob/master/packages/remark-cq/test.js#L11 }
+const dogs = () => "Like snuggles";
+\`\`\`
+`;
+  t.equal(actual, expected);
+  t.end();
+});
+
+// TODO -- when `cq-fetch` is working, ensure that metaRootUrl doesn't override a file that comes from another repo

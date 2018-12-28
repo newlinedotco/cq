@@ -105,7 +105,7 @@ const dogs = () => "Like snuggles";
   t.end();
 });
 
-test("remark-cq code imports compile back to markdown in th emiddle of a document", async t => {
+test("remark-cq code imports compile back to markdown in the middle of a document", async t => {
   const dogs = () => "Like snuggles";
   const markup = `
 The code:
@@ -163,7 +163,26 @@ The code:
   const actual = (await renderMarkdown(markup, { root: __dirname })).contents;
   const expected = `The code:
 
-\`\`\`javascript { actualFilename=test.js endChar=999 endLine=46 startChar=960 startLine=46 }
+\`\`\`javascript { actualFilename=test.js endChar=957 endLine=46 startChar=920 startLine=46 }
+const dogs = () => "Like snuggles";
+\`\`\`
+`;
+  t.equal(actual, expected);
+  t.end();
+});
+
+test("remark-cq code meta as top-level config should work", async t => {
+  const dogs = () => "Like snuggles";
+  const markup = `
+The code:
+
+{lang=javascript,crop-query=.dogs}
+<<[](test.js)`;
+  const actual = (await renderMarkdown(markup, { root: __dirname, meta: true }))
+    .contents;
+  const expected = `The code:
+
+\`\`\`javascript { actualFilename=test.js endChar=957 endLine=46 startChar=920 startLine=46 }
 const dogs = () => "Like snuggles";
 \`\`\`
 `;

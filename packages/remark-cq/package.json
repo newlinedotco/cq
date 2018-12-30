@@ -59,5 +59,5 @@
     "test-coverage": "istanbul cover test.js",
     "test": "npm run build && npm run lint && npm run test-coverage"
   },
-  "gitHead": "50de67d865d199583a732dcfed52ab40d84151de"
+  "gitHead": "0bd82243d4eb76c968f4e08948c9b57ad311407b"
 }

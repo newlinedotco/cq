@@ -7,6 +7,9 @@
     "leanpub",
     "remark"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "remark-parse": "6.0.3",
     "unist-util-visit": "^1.0.0"
@@ -45,5 +48,6 @@
     "test-api": "node test.js",
     "test-coverage": "istanbul cover test.js",
     "test": "npm run build && npm run lint && npm run test-coverage"
-  }
+  },
+  "gitHead": "0bd82243d4eb76c968f4e08948c9b57ad311407b"
 }

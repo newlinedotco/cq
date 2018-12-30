@@ -1,0 +1,49 @@
+{
+  "name": "@fullstackio/remark-leanpub",
+  "version": "5.5.1",
+  "description": "Transform leanpub markdown",
+  "license": "MIT",
+  "keywords": [
+    "leanpub",
+    "remark"
+  ],
+  "dependencies": {
+    "remark-parse": "6.0.3",
+    "unist-util-visit": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wooorm/remark-inline-links.git"
+  },
+  "author": "Nate Murray <nate@fullstack.io>",
+  "files": [
+    "index.js"
+  ],
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "eslint": "^2.0.0",
+    "esmangle": "^1.0.0",
+    "istanbul": "^0.4.0",
+    "jscs": "^2.0.0",
+    "jscs-jsdoc": "^1.0.0",
+    "rehype-stringify": "^5.0.0",
+    "remark": "^5.0.1",
+    "remark-lint": "^2.0.0",
+    "remark-rehype": "^4.0.0",
+    "remark-stringify": "^6.0.4",
+    "tape": "^4.0.0",
+    "unified": "^7.0.2"
+  },
+  "scripts": {
+    "build-md": "remark . --quiet --frail",
+    "build-bundle": "browserify index.js --no-builtins -s remarkInlineLinks > remark-inline-links.js",
+    "build-mangle": "esmangle remark-inline-links.js > remark-inline-links.min.js",
+    "build": "npm run build-md && npm run build-bundle && npm run build-mangle",
+    "lint-api": "eslint .",
+    "lint-style": "jscs --reporter inline .",
+    "lint": "npm run lint-api && npm run lint-style",
+    "test-api": "node test.js",
+    "test-coverage": "istanbul cover test.js",
+    "test": "npm run build && npm run lint && npm run test-coverage"
+  }
+}

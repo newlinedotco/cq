@@ -3,6 +3,7 @@
   "version": "5.3.0",
   "description": "query code with selectors",
   "main": "dist/index.js",
+  "homepage": "https://github.com/fullstackio/cq",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq",
   "scripts": {
     "compile": "./node_modules/.bin/babel -d dist/ src/",

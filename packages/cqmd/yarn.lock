@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@fullstackio/cq@^5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@fullstackio/cq/-/cq-5.3.0.tgz#5c0f10440e015d78067dce82201bdb9dab5a2e46"
-  integrity sha512-zV8ASW1ldrA2hDWutf5tJ6akFIb4GUo25hzbPNoKZ45hWHR4hlCPdpl52hG8ga+f96aKQ8TAx9oz0drnM8GLGg==
+"@fullstackio/cq@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@fullstackio/cq/-/cq-6.0.0.tgz#f28b6b3639ce4b3fd5b9e71b3fe4cb364661828b"
+  integrity sha512-fndBXtyOS6Z99uN8v9FfjNAR4KXJNL/5ed7SxWG6w06Pp9QZJURoIRRKDRIFL4T/ECSIWwX60ir3nglBGCwliA==
   dependencies:
     babel-polyfill "^6.9.1"
     babel-traverse "^6.9.0"
@@ -16,22 +16,31 @@
     typescript "3.2.1"
     yargs "^4.7.1"
 
-"@fullstackio/remark-cq@^5.6.1":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@fullstackio/remark-cq/-/remark-cq-5.6.1.tgz#26ecba62050eacdc49d00ec271d28b1bc867e79c"
-  integrity sha512-zu/ZjIxmnuJdJTJgu5Ubh4a7BzHV39KXCqEURcpoijMtoRMzUT3wbiQ+AymJYAwqml9VPcpe1ctoasKDnKDN6w==
+"@fullstackio/remark-adjust-paths@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@fullstackio/remark-adjust-paths/-/remark-adjust-paths-6.0.0.tgz#ef6b4b9458b7e3ae9b7d4421aed8b63b6593d02e"
+  integrity sha512-VLuDSdqb0wV8HBRUJ88XL8S8WkgB+WpPF1+ijkHvqPBzeSOa4wdCiPtrkQN0Vv62wIGOGrXW3/EW1xyIdAli0w==
   dependencies:
-    "@fullstackio/cq" "^5.3.0"
+    is-url "^1.2.4"
+    remark-parse "6.0.3"
+    unist-util-visit "^1.0.0"
+
+"@fullstackio/remark-cq@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@fullstackio/remark-cq/-/remark-cq-6.0.0.tgz#40403ebc0e4d97dec9ec91f918d8a221ed411a83"
+  integrity sha512-Z4z8lYmTwNfOekvk4S8zxqymeKKRzoiC0RVK4VWyolQmrfTz03c3yDl87No2xPtYN1PJgT8OtILRgDFEH1H6Xw==
+  dependencies:
+    "@fullstackio/cq" "^6.0.0"
     isomorphic-fetch "^2.2.1"
     lodash "^4.17.11"
     trim-trailing-lines "^1.1.1"
     unist-util-visit "^1.0.0"
     uuid "^3.3.2"
 
-"@fullstackio/remark-leanpub@^5.6.1":
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/@fullstackio/remark-leanpub/-/remark-leanpub-5.6.1.tgz#5177e29c82db08a930d2af839f7a3b869a0e5a33"
-  integrity sha512-4M4mpc9g7e3hmePob1VrIRJe9lM6RXABSZlITM8p46OMzW9PX/G6y6JAhDQbiN6uTdatWCe2NtY5zLr738FHDQ==
+"@fullstackio/remark-leanpub@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@fullstackio/remark-leanpub/-/remark-leanpub-6.0.0.tgz#46ec21cb3001915593ad0bcf82214c7d14b6c5e0"
+  integrity sha512-NwlPtSkerDSXh2X6rYq23TX068iK10pogWdyZoeNLfkalIlbAAiaDnVRiAPWTBiJ53upNQ3f583o9tvM3J75zw==
   dependencies:
     remark-parse "6.0.3"
     unist-util-visit "^1.0.0"
@@ -1038,6 +1047,11 @@ is-stream@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/is-stream/-/is-stream-1.1.0.tgz#12d4a3dd4e68e0b79ceb8dbc84173ae80d91ca44"
   integrity sha1-EtSj3U5o4Lec6428hBc66A2RykQ=
+
+is-url@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/is-url/-/is-url-1.2.4.tgz#04a4df46d28c4cff3d73d01ff06abeb318a1aa52"
+  integrity sha512-ITvGim8FhRiYe4IQ5uHSkj7pVaPDrCTkNd3yq3cV7iZAcJdHTUMPMEHcqSOy9xZ9qFenQCvi+2wjH9a1nXqHww==
 
 is-utf8@^0.2.0:
   version "0.2.1"

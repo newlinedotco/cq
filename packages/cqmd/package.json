@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@fullstackio/cq": "^6.0.0",
+    "@fullstackio/remark-adjust-paths": "^6.0.0",
     "@fullstackio/remark-cq": "^6.0.0",
     "@fullstackio/remark-leanpub": "^6.0.0",
     "fs-extra": "^7.0.1",

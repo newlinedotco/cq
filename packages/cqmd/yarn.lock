@@ -28,6 +28,14 @@
     unist-util-visit "^1.0.0"
     uuid "^3.3.2"
 
+"@fullstackio/remark-leanpub@^5.6.1":
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/@fullstackio/remark-leanpub/-/remark-leanpub-5.6.1.tgz#5177e29c82db08a930d2af839f7a3b869a0e5a33"
+  integrity sha512-4M4mpc9g7e3hmePob1VrIRJe9lM6RXABSZlITM8p46OMzW9PX/G6y6JAhDQbiN6uTdatWCe2NtY5zLr738FHDQ==
+  dependencies:
+    remark-parse "6.0.3"
+    unist-util-visit "^1.0.0"
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -1769,22 +1777,7 @@ remark-message-control@^1.0.1:
     remark-range "^2.0.0"
     unist-util-visit "^1.0.0"
 
-remark-parse@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/remark-parse/-/remark-parse-1.1.0.tgz#c3ca10f9a8da04615c28f09aa4e304510526ec21"
-  integrity sha1-w8oQ+ajaBGFcKPCapOMEUQUm7CE=
-  dependencies:
-    collapse-white-space "^1.0.0"
-    extend "^3.0.0"
-    parse-entities "^1.0.2"
-    repeat-string "^1.5.4"
-    trim "0.0.1"
-    trim-trailing-lines "^1.0.0"
-    unherit "^1.0.4"
-    unist-util-remove-position "^1.0.0"
-    vfile-location "^2.0.0"
-
-remark-parse@^6.0.3:
+remark-parse@6.0.3, remark-parse@^6.0.3:
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/remark-parse/-/remark-parse-6.0.3.tgz#c99131052809da482108413f87b0ee7f52180a3a"
   integrity sha512-QbDXWN4HfKTUC0hHa4teU463KclLAnwpn/FBn87j9cKYJWWawbiLgMfP2Q4XwhxxuuuOxHlw+pSN0OKuJwyVvg==
@@ -1804,6 +1797,21 @@ remark-parse@^6.0.3:
     unist-util-remove-position "^1.0.0"
     vfile-location "^2.0.0"
     xtend "^4.0.1"
+
+remark-parse@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/remark-parse/-/remark-parse-1.1.0.tgz#c3ca10f9a8da04615c28f09aa4e304510526ec21"
+  integrity sha1-w8oQ+ajaBGFcKPCapOMEUQUm7CE=
+  dependencies:
+    collapse-white-space "^1.0.0"
+    extend "^3.0.0"
+    parse-entities "^1.0.2"
+    repeat-string "^1.5.4"
+    trim "0.0.1"
+    trim-trailing-lines "^1.0.0"
+    unherit "^1.0.4"
+    unist-util-remove-position "^1.0.0"
+    vfile-location "^2.0.0"
 
 remark-range@^2.0.0:
   version "2.0.0"

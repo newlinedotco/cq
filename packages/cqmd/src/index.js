@@ -4,6 +4,7 @@ const remark2rehype = require("remark-rehype");
 const rehypeStringify = require("rehype-stringify");
 const remarkStringify = require("remark-stringify");
 const remarkCq = require("@fullstackio/remark-cq");
+const remarkLeanpub = require("@fullstackio/remark-leanpub");
 const remarkAdjustPaths = require("@fullstackio/remark-adjust-paths");
 const frontmatter = require("remark-frontmatter");
 const yamlConfig = require("remark-yaml-config");
@@ -15,6 +16,7 @@ async function cqmd(text, opts = {}) {
       .use(remarkStringify)
       .use(remarkCq, config)
       .use(remarkAdjustPaths, { root: config.adjustPath || "" })
+      .use(remarkLeanpub)
       .use(frontmatter)
       .use(yamlConfig);
 
@@ -32,7 +34,8 @@ async function cqmd(text, opts = {}) {
     unified()
       .use(reParse)
       .use(remarkCq, config)
-      .use(remarkAdjustPaths, config)
+      .use(remarkAdjustPaths, { root: config.adjustPath || "" })
+      .use(remarkLeanpub)
       .use(frontmatter)
       .use(yamlConfig)
       .use(remark2rehype)

@@ -19,6 +19,7 @@
   "dependencies": {
     "@fullstackio/cq": "^5.3.0",
     "@fullstackio/remark-cq": "^5.6.1",
+    "@fullstackio/remark-leanpub": "^5.6.1",
     "fs-extra": "^7.0.1",
     "rehype-stringify": "^5.0.0",
     "relative": "^3.0.2",

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 const yargs = require("yargs");
-const fs = require("fs");
+const fs = require("fs-extra");
 const cqmd = require("./index");
 const path = require("path");
 const chokidar = require("chokidar");
+const relative = require("relative");
 
 // TODO:
 // - specify outputDir
@@ -29,6 +30,10 @@ let argv = yargs
     type: "string",
     describe:
       "The root path for the code (defaults to the dir of the input file)"
+  })
+  .option("imgPath", {
+    type: "string",
+    describe: "The path to use to adjust image paths (advanced)"
   })
   .option("gapFiller", {
     alias: "g",
@@ -64,6 +69,18 @@ argv.absoluteFilePath = path.resolve(filename);
 argv.path = argv.path || path.dirname(argv.absoluteFilePath);
 argv.output = argv.output ? path.resolve(argv.output) : null;
 
+// const outputDir =
+//   argv.output && fs.existsSync(argv.output)
+//     ? fs.lstatSync(argv.output).isDirectory()
+//       ? argv.output
+//       : path.dirname(argv.output)
+//     : null;
+
+// const outputToInputPath = outputDir
+//   ? relative(argv.output, path.dirname(filename))
+//   : null;
+// console.log("outputToInputPath: ", outputToInputPath);
+
 // no filename nor stdin, so show the help
 if (!filename && process.stdin.isTTY) {
   yargs.showHelp();
@@ -73,7 +90,8 @@ if (!filename && process.stdin.isTTY) {
 argv.gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
 const cqOptions = {
   gapFiller: argv.gapFiller,
-  root: argv.path
+  root: argv.path,
+  adjustPath: argv.imgPath
 };
 
 if (argv.remarkExtensions) {
@@ -105,10 +123,10 @@ if (argv.watch) {
 
   watcher.on("change", async path => {
     console.log(`File ${path} changed`);
-    await processCqFile(filename);
+    await processCqFile(filename, cqOptions);
   });
 
-  processCqFile(filename);
+  processCqFile(filename, cqOptions);
 } else {
   let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
 

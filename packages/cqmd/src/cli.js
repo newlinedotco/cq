@@ -5,6 +5,12 @@ const cqmd = require("./index");
 const path = require("path");
 const chokidar = require("chokidar");
 
+// TODO:
+// - specify outputDir
+// - retainPaths option -- use a remark plugin to set the root of relative paths to be relative to the original file
+// - write remark-adjust-paths library
+//
+
 /*
  * A markdown preprocessor that parses cq directives and replaces them with code blocks
  */

@@ -29,11 +29,12 @@ let argv = yargs
     alias: "p",
     type: "string",
     describe:
-      "The root path for the code (defaults to the dir of the input file)"
+      "The root path for the code (defaults to the dir of the *input* file)"
   })
-  .option("imgPath", {
+  .option("adjustPath", {
     type: "string",
-    describe: "The path to use to adjust image paths (advanced)"
+    describe:
+      "The path to use to adjust relative paths in the *output* files (advanced)"
   })
   .option("gapFiller", {
     alias: "g",
@@ -48,7 +49,7 @@ let argv = yargs
   })
   .option("watchGlob", {
     type: "string",
-    describe: "glob for what to watch"
+    describe: "glob for what to watch. Implies --watch"
   })
   .option("remarkExtensions", {
     type: "string",
@@ -65,9 +66,11 @@ let argv = yargs
   .version().argv;
 
 let [filename] = argv._;
-argv.absoluteFilePath = path.resolve(filename);
+argv.absoluteFilePath = filename ? path.resolve(filename) : null;
 argv.path = argv.path || path.dirname(argv.absoluteFilePath);
 argv.output = argv.output ? path.resolve(argv.output) : null;
+
+const outputIsDir = fs.lstatSync(argv.output).isDirectory();
 
 // const outputDir =
 //   argv.output && fs.existsSync(argv.output)
@@ -82,7 +85,7 @@ argv.output = argv.output ? path.resolve(argv.output) : null;
 // console.log("outputToInputPath: ", outputToInputPath);
 
 // no filename nor stdin, so show the help
-if (!filename && process.stdin.isTTY) {
+if (!filename && !argv.watchGlob && process.stdin.isTTY) {
   yargs.showHelp();
   process.exit();
 }
@@ -91,14 +94,14 @@ argv.gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
 const cqOptions = {
   gapFiller: argv.gapFiller,
   root: argv.path,
-  adjustPath: argv.imgPath
+  adjustPath: argv.adjustPath
 };
 
 if (argv.remarkExtensions) {
   cqOptions.extensions = argv.remarkExtensions.split(",");
 }
 
-if (argv.watch) {
+if (argv.watch || argv.watchGlob) {
   const watchGlob = argv.watchGlob || [
     argv.absoluteFilePath,
     argv.path + "/**/*"
@@ -114,19 +117,26 @@ if (argv.watch) {
     const content = fs.readFileSync(filename);
     const result = await cqmd(content, cqOptions);
     if (argv.output) {
-      fs.writeFileSync(argv.output, result);
-      console.log(`Wrote ${argv.output}`);
+      const outputPath = outputIsDir
+        ? path.join(argv.output, path.basename(filename))
+        : argv.output;
+
+      fs.writeFileSync(outputPath, result);
+      console.log(`Wrote ${outputPath}`);
     } else {
       process.stdout.write(result);
     }
   }
 
-  watcher.on("change", async path => {
-    console.log(`File ${path} changed`);
-    await processCqFile(filename, cqOptions);
+  watcher.on("change", async changedPath => {
+    console.log(`File ${changedPath} changed`);
+    await processCqFile(changedPath, cqOptions);
   });
 
-  processCqFile(filename, cqOptions);
+  if (filename) {
+    processCqFile(filename, cqOptions);
+  }
+  console.log(`Watching ${watchGlob}`);
 } else {
   let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
 
@@ -138,7 +148,11 @@ if (argv.watch) {
   inputStream.on("end", function() {
     cqmd(content, cqOptions).then(result => {
       if (argv.output) {
-        fs.writeFileSync(argv.output, result);
+        const outputPath = outputIsDir
+          ? path.join(argv.output, path.basename(filename))
+          : argv.output;
+        fs.writeFileSync(outputPath, result);
+        console.log(`Wrote ${outputPath}`);
       } else {
         process.stdout.write(result);
       }

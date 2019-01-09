@@ -1,4 +1,4 @@
-# cqmd: A markdown preprocessor for cq code blocks [![npm package](https://img.shields.io/npm/v/@fullstackio/cqmd.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cqmd) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
+# cqmd: A markdown preprocessor for cq code blocks [![npm package](https://img.shields.io/npm/v/@fullstackio/cqmd.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cqmd)
 
 > cqmd is a CLI tool markdown preprocessor that parses [cq](https://github.com/fullstackio/cq) query blocks and replaces them with "regular" markdown code blocks.
 
@@ -20,6 +20,22 @@ $ cqmd --path <path/to/code/basepath> <input-markdown-file>
 # or
 
 $ cat file | cqmd --path <path>
+```
+
+## Examples
+
+```
+# process a single file to stdout
+cqmd --path code manuscript/chapters/forms.md
+
+# process a single file to an output file
+cqmd --path code --output forms-out.md manuscript/chapters/forms.md
+
+# process a single file, adjusting paths, to the preview directory
+cqmd --path manuscript --imgPath ../manuscript/ --output preview/ manuscript/chapters/forms.md
+
+# watch a glob of files
+cqmd --path manuscript --adjustPath ../manuscript/ --output preview/ --watchGlob 'manuscript/chapters/*.md'
 ```
 
 ## Markdown Format
@@ -99,11 +115,6 @@ But, this library is just a thin wrapper to provide a CLI tool. If you're using 
 
 If you'd like to create a custom formatting function, use the `format` key in the options.
 
-## Future
-
-- Support plain markdown code blocks
-- Support [leanpub-style `crop-start-line`](https://leanpub.com/help/manual#leanpub-auto-displaying-only-part-of-a-code-file) blocks
-
 ## Contributing
 
 Please feel free to submit pull requests.
@@ -111,14 +122,6 @@ Please feel free to submit pull requests.
 ## Authors
 
 Originally written by [Nate Murray](https://twitter.com/eigenjoy).
-
-## Fullstack React Book
-
-<a href="https://fullstackreact.com">
-<img align="right" src="https://cdn.rawgit.com/fullstackio/cq/master/doc/readme/fullstack-react-hero-book.png" alt="Fullstack React Book" width="155" height="250" />
-</a>
-
-This repo was written and is maintained by the [Fullstack React](https://fullstackreact.com) team. If you're looking to learn React, there's no faster way than by spending a few hours with the Fullstack React book.
 
 <div style="clear:both"></div>
 

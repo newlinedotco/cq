@@ -67,7 +67,11 @@ let argv = yargs
 
 let [filename] = argv._;
 argv.absoluteFilePath = filename ? path.resolve(filename) : null;
-argv.path = argv.path || path.dirname(argv.absoluteFilePath);
+argv.path = argv.path
+  ? argv.path
+  : argv.absoluteFilePath
+  ? path.dirname(argv.absoluteFilePath)
+  : null;
 argv.output = argv.output ? path.resolve(argv.output) : null;
 
 const outputIsDir = argv.output && fs.lstatSync(argv.output).isDirectory();
@@ -133,7 +137,20 @@ if (argv.watch || argv.watchGlob) {
 
   watcher.on("change", async changedPath => {
     console.log(`File ${changedPath} changed`);
-    await processCqFile(changedPath, cqOptions);
+    try {
+      await processCqFile(changedPath, cqOptions);
+    } catch (err) {
+      console.log("ERROR:", changedPath, err);
+    }
+  });
+
+  watcher.on("add", async changedPath => {
+    console.log(`File ${changedPath} detected`);
+    try {
+      await processCqFile(changedPath, cqOptions);
+    } catch (err) {
+      console.log("ERROR:", changedPath, err);
+    }
   });
 
   if (filename) {

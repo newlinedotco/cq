@@ -70,7 +70,7 @@ argv.absoluteFilePath = filename ? path.resolve(filename) : null;
 argv.path = argv.path || path.dirname(argv.absoluteFilePath);
 argv.output = argv.output ? path.resolve(argv.output) : null;
 
-const outputIsDir = fs.lstatSync(argv.output).isDirectory();
+const outputIsDir = argv.output && fs.lstatSync(argv.output).isDirectory();
 
 // const outputDir =
 //   argv.output && fs.existsSync(argv.output)
@@ -110,7 +110,10 @@ if (argv.watch || argv.watchGlob) {
   var watcher = chokidar.watch(watchGlob, {
     ignored: [/(^|[\/\\])\../, argv.output],
     followSymlinks: false,
-    persistent: true
+    persistent: true,
+    awaitWriteFinish: {
+      stabilityThreshold: 300
+    }
   });
 
   async function processCqFile(filename, cqOptions) {

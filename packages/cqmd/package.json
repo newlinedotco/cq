@@ -41,7 +41,7 @@
     "mocha": "^2.5.3",
     "pegjs": "^0.9.0"
   },
-  "gitHead": "c257b0159169922f4cda5fc2872c64da73d3fcd2",
+  "gitHead": "6198d17961ceab17dcc15f1017c21e84b0808277",
   "optionalDependencies": {
     "chokidar": "^2.0.4"
   }

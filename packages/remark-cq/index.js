@@ -370,9 +370,7 @@ async function visitCq(ast, vFile, options) {
           .toString();
       } catch (err) {
         console.warn(
-          `WARNING: cq couldn't find ${actualFilename} at ${
-            node.position.start.line
-          }:${node.position.start.column}`
+          `WARNING: cq couldn't find ${actualFilename} at ${node.position.start.line}:${node.position.start.column}`
         );
         vFile.message(err, node.position, "remark-cq");
 
@@ -395,7 +393,14 @@ async function visitCq(ast, vFile, options) {
         }
       }
       const query = node.query;
-      const cqOpts = node.options;
+
+      let engine = "babylon";
+      if (actualFilename && actualFilename.match(/\.tsx?/)) {
+        engine = "typescript";
+      }
+
+      let cqDefaults = { engine };
+      let cqOpts = { ...cqDefaults, ...node.options };
 
       let results;
 
@@ -449,9 +454,7 @@ async function visitCq(ast, vFile, options) {
               ? `#L${allMetas.startLine}`
               : "";
 
-          allMetas.url = `${
-            cqOpts.defaultMetaRootUrl
-          }/${importedPath}${anchor}`;
+          allMetas.url = `${cqOpts.defaultMetaRootUrl}/${importedPath}${anchor}`;
         }
 
         if (metaTypes) {

@@ -109,6 +109,7 @@ export default function typescriptEngine(engineOpts = {}) {
         start = Math.min(start, commentRange.start);
       }
       // TODO trailing
+      // getTrailingCommentRanges is a function now
       return { nodes: [node], start, end };
     },
     findNodesWithIdentifier(ast, root, query) {

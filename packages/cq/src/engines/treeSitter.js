@@ -1,7 +1,7 @@
 const Parser = require("tree-sitter");
 const JavaScript = require("tree-sitter-javascript");
-
 const ignoredProperties = new Set(["constructor", "parent"]);
+import { rangeExtents } from "./util";
 
 function getNodeName(node) {
   return node.constructor.name;
@@ -22,14 +22,14 @@ function traverse(node, nodeCbs) {
     nodeCbs[nodeName](node);
   }
 
-  //   console.log(
-  //     "node: ",
-  //     nodeName,
-  //     node.text ? `"${node.text}"` : "",
-  //     node,
-  //     node.children ? node.children.length : null,
-  //     node.fields
-  //   );
+  // console.log(
+  //   "node: ",
+  //   nodeName,
+  //   node.text ? `"${node.text}"` : "",
+  //   node,
+  //   node.children ? node.children.length : null,
+  //   node.fields
+  // );
 
   /*
   for (let idx in node.children) {
@@ -86,13 +86,18 @@ function nodeToRange(node) {
 }
 
 export default function treeSitterEngine(engineOpts = {}) {
+  let commentNodes = [];
   return {
     parse(code, opts = {}) {
+      commentNodes = [];
       const parser = new Parser();
       parser.setLanguage(JavaScript);
-
       const tree = parser.parse(code);
-      //   console.log("tree: ", JSON.stringify(tree.rootNode, null, 2));
+      if (engineOpts.debug) {
+        // console.log("tree: ", JSON.stringify(tree.rootNode, null, 2));
+      }
+      // console.log("tree: ", tree);
+
       return tree;
     },
     getInitialRoot(ast) {
@@ -113,6 +118,9 @@ export default function treeSitterEngine(engineOpts = {}) {
           ) {
             paths = [...paths, node.parent];
           }
+        },
+        CommentNode: function(node) {
+          commentNodes = [...commentNodes, node];
         }
       });
       return paths;
@@ -130,6 +138,63 @@ export default function treeSitterEngine(engineOpts = {}) {
         }
       });
       return paths;
+    },
+    commentRange(node, code, getLeading, getTrailing) {
+      let { start, end } = nodeToRange(node);
+      // console.log("node: ", node);
+
+      // console.log(
+      //   "lastCommentNode: ",
+      //   lastCommentNode.startIndex,
+      //   lastCommentNode.endIndex,
+      //   node.startIndex,
+      //   node.endIndex
+      // );
+      // if (lastCommentNode) {
+      //   console.log("WE HAVE A COMMENT NODE", lastCommentNode);
+      // }
+
+      if (getLeading) {
+        // let nodePos = node.pos;
+        // let parentPos = node.parent.pos;
+        // let comments = ts.getLeadingCommentRanges(code, nodePos);
+        // let commentRanges = comments.map(c => ({ start: c.pos, end: c.end }));
+        // let commentRange = rangeExtents(commentRanges);
+        // start = Math.min(start, commentRange.start);
+        let commentsBefore = commentNodes.filter(commentNode => {
+          return commentNode.startIndex < end;
+        });
+
+        const sortedComments = commentsBefore
+          .sort((a, b) => a.endIndex - b.endIndex)
+          .reverse();
+        // sortedComments is now in reverse order, closest back up the top of the document
+        let commentBlock = [sortedComments[0]];
+        let lastStart = sortedComments[0].startIndex;
+
+        for (let i = 1; i < sortedComments.length; i++) {
+          const nextComment = sortedComments[i];
+          if (nextComment.endIndex === lastStart - 1) {
+            commentBlock = [nextComment, ...commentBlock];
+            lastStart = nextComment.startIndex;
+          }
+        }
+
+        // sortedComments.map(comment => {
+        //   console.log(comment.startIndex, comment.endIndex);
+        // });
+
+        // console.log("sortedComments: ", sortedComments);
+        if (commentBlock.length > 0) {
+          const firstComment = commentBlock[0];
+          const lastComment = commentBlock[commentBlock.length - 1];
+          start = Math.min(start, firstComment.startIndex);
+          end = Math.max(end, lastComment.endIndex);
+        }
+      }
+
+      // TODO trailing
+      return { nodes: [node], start, end };
     },
     nodeToRange
   };

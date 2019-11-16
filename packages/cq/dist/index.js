@@ -20,6 +20,10 @@ var _toArray2 = require("babel-runtime/helpers/toArray");
 
 var _toArray3 = _interopRequireDefault(_toArray2);
 
+var _extends2 = require("babel-runtime/helpers/extends");
+
+var _extends3 = _interopRequireDefault(_extends2);
+
 var _slicedToArray2 = require("babel-runtime/helpers/slicedToArray");
 
 var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
@@ -44,18 +48,22 @@ var _typescript = require("./engines/typescript");
 
 var _typescript2 = _interopRequireDefault(_typescript);
 
+var _treeSitter = require("./engines/treeSitter");
+
+var _treeSitter2 = _interopRequireDefault(_treeSitter);
+
 var _util = require("./engines/util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * cq Query Resolver
- *
- * This file takes input code and a parsed query and extracts portions of the
- * code based on that query
- *
- */
-var debug = void 0;
+var debug = void 0; /**
+                     * cq Query Resolver
+                     *
+                     * This file takes input code and a parsed query and extracts portions of the
+                     * code based on that query
+                     *
+                     */
+
 if (process.browser) {
   debug = function debug() {
     var _console;
@@ -364,7 +372,8 @@ function resolveSearchedQueryWithNodes(ast, root, code, query, engine, nodes, op
   }
 }
 
-function resolveIndividualQuery(ast, root, code, query, engine, opts) {
+function resolveIndividualQuery(ast, root, code, query, engine, originalOpts) {
+  var opts = (0, _extends3.default)({}, originalOpts);
   switch (query.type) {
     case NodeTypes.CALL_EXPRESSION:
       {
@@ -567,6 +576,10 @@ function cq(code, queries) {
       case "babylon":
         engine = (0, _babylon2.default)();
         break;
+      case "treeSitter":
+        engine = (0, _treeSitter2.default)(opts);
+        break;
+
       default:
         try {
           engine = require("cq-" + engine + "-engine");

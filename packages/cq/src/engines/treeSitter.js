@@ -1,23 +1,16 @@
 const Parser = require("tree-sitter");
 const JavaScript = require("tree-sitter-javascript");
-const ignoredProperties = new Set(["constructor", "parent"]);
-import { rangeExtents } from "./util";
+const Python = require("tree-sitter-python");
 
 function getNodeName(node) {
   return node.constructor.name;
-  //   console.log("node: ", node);
-  //   if (node.kind) {
-  //     return ts.SyntaxKind[node.kind];
-  //   }
 }
 function isNode(node) {
-  //   console.log("node: ", node);
   return node && node.type ? true : false;
 }
 
 function traverse(node, nodeCbs) {
   let nodeName = getNodeName(node);
-  //   console.log("nodeName: ", nodeName);
   if (nodeCbs.hasOwnProperty(nodeName)) {
     nodeCbs[nodeName](node);
   }
@@ -31,29 +24,12 @@ function traverse(node, nodeCbs) {
   //   node.fields
   // );
 
-  /*
-  for (let idx in node.children) {
-    const child = node.children[idx];
-    // console.log("child: ", child);
-    if (isNode(child)) {
-      traverse(child, nodeCbs);
-    }
-  }
-  */
   const nodeIterates = [
     ...(node.children ? node.children : []),
     ...(node.fields ? node.fields : [])
   ].filter(v => v && isNode(v));
-  //   console.log("nodeIterates: ", nodeIterates);
 
   for (let prop of nodeIterates) {
-    // const prop = node.children[idx];
-
-    // console.log("prop: ", prop);
-    // if (ignoredProperties.has(prop) || prop.charAt(0) === "_") {
-    //   continue;
-    // }
-
     if (Array.isArray(prop)) {
       prop.filter(v => isNode(v)).map(v => traverse(v, nodeCbs));
     } else if (isNode(prop)) {
@@ -91,13 +67,25 @@ export default function treeSitterEngine(engineOpts = {}) {
     parse(code, opts = {}) {
       commentNodes = [];
       const parser = new Parser();
-      parser.setLanguage(JavaScript);
+
+      let langModule;
+      switch (engineOpts.language) {
+        case "javascript":
+          langModule = JavaScript;
+          break;
+        case "python":
+          langModule = Python;
+          break;
+
+        default:
+          langModule = JavaScript;
+          break;
+      }
+      parser.setLanguage(langModule);
+
       const tree = parser.parse(code);
       if (engineOpts.debug) {
-        // console.log("tree: ", JSON.stringify(tree.rootNode, null, 2));
       }
-      // console.log("tree: ", tree);
-
       return tree;
     },
     getInitialRoot(ast) {
@@ -107,6 +95,12 @@ export default function treeSitterEngine(engineOpts = {}) {
       let paths = [];
       traverse(root, {
         IdentifierNode: function(node) {
+          if (node.text === query.matcher) {
+            paths = [...paths, node.parent];
+          }
+        },
+        // python
+        ExpressionListNode: function(node) {
           if (node.text === query.matcher) {
             paths = [...paths, node.parent];
           }

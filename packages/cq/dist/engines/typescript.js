@@ -125,6 +125,7 @@ function typescriptEngine() {
         start = Math.min(start, commentRange.start);
       }
       // TODO trailing
+      // getTrailingCommentRanges is a function now
       return { nodes: [node], start: start, end: end };
     },
     findNodesWithIdentifier: function findNodesWithIdentifier(ast, root, query) {

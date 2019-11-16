@@ -333,7 +333,8 @@ function resolveSearchedQueryWithNodes(
   }
 }
 
-function resolveIndividualQuery(ast, root, code, query, engine, opts) {
+function resolveIndividualQuery(ast, root, code, query, engine, originalOpts) {
+  const opts = { ...originalOpts };
   switch (query.type) {
     case NodeTypes.CALL_EXPRESSION: {
       let callee = query.callee;
@@ -569,7 +570,7 @@ function cq(code, queries, opts = {}) {
         engine = babylonEngine();
         break;
       case "treeSitter":
-        engine = treeSitterEngine();
+        engine = treeSitterEngine(opts);
         break;
 
       default:

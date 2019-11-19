@@ -2,7 +2,6 @@ import "babel-polyfill";
 import chai from "chai";
 const assert = chai.assert;
 import cq, { NodeTypes } from "../../cq/src/index";
-import pythonEngine from "../src/index";
 
 function lines(str, startLine, endLine) {
   return str

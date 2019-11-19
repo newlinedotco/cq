@@ -19,7 +19,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Parser = require("tree-sitter");
 var JavaScript = require("tree-sitter-javascript");
 var Python = require("tree-sitter-python");
-var TypeScript = require("tree-sitter-typescript");
+var TypeScript = require("tree-sitter-typescript/typescript");
+var TSX = require("tree-sitter-typescript/tsx");
 var Rust = require("tree-sitter-rust");
 var Go = require("tree-sitter-go");
 
@@ -124,6 +125,9 @@ function treeSitterEngine() {
         case "typescript":
           langModule = TypeScript;
           break;
+        case "tsx":
+          langModule = TSX;
+          break;
         case "python":
           langModule = Python;
           break;
@@ -162,7 +166,9 @@ function treeSitterEngine() {
           }
         },
         SyntaxNode: function SyntaxNode(node) {
-          if (node.type === "property_identifier" && node.text === query.matcher) {
+          if (
+          // node.type === "property_identifier" &&
+          node.text === query.matcher) {
             paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
           }
         },

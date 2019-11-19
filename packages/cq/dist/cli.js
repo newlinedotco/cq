@@ -67,6 +67,7 @@ if (argv.gapFiller) {
 switch (argv.engine) {
   case "babylon":
   case "typescript":
+  case "treeSitter":
     engine = argv.engine;
     break;
   case "auto":

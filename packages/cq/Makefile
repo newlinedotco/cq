@@ -8,3 +8,13 @@ test:
 
 example1:
 	./node_modules/.bin/babel-node src/cli.js '.bye' examples/basics.js
+
+build:
+	npm run compile
+
+onetest:
+	./node_modules/.bin/mocha --compilers js:babel-core/register --watch --watchextension js test/python.test.js
+
+
+examplepy:
+	./node_modules/.bin/babel-node src/cli.js --engine treeSitter '.foo' --language python examples/basic.py

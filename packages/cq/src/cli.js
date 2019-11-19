@@ -32,8 +32,13 @@ let argv = yargs
   })
   .option("engine", {
     alias: "e",
-    describe: "parsing engine. e.g. auto, babylon, typescript",
+    describe: "parsing engine. e.g. auto, babylon, typescript, treeSitter",
     default: "auto"
+  })
+  .option("language", {
+    alias: "l",
+    describe: "language - req'd for treeSitter engine",
+    default: "javascript"
   }).argv;
 
 let [query, filename] = argv._;
@@ -53,6 +58,7 @@ if (argv.gapFiller) {
 switch (argv.engine) {
   case "babylon":
   case "typescript":
+  case "treeSitter":
     engine = argv.engine;
     break;
   case "auto":
@@ -91,15 +97,17 @@ inputStream.on("data", function(buf) {
 inputStream.on("end", function() {
   let gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
 
-  cq(content, query, { engine, gapFiller }).then(result => {
-    if (argv.json === true) {
-      delete result["nodes"];
-      if (argv.short === true) {
-        delete result["code"];
+  cq(content, query, { engine, gapFiller, language: argv.language }).then(
+    result => {
+      if (argv.json === true) {
+        delete result["nodes"];
+        if (argv.short === true) {
+          delete result["code"];
+        }
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(result.code);
       }
-      console.log(JSON.stringify(result, null, 2));
-    } else {
-      console.log(result.code);
     }
-  });
+  );
 });

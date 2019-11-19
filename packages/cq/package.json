@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/cq",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "query code with selectors",
   "main": "dist/index.js",
   "homepage": "https://github.com/fullstackio/cq",

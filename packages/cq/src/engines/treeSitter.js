@@ -1,6 +1,10 @@
 const Parser = require("tree-sitter");
 const JavaScript = require("tree-sitter-javascript");
 const Python = require("tree-sitter-python");
+const TypeScript = require("tree-sitter-typescript/typescript");
+const TSX = require("tree-sitter-typescript/tsx");
+const Rust = require("tree-sitter-rust");
+const Go = require("tree-sitter-go");
 
 function getNodeName(node) {
   return node.constructor.name;
@@ -73,8 +77,20 @@ export default function treeSitterEngine(engineOpts = {}) {
         case "javascript":
           langModule = JavaScript;
           break;
+        case "typescript":
+          langModule = TypeScript;
+          break;
+        case "tsx":
+          langModule = TSX;
+          break;
         case "python":
           langModule = Python;
+          break;
+        case "rust":
+          langModule = Rust;
+          break;
+        case "go":
+          langModule = Go;
           break;
 
         default:
@@ -107,7 +123,7 @@ export default function treeSitterEngine(engineOpts = {}) {
         },
         SyntaxNode: function(node) {
           if (
-            node.type === "property_identifier" &&
+            // node.type === "property_identifier" &&
             node.text === query.matcher
           ) {
             paths = [...paths, node.parent];

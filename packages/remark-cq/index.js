@@ -143,6 +143,12 @@ function codeImportBlock(eat, value, silent) {
   if (__lastBlockAttributes["engine"]) {
     cqOpts.engine = __lastBlockAttributes["engine"];
   }
+  if (__lastBlockAttributes["language"]) {
+    cqOpts.language = __lastBlockAttributes["language"];
+  }
+  if (__lastBlockAttributes["lang"]) {
+    cqOpts.language = __lastBlockAttributes["lang"];
+  }
 
   let newNode = {
     type: "cq",

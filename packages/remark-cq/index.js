@@ -140,6 +140,9 @@ function codeImportBlock(eat, value, silent) {
   if (__lastBlockAttributes["meta"]) {
     cqOpts.meta = __lastBlockAttributes["meta"];
   }
+  if (__lastBlockAttributes["engine"]) {
+    cqOpts.engine = __lastBlockAttributes["engine"];
+  }
 
   let newNode = {
     type: "cq",
@@ -398,6 +401,9 @@ async function visitCq(ast, vFile, options) {
       if (actualFilename && actualFilename.match(/\.tsx?/)) {
         engine = "typescript";
       }
+      if (actualFilename && actualFilename.match(/\.py/)) {
+        engine = "treeSitter";
+      }
 
       let cqDefaults = { engine };
       let cqOpts = { ...cqDefaults, ...node.options };
@@ -533,6 +539,9 @@ function attacher(options) {
   __options.undent = __options.hasOwnProperty("undent")
     ? __options.undent
     : true;
+  __options.engine = __options.hasOwnProperty("engine")
+    ? __options.engine
+    : null;
 
   /*
    * Add a tokenizer to the `Parser`.

@@ -18,3 +18,6 @@ onetest:
 
 examplepy:
 	./node_modules/.bin/babel-node src/cli.js --engine treeSitter '.foo' --language python examples/basic.py
+
+publish-canary:
+	lerna publish --canary --preid treesitter --dist-tag treesitter --git-remote github --force-publish

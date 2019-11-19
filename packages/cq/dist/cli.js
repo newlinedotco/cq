@@ -44,8 +44,12 @@ var argv = _yargs2.default.usage("Usage: $0 [options] <query> <file>").example("
   default: "\n  // ...\n"
 }).option("engine", {
   alias: "e",
-  describe: "parsing engine. e.g. auto, babylon, typescript",
+  describe: "parsing engine. e.g. auto, babylon, typescript, treeSitter",
   default: "auto"
+}).option("language", {
+  alias: "l",
+  describe: "language - req'd for treeSitter engine",
+  default: "javascript"
 }).argv;
 
 var _argv$_ = (0, _slicedToArray3.default)(argv._, 2),
@@ -102,7 +106,7 @@ inputStream.on("data", function (buf) {
 inputStream.on("end", function () {
   var gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
 
-  (0, _index2.default)(content, query, { engine: engine, gapFiller: gapFiller }).then(function (result) {
+  (0, _index2.default)(content, query, { engine: engine, gapFiller: gapFiller, language: argv.language }).then(function (result) {
     if (argv.json === true) {
       delete result["nodes"];
       if (argv.short === true) {

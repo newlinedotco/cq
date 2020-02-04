@@ -57,20 +57,6 @@ The code:
   t.end();
 });
 
-test("remark-cq code imports with quotes works", async t => {
-  const markup = `
-The code:
-
-{lang='javascript',crop-query=.dogs}  
-<<[](test.js)`;
-  const actual = (await render(markup, { root: __dirname })).contents;
-  const expected = `<p>The code:</p>
-<pre><code class="language-javascript">const dogs = () => "Like snuggles";
-</code></pre>`;
-  t.equal(actual, expected);
-  t.end();
-});
-
 test("remark-cq code imports line numbers works", async t => {
   const markup = `
 The code:
@@ -206,14 +192,12 @@ The code:
 
 {lang=javascript,crop-query=.dogs}
 <<[](test.js)`;
-  const actual = (
-    await renderMarkdown(markup, {
-      root: __dirname,
-      meta: true,
-      defaultMetaRootUrl:
-        "https://github.com/fullstackio/cq/blob/master/packages/remark-cq"
-    })
-  ).contents;
+  const actual = (await renderMarkdown(markup, {
+    root: __dirname,
+    meta: true,
+    defaultMetaRootUrl:
+      "https://github.com/fullstackio/cq/blob/master/packages/remark-cq"
+  })).contents;
   const expected = `The code:
 
 \`\`\`javascript { actualFilename=test.js endChar=189 endLine=11 startChar=154 startLine=11 url=https&#x3A;//github.com/fullstackio/cq/blob/master/packages/remark-cq/test.js#L11 }

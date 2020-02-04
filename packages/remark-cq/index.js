@@ -324,7 +324,9 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
 
         pairs.forEach(function(pair) {
           var kv = pair.split(/=\s*/);
-          blockAttrs[kv[0]] = kv[1];
+          var k = kv[0].replace(/['"]/g, "");
+          var v = kv[1].replace(/['"]/g, "");
+          blockAttrs[k] = v;
         });
         return blockAttrs;
       }

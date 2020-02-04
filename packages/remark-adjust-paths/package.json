@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/remark-adjust-paths",
-  "version": "6.0.0",
+  "version": "6.0.9",
   "description": "Change the paths of imported objects in markdown files",
   "license": "MIT",
   "keywords": [

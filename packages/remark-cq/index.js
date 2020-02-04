@@ -62,6 +62,10 @@ function locateCodeImport(value, fromIndex) {
 }
 codeImportBlock.locator = locateCodeImport;
 
+function dequote(value) {
+  return value ? value.replace(/['"]/g, "") : "";
+}
+
 /**
  * Tokenize a code import
  *
@@ -136,19 +140,19 @@ function codeImportBlock(eat, value, silent) {
     cqOpts.undent = true;
   }
   if (__lastBlockAttributes["root"]) {
-    cqOpts.root = __lastBlockAttributes["root"];
+    cqOpts.root = dequote(__lastBlockAttributes["root"]);
   }
   if (__lastBlockAttributes["meta"]) {
     cqOpts.meta = __lastBlockAttributes["meta"];
   }
   if (__lastBlockAttributes["engine"]) {
-    cqOpts.engine = __lastBlockAttributes["engine"];
+    cqOpts.engine = dequote(__lastBlockAttributes["engine"]);
   }
   if (__lastBlockAttributes["language"]) {
-    cqOpts.language = __lastBlockAttributes["language"];
+    cqOpts.language = dequote(__lastBlockAttributes["language"]);
   }
   if (__lastBlockAttributes["lang"]) {
-    cqOpts.language = __lastBlockAttributes["lang"];
+    cqOpts.language = dequote(__lastBlockAttributes["lang"]);
   }
 
   let newNode = {

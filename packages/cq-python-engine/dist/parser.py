@@ -190,6 +190,7 @@ def make_ast(code, mode='exec'):
     Make an AST tree from a string of code
     """
     code = unicode(code)
+
     tree = ast.parse(code, '<unknown>', mode)
     tokens = tokenize_with_char_offsets(code)
     tree = fix_ast(tree, code, tokens)
@@ -203,7 +204,7 @@ def read_from_stdin():
     while True:
         output = sys.stdin.read()
         if not output:
-            print '[No more data]'
+            print('[No more data]')
             break
         return output
 
@@ -221,7 +222,7 @@ def main():
     code = args.text if args.text is not None else read_from_stdin()
     tree = make_ast(code)
 
-    print json.dumps(tree)
+    print(json.dumps(tree))
 
 
 if __name__ == '__main__':

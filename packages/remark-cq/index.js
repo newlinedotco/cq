@@ -167,7 +167,7 @@ function codeImportBlock(eat, value, silent) {
   };
 
   if (__lastBlockAttributes["lang"]) {
-    newNode.lang = __lastBlockAttributes["lang"].toLowerCase();
+    newNode.lang = dequote(__lastBlockAttributes["lang"]).toLowerCase();
   }
 
   if (__lastBlockAttributes["crop-query"]) {

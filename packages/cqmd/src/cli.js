@@ -182,16 +182,21 @@ if (argv.watch || argv.watchGlob) {
     content += buf.toString();
   });
   inputStream.on("end", function () {
-    cqmd(content, cqOptions).then((result) => {
-      if (argv.output) {
-        const outputPath = outputIsDir
-          ? path.join(argv.output, path.basename(filename))
-          : argv.output;
-        fs.writeFileSync(outputPath, result);
-        console.log(`Wrote ${outputPath}`);
-      } else {
-        process.stdout.write(result);
+    cqmd(content, { ...cqOptions, filename }).then(
+      (result) => {
+        if (argv.output) {
+          const outputPath = outputIsDir
+            ? path.join(
+                argv.output,
+                path.basename(filename)
+              )
+            : argv.output;
+          fs.writeFileSync(outputPath, result);
+          console.log(`Wrote ${outputPath}`);
+        } else {
+          process.stdout.write(result);
+        }
       }
-    });
+    );
   });
 }

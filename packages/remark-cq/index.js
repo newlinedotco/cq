@@ -134,7 +134,7 @@ function codeImportBlock(eat, value, silent) {
   debug(actualFilename);
 
   var cqOpts = {
-    ...__options
+    ...__options,
   };
   if (__lastBlockAttributes["undent"]) {
     cqOpts.undent = true;
@@ -163,7 +163,7 @@ function codeImportBlock(eat, value, silent) {
     query: null,
     cropStartLine: null,
     cropEndLine: null,
-    options: cqOpts
+    options: cqOpts,
   };
 
   if (__lastBlockAttributes["lang"]) {
@@ -326,7 +326,7 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
 
         var pairs = splitNoParen(matches[1]);
 
-        pairs.forEach(function(pair) {
+        pairs.forEach(function (pair) {
           var kv = pair.split(/=\s*/);
           blockAttrs[kv[0]] = kv[1];
         });
@@ -360,7 +360,7 @@ async function visitCq(ast, vFile, options) {
 
   // Gather all cq nodes
   // visit is sync, so we have to make two passes :\
-  visit(ast, "cq", node => {
+  visit(ast, "cq", (node) => {
     node.uuid = uuid();
     nodes.push(node);
     return node;
@@ -372,11 +372,25 @@ async function visitCq(ast, vFile, options) {
 
   const codeNodes = {};
   await Promise.all(
-    nodes.map(async node => {
+    nodes.map(async (node) => {
       // For each cq node, produce a code node and save, by uuid, in codeNodes
       // We can replace them in a sync visit below
-      const root = node.options.root;
-      const actualFilename = node.actualFilename;
+      let root = node.options.root;
+      let actualFilename = node.actualFilename;
+
+      const primaryFilename = path.join(root, actualFilename);
+      const secondaryFilename = node.options.filename
+        ? path.join(path.dirname(node.options.filename), actualFilename)
+        : null;
+
+      if (fs.existsSync(primaryFilename)) {
+        // do nothing
+      } else {
+        if (fs.existsSync(secondaryFilename)) {
+          root = path.dirname(node.options.filename);
+        }
+      }
+
       try {
         let codeString = "";
         try {
@@ -397,9 +411,9 @@ async function visitCq(ast, vFile, options) {
               children: [
                 {
                   type: "text",
-                  value: `WARNING: cq couldn't find file ${actualFilename}`
-                }
-              ]
+                  value: `WARNING: cq couldn't find file ${actualFilename}`,
+                },
+              ],
             };
             codeNodes[node.uuid] = codeNode;
             return;
@@ -435,7 +449,7 @@ async function visitCq(ast, vFile, options) {
             start_line: node.cropStartLine,
             end_line: endSlice,
             start: null, // TODO
-            end: null // TODO
+            end: null, // TODO
           };
         } else {
           // the whole file
@@ -445,7 +459,7 @@ async function visitCq(ast, vFile, options) {
             start_line: 1,
             end_line: lines.length,
             start: 0,
-            end: codeString.length
+            end: codeString.length,
           };
         }
         // vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
@@ -483,7 +497,7 @@ async function visitCq(ast, vFile, options) {
               "{ " +
               Object.keys(allMetas)
                 .sort()
-                .map(key => {
+                .map((key) => {
                   const value = allMetas[key];
                   return value === null || value === ""
                     ? null
@@ -504,7 +518,7 @@ async function visitCq(ast, vFile, options) {
           lang: language || null,
           fence: "`",
           meta: createMeta(cqOpts.meta || false, node),
-          value: trim(lines)
+          value: trim(lines),
         };
         codeNodes[node.uuid] = codeNode;
       } catch (err) {
@@ -516,7 +530,7 @@ async function visitCq(ast, vFile, options) {
     })
   );
 
-  visit(ast, "cq", node => {
+  visit(ast, "cq", (node) => {
     // swap nodes by overwriting *this* node object
     Object.assign(node, codeNodes[node.uuid]);
     return node;

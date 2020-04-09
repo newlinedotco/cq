@@ -17,43 +17,48 @@ const relative = require("relative");
  */
 let argv = yargs
   .usage("Usage: $0 [options] <file>")
-  .example("$0 post.md", "process post.md and emit the results on STDOUT")
+  .example(
+    "$0 post.md",
+    "process post.md and emit the results on STDOUT"
+  )
   .help("help")
   .alias("help", "h")
   .option("output", {
     alias: "o",
     type: "string",
-    describe: "Specify the output file"
+    describe: "Specify the output file",
   })
   .option("path", {
     alias: "p",
     type: "string",
     describe:
-      "The root path for the code (defaults to the dir of the *input* file)"
+      "The root path for the code (defaults to the dir of the *input* file)",
   })
   .option("adjustPath", {
     type: "string",
     describe:
-      "The path to use to adjust relative paths in the *output* files (advanced)"
+      "The path to use to adjust relative paths in the *output* files (advanced)",
   })
   .option("gapFiller", {
     alias: "g",
     type: "string",
-    describe: "gap-filler for discontiguous queries. Pass 'false' to disable",
-    default: "\n  // ...\n"
+    describe:
+      "gap-filler for discontiguous queries. Pass 'false' to disable",
+    default: "\n  // ...\n",
   })
   .option("watch", {
     alias: "w",
     type: "boolean",
-    describe: "watch for changes"
+    describe: "watch for changes",
   })
   .option("watchGlob", {
     type: "string",
-    describe: "glob for what to watch. Implies --watch"
+    describe: "glob for what to watch. Implies --watch",
   })
   .option("remarkExtensions", {
     type: "string",
-    describe: "comma-separated string of remark extensions to use"
+    describe:
+      "comma-separated string of remark extensions to use",
   })
 
   // .option("format", {
@@ -66,15 +71,20 @@ let argv = yargs
   .version().argv;
 
 let [filename] = argv._;
-argv.absoluteFilePath = filename ? path.resolve(filename) : null;
+argv.absoluteFilePath = filename
+  ? path.resolve(filename)
+  : null;
 argv.path = argv.path
   ? argv.path
   : argv.absoluteFilePath
   ? path.dirname(argv.absoluteFilePath)
   : null;
-argv.output = argv.output ? path.resolve(argv.output) : null;
+argv.output = argv.output
+  ? path.resolve(argv.output)
+  : null;
 
-const outputIsDir = argv.output && fs.lstatSync(argv.output).isDirectory();
+const outputIsDir =
+  argv.output && fs.lstatSync(argv.output).isDirectory();
 
 // const outputDir =
 //   argv.output && fs.existsSync(argv.output)
@@ -94,11 +104,12 @@ if (!filename && !argv.watchGlob && process.stdin.isTTY) {
   process.exit();
 }
 
-argv.gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
+argv.gapFiller =
+  argv.gapFiller === "false" ? false : argv.gapFiller;
 const cqOptions = {
   gapFiller: argv.gapFiller,
   root: argv.path,
-  adjustPath: argv.adjustPath
+  adjustPath: argv.adjustPath,
 };
 
 if (argv.remarkExtensions) {
@@ -108,7 +119,7 @@ if (argv.remarkExtensions) {
 if (argv.watch || argv.watchGlob) {
   const watchGlob = argv.watchGlob || [
     argv.absoluteFilePath,
-    argv.path + "/**/*"
+    argv.path + "/**/*",
   ];
 
   var watcher = chokidar.watch(watchGlob, {
@@ -116,13 +127,16 @@ if (argv.watch || argv.watchGlob) {
     followSymlinks: false,
     persistent: true,
     awaitWriteFinish: {
-      stabilityThreshold: 300
-    }
+      stabilityThreshold: 300,
+    },
   });
 
   async function processCqFile(filename, cqOptions) {
     const content = fs.readFileSync(filename);
-    const result = await cqmd(content, cqOptions);
+    const result = await cqmd(content, {
+      ...cqOptions,
+      filename,
+    });
     if (argv.output) {
       const outputPath = outputIsDir
         ? path.join(argv.output, path.basename(filename))
@@ -135,7 +149,7 @@ if (argv.watch || argv.watchGlob) {
     }
   }
 
-  watcher.on("change", async changedPath => {
+  watcher.on("change", async (changedPath) => {
     console.log(`File ${changedPath} changed`);
     try {
       await processCqFile(changedPath, cqOptions);
@@ -144,7 +158,7 @@ if (argv.watch || argv.watchGlob) {
     }
   });
 
-  watcher.on("add", async changedPath => {
+  watcher.on("add", async (changedPath) => {
     console.log(`File ${changedPath} detected`);
     try {
       await processCqFile(changedPath, cqOptions);
@@ -158,15 +172,17 @@ if (argv.watch || argv.watchGlob) {
   }
   console.log(`Watching ${watchGlob}`);
 } else {
-  let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
+  let inputStream = filename
+    ? fs.createReadStream(filename)
+    : process.stdin;
 
   var content = "";
   inputStream.resume();
-  inputStream.on("data", function(buf) {
+  inputStream.on("data", function (buf) {
     content += buf.toString();
   });
-  inputStream.on("end", function() {
-    cqmd(content, cqOptions).then(result => {
+  inputStream.on("end", function () {
+    cqmd(content, cqOptions).then((result) => {
       if (argv.output) {
         const outputPath = outputIsDir
           ? path.join(argv.output, path.basename(filename))

@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cqmd",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
+    "test": "./node_modules/.bin/mocha",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch"
   },
   "bin": {

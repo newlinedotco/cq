@@ -439,7 +439,7 @@ async function visitCq(ast, vFile, options) {
           engine = "typescript";
         }
         if (actualFilename && actualFilename.match(/\.py/)) {
-          engine = "treeSitter";
+          engine = "treesitter";
         }
 
         let cqOpts = { ...node.options };

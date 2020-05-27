@@ -1,11 +1,4 @@
 const Parser = require("tree-sitter");
-const JavaScript = require("tree-sitter-javascript");
-const Python = require("tree-sitter-python");
-const TypeScript = require("tree-sitter-typescript/typescript");
-const TSX = require("tree-sitter-typescript/tsx");
-const Rust = require("tree-sitter-rust");
-const Go = require("tree-sitter-go");
-
 function getNodeName(node) {
   return node.constructor.name;
 }
@@ -76,21 +69,27 @@ export default function treeSitterEngine(engineOpts = {}) {
       let langModule;
       switch (opts.language) {
         case "javascript":
+          const JavaScript = require("tree-sitter-javascript");
           langModule = JavaScript;
           break;
         case "typescript":
+          const TypeScript = require("tree-sitter-typescript/typescript");
           langModule = TypeScript;
           break;
         case "tsx":
+          const TSX = require("tree-sitter-typescript/tsx");
           langModule = TSX;
           break;
         case "python":
+          const Python = require("tree-sitter-python");
           langModule = Python;
           break;
         case "rust":
+          const Rust = require("tree-sitter-rust");
           langModule = Rust;
           break;
         case "go":
+          const Go = require("tree-sitter-go");
           langModule = Go;
           break;
 

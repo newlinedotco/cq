@@ -570,11 +570,15 @@ function cq(code, queries, opts = {}) {
       case "babylon":
         engine = babylonEngine();
         break;
+      case "treesitter":
+        engine = require(`cq-treesitter-engine`);
+        break;
       default:
         try {
           engine = require(`cq-${engine}-engine`);
         } catch (err) {
           throw new Error("unknown engine: " + engine);
+          console.log(err, err.stack);
         }
         break;
     }

@@ -563,6 +563,8 @@ function cq(code, queries, opts = {}) {
     queries = parser.parse(queries);
   }
 
+  // TODO -- if no engine given, but you do have a language that we know about, then use that engine, e.g. treesitter
+
   if (typeof engine === "string") {
     switch (engine) {
       case "typescript":

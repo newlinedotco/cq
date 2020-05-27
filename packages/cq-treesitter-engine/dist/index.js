@@ -155,6 +155,7 @@ function treeSitterEngine() {
       var paths = [];
       traverse(root, {
         IdentifierNode: function IdentifierNode(node) {
+          console.log("node: ", node.text, node);
           if (node.text === query.matcher) {
             paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
           }

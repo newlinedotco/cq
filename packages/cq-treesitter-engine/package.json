@@ -20,12 +20,12 @@
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
     "babylon": "^6.8.1",
-    "tree-sitter": "^0.16.1",
+    "tree-sitter": "0.16.1",
     "tree-sitter-go": "^0.16.0",
     "tree-sitter-javascript": "^0.16.0",
     "tree-sitter-python": "^0.16.1",
     "tree-sitter-rust": "^0.16.0",
-    "tree-sitter-typescript": "^0.16.1"
+    "tree-sitter-typescript": "0.16.1"
   },
   "devDependencies": {
     "@fullstackio/cq": "^4.0.5",
@@ -33,13 +33,13 @@
     "babel-core": "^6.9.1",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-react-transform": "^2.0.2",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-preset-syntax-from-presets": "^1.0.1",
-    "babel-plugin-transform-async-to-generator": "^6.16.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.7.0",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "yargs": "^6.5.0"

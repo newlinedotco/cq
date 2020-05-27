@@ -11,7 +11,6 @@ import "babel-polyfill";
 import "regenerator-runtime";
 import babylonEngine from "./engines/babylon";
 import typescriptEngine from "./engines/typescript";
-import treeSitterEngine from "./engines/treeSitter";
 import { rangeExtents } from "./engines/util";
 
 let debug;
@@ -569,10 +568,6 @@ function cq(code, queries, opts = {}) {
       case "babylon":
         engine = babylonEngine();
         break;
-      case "treeSitter":
-        engine = treeSitterEngine(opts);
-        break;
-
       default:
         try {
           engine = require(`cq-${engine}-engine`);

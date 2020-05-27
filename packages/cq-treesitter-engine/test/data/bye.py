@@ -1,0 +1,3 @@
+
+def bye():
+  return "bye"

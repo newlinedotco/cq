@@ -74,7 +74,7 @@ switch (argv.engine) {
       `@fullstackio/cq-${argv.engine}-engine`,
       `cq-${argv.engine}-engine`,
       argv.engine
-    ].map(potentialEngine => {
+    ].map((potentialEngine) => {
       try {
         if (!foundEngine) {
           engine = require(potentialEngine)();
@@ -91,14 +91,14 @@ let inputStream = filename ? fs.createReadStream(filename) : process.stdin;
 
 var content = "";
 inputStream.resume();
-inputStream.on("data", function(buf) {
+inputStream.on("data", function (buf) {
   content += buf.toString();
 });
-inputStream.on("end", function() {
+inputStream.on("end", function () {
   let gapFiller = argv.gapFiller === "false" ? false : argv.gapFiller;
 
   cq(content, query, { engine, gapFiller, language: argv.language }).then(
-    result => {
+    (result) => {
       if (argv.json === true) {
         delete result["nodes"];
         if (argv.short === true) {

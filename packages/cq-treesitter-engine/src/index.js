@@ -31,11 +31,11 @@ function traverse(node, nodeCbs) {
   const nodeIterates = [
     ...(node.children ? node.children : []),
     ...(node.fields ? node.fields : [])
-  ].filter(v => v && isNode(v));
+  ].filter((v) => v && isNode(v));
 
   for (let prop of nodeIterates) {
     if (Array.isArray(prop)) {
-      prop.filter(v => isNode(v)).map(v => traverse(v, nodeCbs));
+      prop.filter((v) => isNode(v)).map((v) => traverse(v, nodeCbs));
     } else if (isNode(prop)) {
       traverse(prop, nodeCbs);
     }
@@ -110,18 +110,18 @@ export default function treeSitterEngine(engineOpts = {}) {
     findNodesWithIdentifier(ast, root, query) {
       let paths = [];
       traverse(root, {
-        IdentifierNode: function(node) {
+        IdentifierNode: function (node) {
           if (node.text === query.matcher) {
             paths = [...paths, node.parent];
           }
         },
         // python
-        ExpressionListNode: function(node) {
+        ExpressionListNode: function (node) {
           if (node.text === query.matcher) {
             paths = [...paths, node.parent];
           }
         },
-        SyntaxNode: function(node) {
+        SyntaxNode: function (node) {
           if (
             // node.type === "property_identifier" &&
             node.text === query.matcher
@@ -129,7 +129,7 @@ export default function treeSitterEngine(engineOpts = {}) {
             paths = [...paths, node.parent];
           }
         },
-        CommentNode: function(node) {
+        CommentNode: function (node) {
           commentNodes = [...commentNodes, node];
         }
       });
@@ -138,7 +138,7 @@ export default function treeSitterEngine(engineOpts = {}) {
     findNodesWithString(ast, root, query) {
       let paths = [];
       traverse(root, {
-        StringNode: function(node) {
+        StringNode: function (node) {
           if (
             node.text === query.matcher ||
             node.text === `'${query.matcher}'` // hack? quote the matcher
@@ -171,7 +171,7 @@ export default function treeSitterEngine(engineOpts = {}) {
         // let commentRanges = comments.map(c => ({ start: c.pos, end: c.end }));
         // let commentRange = rangeExtents(commentRanges);
         // start = Math.min(start, commentRange.start);
-        let commentsBefore = commentNodes.filter(commentNode => {
+        let commentsBefore = commentNodes.filter((commentNode) => {
           return commentNode.startIndex < end;
         });
 

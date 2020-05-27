@@ -1,9 +1,9 @@
-import "babel-polyfill";
+// import "babel-polyfill";
 import chai from "chai";
-let babel = require("babel-core");
-let babylon = require("babylon");
 const assert = chai.assert;
-import cq, { NodeTypes } from "../src/index";
+import cq, { NodeTypes } from "../../cq/src/index";
+import treesitterEngine from "../src/index";
+const engine = treesitterEngine();
 
 function lines(str, startLine, endLine) {
   return str
@@ -11,7 +11,7 @@ function lines(str, startLine, endLine) {
     .slice(startLine, endLine + 1)
     .join("\n");
 }
-let cqOptions = { engine: "treeSitter" };
+let cqOptions = { engine };
 
 describe("treeSitter", async () => {
   describe("createClass", async () => {

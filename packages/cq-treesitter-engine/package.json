@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq-treesitter-engine",
   "scripts": {
-    "compile": "./node_modules/.bin/babel -d dist/ src/; npm run copy-py-parser",
-    "copy-py-parser": "cp src/parser.py dist/parser.py",
+    "compile": "./node_modules/.bin/babel -d dist/ src/",
     "prepublish": "npm run compile",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register",
     "watchtest": "./node_modules/.bin/mocha --compilers js:babel-core/register --watch"
@@ -21,12 +20,12 @@
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
     "babylon": "^6.8.1",
-    "tree-sitter": "^0.15.14",
-    "tree-sitter-go": "^0.15.0",
-    "tree-sitter-javascript": "^0.15.1",
-    "tree-sitter-python": "^0.15.0",
-    "tree-sitter-rust": "^0.15.1",
-    "tree-sitter-typescript": "^0.15.1"
+    "tree-sitter": "^0.16.1",
+    "tree-sitter-go": "^0.16.0",
+    "tree-sitter-javascript": "^0.16.0",
+    "tree-sitter-python": "^0.16.1",
+    "tree-sitter-rust": "^0.16.0",
+    "tree-sitter-typescript": "^0.16.1"
   },
   "devDependencies": {
     "@fullstackio/cq": "^4.0.5",
@@ -38,6 +37,9 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-preset-syntax-from-presets": "^1.0.1",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "yargs": "^6.5.0"

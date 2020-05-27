@@ -1,7 +1,10 @@
-import "babel-polyfill";
 import chai from "chai";
+require("babel-core");
+require("babylon");
 const assert = chai.assert;
-import cq, { NodeTypes } from "../src/index";
+import cq, { NodeTypes } from "../../cq/src/index";
+import treesitterEngine from "../src/index";
+const engine = treesitterEngine();
 
 function lines(str, startLine, endLine) {
   return str
@@ -28,7 +31,7 @@ bye(); // -> 'bye'
 
     it("should return a function definition", async () => {
       let { code } = await cq(someFunctions, ".hello", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(someFunctions, 1, 3);
@@ -37,7 +40,7 @@ bye(); // -> 'bye'
 
     it("should return an anonymous function assigned to a variable", async () => {
       let { code } = await cq(someFunctions, ".bye", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(someFunctions, 5, 7);
@@ -46,7 +49,7 @@ bye(); // -> 'bye'
 
     it("should return an arrow function assigned to a variable", async () => {
       let { code } = await cq(someFunctions, ".Farm", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(someFunctions, 9, 9);
@@ -88,7 +91,7 @@ export var AUTH_PROVIDERS: Array<any> = [
 `;
     it("should extract a class", async () => {
       let { code } = await cq(src, ".AuthService", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 4, 25);
@@ -97,7 +100,7 @@ export var AUTH_PROVIDERS: Array<any> = [
 
     it.skip("should extract a class with decorator", async () => {
       let { code } = await cq(src, "decorators(.AuthService)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 3, 25);
@@ -106,7 +109,7 @@ export var AUTH_PROVIDERS: Array<any> = [
 
     it("should extract a specific method", async () => {
       let { code } = await cq(src, ".AuthService .login", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 5, 12);
@@ -115,7 +118,7 @@ export var AUTH_PROVIDERS: Array<any> = [
 
     it("should extract export vars ", async () => {
       let { code } = await cq(src, ".AUTH_PROVIDERS", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 27, 29);
@@ -124,7 +127,7 @@ export var AUTH_PROVIDERS: Array<any> = [
 
     it("should extract export vars ", async () => {
       let { code } = await cq(src, "1-(.AuthService .login)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 0, 12);
@@ -135,7 +138,7 @@ export var AUTH_PROVIDERS: Array<any> = [
       let { code } = await cq(
         src,
         "(.AuthService .isLoggedIn)-.AUTH_PROVIDERS",
-        { engine: "treeSitter", language: "typescript" }
+        { engine, language: "typescript" }
       );
       const wanted = lines(src, 22, 29);
       assert.equal(code, wanted);
@@ -161,7 +164,7 @@ describe('Other Test', async () => {
 
     it("find a whole test", async () => {
       let { code } = await cq(src, "'My Test'", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 3, 7);
@@ -170,7 +173,7 @@ describe('Other Test', async () => {
 
     it("find a child should", async () => {
       let { code } = await cq(src, "'My Test' 'should pass'", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 4, 6);
@@ -179,7 +182,7 @@ describe('Other Test', async () => {
 
     it("find a child should with the same name", async () => {
       let { code } = await cq(src, "'Other Test' 'should pass'", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 10, 12);
@@ -188,7 +191,7 @@ describe('Other Test', async () => {
 
     it("find strings in a range", async () => {
       let { code } = await cq(src, "1-'My Test'", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 0, 7);
@@ -218,7 +221,7 @@ function noComments() {
 
     it("find a group of single-line comments preceeding", async () => {
       let { code } = await cq(src, "comments(.hello)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 1, 5);
@@ -307,7 +310,7 @@ let config = {
     it("should get lines that are close below", async () => {
       {
         let { code } = await cq(src, "window(.template, 0, 0)", {
-          engine: "treeSitter",
+          engine,
           language: "typescript"
         });
         const wanted = lines(src, 4, 4);
@@ -315,7 +318,7 @@ let config = {
       }
       {
         let { code } = await cq(src, "window(.template, 0, 2)", {
-          engine: "treeSitter",
+          engine,
           language: "typescript"
         });
         const wanted = lines(src, 4, 6);
@@ -323,7 +326,7 @@ let config = {
       }
       {
         let { code } = await cq(src, "window(.template, 1, 2)", {
-          engine: "treeSitter",
+          engine,
           language: "typescript"
         });
         const wanted = lines(src, 5, 6);
@@ -331,7 +334,7 @@ let config = {
       }
       {
         let { code } = await cq(src, "window(.template, 3, 8)", {
-          engine: "treeSitter",
+          engine,
           language: "typescript"
         });
         const wanted = lines(src, 7, 12);
@@ -341,7 +344,7 @@ let config = {
 
     it("should get lines that are close around", async () => {
       let { code } = await cq(src, "window(.template, -1, 1)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 3, 5);
@@ -361,7 +364,7 @@ bootstrap(RoutesDemoApp, [
 
     it("should disambiguate children identifiers", async () => {
       let { code } = await cq(src, ".bootstrap .RoutesDemoApp", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 3, 6);
@@ -370,7 +373,7 @@ bootstrap(RoutesDemoApp, [
 
     it("after() should find things properly", async () => {
       let { code } = await cq(src, "after(.bootstrap, .provideRouter)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 3, 6);
@@ -380,7 +383,7 @@ bootstrap(RoutesDemoApp, [
     it("choose() should pick a specific selection", async () => {
       {
         let { code } = await cq(src, "choose(.bootstrap, 1)", {
-          engine: "treeSitter",
+          engine,
           language: "typescript"
         });
         const wanted = lines(src, 1, 1);
@@ -388,7 +391,7 @@ bootstrap(RoutesDemoApp, [
       }
       {
         let { code } = await cq(src, "choose(.bootstrap, 2)", {
-          engine: "treeSitter",
+          engine,
           language: "typescript"
         });
         const wanted = lines(src, 3, 6);
@@ -412,7 +415,7 @@ class FooBar {
 
     it("should get the decorator alone as a child of the class", async () => {
       let { code } = await cq(src, ".FooBar .Component", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 4, 7);
@@ -421,7 +424,7 @@ class FooBar {
 
     it("should get decorator alone as an identifier", async () => {
       let { code } = await cq(src, ".Component", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 4, 7);
@@ -430,7 +433,7 @@ class FooBar {
 
     it.skip("should get the class alone as an identifier", async () => {
       let { code } = await cq(src, ".FooBar", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 8, 9);
@@ -439,7 +442,7 @@ class FooBar {
 
     it("should get the class with decorator when using decorators()", async () => {
       let { code } = await cq(src, "decorators(.FooBar)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 4, 9);
@@ -448,7 +451,7 @@ class FooBar {
 
     it("should get the class with decorator and comments with operations", async () => {
       let { code } = await cq(src, "comments(decorators(.FooBar))", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 1, 9);
@@ -463,7 +466,7 @@ class FooBar {
 
     it("should get a single-line decorator", async () => {
       let { code } = await cq(src2, "decorators(.FooBar)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src2, 1, 3);
@@ -479,7 +482,7 @@ class FooBar {
 
     it("should get all decorators", async () => {
       let { code } = await cq(src3, "decorators(.FooBar)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src3, 1, 4);
@@ -503,7 +506,7 @@ class Barn {
 
     it("should get a constructor", async () => {
       let { code } = await cq(src, ".Barn .constructor", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 7, 9);
@@ -512,7 +515,7 @@ class Barn {
 
     it("should get a constructor as part of a child range", async () => {
       let { code } = await cq(src, ".Barn-(.Barn .constructor)", {
-        engine: "treeSitter",
+        engine,
         language: "typescript"
       });
       const wanted = lines(src, 4, 9);

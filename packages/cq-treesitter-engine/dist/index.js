@@ -17,13 +17,6 @@ exports.default = treeSitterEngine;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Parser = require("tree-sitter");
-var JavaScript = require("tree-sitter-javascript");
-var Python = require("tree-sitter-python");
-var TypeScript = require("tree-sitter-typescript/typescript");
-var TSX = require("tree-sitter-typescript/tsx");
-var Rust = require("tree-sitter-rust");
-var Go = require("tree-sitter-go");
-
 function getNodeName(node) {
   return node.constructor.name;
 }
@@ -121,21 +114,27 @@ function treeSitterEngine() {
       var langModule = void 0;
       switch (opts.language) {
         case "javascript":
+          var JavaScript = require("tree-sitter-javascript");
           langModule = JavaScript;
           break;
         case "typescript":
+          var TypeScript = require("tree-sitter-typescript/typescript");
           langModule = TypeScript;
           break;
         case "tsx":
+          var TSX = require("tree-sitter-typescript/tsx");
           langModule = TSX;
           break;
         case "python":
+          var Python = require("tree-sitter-python");
           langModule = Python;
           break;
         case "rust":
+          var Rust = require("tree-sitter-rust");
           langModule = Rust;
           break;
         case "go":
+          var Go = require("tree-sitter-go");
           langModule = Go;
           break;
 

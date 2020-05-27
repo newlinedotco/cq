@@ -113,6 +113,7 @@ function babylonEngine() {
   var engineOpts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   return {
+    name: "babylon",
     parse: function parse(code) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 

@@ -105,6 +105,7 @@ function treeSitterEngine() {
 
   var commentNodes = [];
   return {
+    name: "treesitter",
     parse: function parse(code) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 

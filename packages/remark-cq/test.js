@@ -222,4 +222,20 @@ The code:
   t.end();
 });
 
+test("remark-cq code imports relative paths", async (t) => {
+  const markup = `
+The code:
+
+{lang=javascript,crop-query=.constructor}  
+<<[](../remark-cq/test/typescript.ts)`;
+  const actual = (await render(markup, { root: __dirname })).contents;
+  const expected = `<p>The code:</p>
+<pre><code class="language-javascript">constructor() {
+  this.onProductSelected = new EventEmitter();
+}
+</code></pre>`;
+  t.equal(actual, expected);
+  t.end();
+});
+
 // TODO -- when `cq-fetch` is working, ensure that metaRootUrl doesn't override a file that comes from another repo

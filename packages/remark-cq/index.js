@@ -182,6 +182,9 @@ function codeImportBlock(eat, value, silent) {
     newNode.cropEndLine = parseInt(__lastBlockAttributes["crop-end-line"]);
   }
 
+  // if there's no actualFilename, don't eat.
+  if (!newNode.actualFilename) return;
+
   // meta: `{ info=string filename="foo/bar/baz.js" githubUrl="https://github.com/foo/bar"}`
   return eat(subvalue)(newNode);
 }
@@ -334,6 +337,7 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
       }
 
       __lastBlockAttributes = parseBlockAttributes(subvalue);
+      // if (!__lastBlockAttributes.lang) return; // ?
 
       if (__options.preserveEmptyLines) {
         return eat(subvalue)({ type: T_BREAK });
@@ -382,12 +386,18 @@ async function visitCq(ast, vFile, options) {
       const secondaryFilename = node.options.filename
         ? path.join(path.dirname(node.options.filename), actualFilename)
         : null;
+      const thirdFilename =
+        vFile.history && vFile.history[0]
+          ? path.join(path.dirname(vFile.history[0]), actualFilename)
+          : null;
 
       if (fs.existsSync(primaryFilename)) {
         // do nothing
       } else {
         if (fs.existsSync(secondaryFilename)) {
           root = path.dirname(node.options.filename);
+        } else if (thirdFilename && fs.existsSync(thirdFilename)) {
+          root = path.dirname(path.dirname(vFile.history[0]));
         }
       }
 

@@ -48,22 +48,18 @@ var _typescript = require("./engines/typescript");
 
 var _typescript2 = _interopRequireDefault(_typescript);
 
-var _treeSitter = require("./engines/treeSitter");
-
-var _treeSitter2 = _interopRequireDefault(_treeSitter);
-
 var _util = require("./engines/util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var debug = void 0; /**
-                     * cq Query Resolver
-                     *
-                     * This file takes input code and a parsed query and extracts portions of the
-                     * code based on that query
-                     *
-                     */
-
+/**
+ * cq Query Resolver
+ *
+ * This file takes input code and a parsed query and extracts portions of the
+ * code based on that query
+ *
+ */
+var debug = void 0;
 if (process.browser) {
   debug = function debug() {
     var _console;
@@ -207,7 +203,7 @@ function adjustRangeForDecorators(ast, code, leading, trailing, engine, _ref4) {
       nodes = _ref4.nodes;
 
   nodes.map(function (node) {
-    var decoratorsRange = (0, _util.rangeExtents)(node.decorators.map(function (d) {
+    var decoratorsRange = (0, _util.rangeExtents)((node.decorators || []).map(function (d) {
       return engine.nodeToRange(d);
     }));
     start = decoratorsRange.start ? Math.min(decoratorsRange.start, start) : start;
@@ -430,6 +426,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, originalOpts) {
         switch (query.type) {
           case NodeTypes.IDENTIFIER:
             matchingNodes = engine.findNodesWithIdentifier(ast, root, query);
+            // console.log("matchingNodes: ", matchingNodes); // KEY
             break;
           case NodeTypes.STRING:
             matchingNodes = engine.findNodesWithString(ast, root, query);
@@ -562,6 +559,7 @@ function cq(code, queries) {
   var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var engine = opts.engine || (0, _babylon2.default)();
+  var language = opts.language || undefined;
 
   if (typeof queries === "string") {
     // parse into an array
@@ -576,10 +574,6 @@ function cq(code, queries) {
       case "babylon":
         engine = (0, _babylon2.default)();
         break;
-      case "treeSitter":
-        engine = (0, _treeSitter2.default)(opts);
-        break;
-
       default:
         try {
           engine = require("cq-" + engine + "-engine");
@@ -607,7 +601,7 @@ function cq(code, queries) {
     return results;
   };
 
-  return _promise2.default.resolve(engine.parse(code, (0, _assign2.default)({}, opts.parserOpts))).then(function (ast) {
+  return _promise2.default.resolve(engine.parse(code, (0, _assign2.default)({}, { language: language }, opts.parserOpts))).then(function (ast) {
     return processAst(ast);
   });
 }

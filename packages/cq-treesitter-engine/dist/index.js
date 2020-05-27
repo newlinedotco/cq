@@ -33,6 +33,7 @@ function isNode(node) {
 
 function traverse(node, nodeCbs) {
   var nodeName = getNodeName(node);
+  // console.log(" trav nodeName: ", nodeName, node.text); // KEY
   if (nodeCbs.hasOwnProperty(nodeName)) {
     nodeCbs[nodeName](node);
   }
@@ -118,7 +119,7 @@ function treeSitterEngine() {
       var parser = new Parser();
 
       var langModule = void 0;
-      switch (engineOpts.language) {
+      switch (opts.language) {
         case "javascript":
           langModule = JavaScript;
           break;
@@ -155,7 +156,16 @@ function treeSitterEngine() {
       var paths = [];
       traverse(root, {
         IdentifierNode: function IdentifierNode(node) {
-          console.log("node: ", node.text, node);
+          if (node.text === query.matcher) {
+            paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
+          }
+        },
+        TypeIdentifierNode: function TypeIdentifierNode(node) {
+          if (node.text === query.matcher) {
+            paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
+          }
+        },
+        PropertyIdentifierNode: function PropertyIdentifierNode(node) {
           if (node.text === query.matcher) {
             paths = [].concat((0, _toConsumableArray3.default)(paths), [node.parent]);
           }
@@ -254,4 +264,9 @@ function treeSitterEngine() {
     nodeToRange: nodeToRange
   };
 }
+
+// ClassBodyNode
+// MethodDefinitionNode
+// PropertyIdentifierNode
+
 module.exports = exports["default"];

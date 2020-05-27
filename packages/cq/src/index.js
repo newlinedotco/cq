@@ -554,6 +554,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
 
 function cq(code, queries, opts = {}) {
   let engine = opts.engine || babylonEngine();
+  let language = opts.language || undefined;
 
   if (typeof queries === "string") {
     // parse into an array
@@ -596,7 +597,7 @@ function cq(code, queries, opts = {}) {
   };
 
   return Promise.resolve(
-    engine.parse(code, Object.assign({}, opts.parserOpts))
+    engine.parse(code, Object.assign({}, { language }, opts.parserOpts))
   ).then(function (ast) {
     return processAst(ast);
   });

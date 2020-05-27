@@ -13,7 +13,7 @@ function lines(str, startLine, endLine) {
 
 async function assertQueryLines(rawCode, query, lineRange) {
   let [startLine, endLine] = lineRange;
-  let { code } = await cq(rawCode, query, { engine });
+  let { code } = await cq(rawCode, query, { engine, language: "python" });
   const wanted = lines(rawCode, startLine, endLine);
   assert.equal(code, wanted);
 }
@@ -193,17 +193,17 @@ dogs = [
         desc: "should return a single-line array",
         query: ".people",
         lines: [3, 3]
+      },
+      {
+        desc: "should return a multi-line object",
+        query: ".default_port",
+        lines: [6, 10]
+      },
+      {
+        desc: "should return a multi-line array",
+        query: ".dogs",
+        lines: [11, 14]
       }
-      // {
-      //   desc: 'should return a multi-line object',
-      //   query: '.default_port',
-      //   lines: [6, 10]
-      // },
-      // {
-      //   desc: 'should return a multi-line array',
-      //   query: '.dogs',
-      //   lines: [11, 14]
-      // },
     ];
 
     tests.forEach(function (test) {

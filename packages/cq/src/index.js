@@ -138,7 +138,7 @@ function adjustRangeForComments(
 ) {
   // this is going to be part of the engine
 
-  nodes.map(node => {
+  nodes.map((node) => {
     let commentRange = engine.commentRange(node, code, leading, trailing);
     start = commentRange.start ? Math.min(commentRange.start, start) : start;
     end = commentRange.end ? Math.max(commentRange.end, end) : end;
@@ -155,9 +155,9 @@ function adjustRangeForDecorators(
   engine,
   { start, end, nodes }
 ) {
-  nodes.map(node => {
+  nodes.map((node) => {
     let decoratorsRange = rangeExtents(
-      node.decorators.map(d => engine.nodeToRange(d))
+      (node.decorators || []).map((d) => engine.nodeToRange(d))
     );
     start = decoratorsRange.start
       ? Math.min(decoratorsRange.start, start)
@@ -478,7 +478,7 @@ function undent(code) {
   let minIndent = Number.MAX_VALUE;
 
   // find min indent
-  lines.forEach(line => {
+  lines.forEach((line) => {
     let startingSpaceMatch = line.match(/^\s*/);
     let indentLength = startingSpaceMatch[0].length;
     if (indentLength < minIndent) {
@@ -488,7 +488,7 @@ function undent(code) {
 
   // remove the indentation from each line
   return lines
-    .map(line => {
+    .map((line) => {
       return line.substring(minIndent);
     })
     .join("\n");
@@ -589,7 +589,7 @@ function cq(code, queries, opts = {}) {
 
   debug(code);
 
-  const processAst = function(ast) {
+  const processAst = function (ast) {
     let root = engine.getInitialRoot(ast);
     let results = resolveListOfQueries(ast, root, code, queries, engine, opts);
 
@@ -602,7 +602,7 @@ function cq(code, queries, opts = {}) {
 
   return Promise.resolve(
     engine.parse(code, Object.assign({}, opts.parserOpts))
-  ).then(function(ast) {
+  ).then(function (ast) {
     return processAst(ast);
   });
 }

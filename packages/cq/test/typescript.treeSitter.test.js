@@ -10,7 +10,7 @@ function lines(str, startLine, endLine) {
     .join("\n");
 }
 
-describe("typescript", () => {
+describe("typescript treeSitter", () => {
   describe("top level functions", () => {
     const someFunctions = `
 function hello(): string {
@@ -95,7 +95,7 @@ export var AUTH_PROVIDERS: Array<any> = [
       assert.equal(code, wanted);
     });
 
-    it.only("should extract a class with decorator", async () => {
+    it.skip("should extract a class with decorator", async () => {
       let { code } = await cq(src, "decorators(.AuthService)", {
         engine: "treeSitter",
         language: "typescript"
@@ -379,7 +379,7 @@ bootstrap(RoutesDemoApp, [
 
     it("choose() should pick a specific selection", async () => {
       {
-        let { code } = await cq(src, "choose(.bootstrap, 0)", {
+        let { code } = await cq(src, "choose(.bootstrap, 1)", {
           engine: "treeSitter",
           language: "typescript"
         });
@@ -387,7 +387,7 @@ bootstrap(RoutesDemoApp, [
         assert.equal(code, wanted);
       }
       {
-        let { code } = await cq(src, "choose(.bootstrap, 1)", {
+        let { code } = await cq(src, "choose(.bootstrap, 2)", {
           engine: "treeSitter",
           language: "typescript"
         });

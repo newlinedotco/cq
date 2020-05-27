@@ -76,10 +76,14 @@ function traverse(node, nodeCbs) {
 }
 
 function nodeToRange(node) {
-  if (node.start && node.end) {
+  if ((node.start || node.start === 0) && (node.end || node.end === 0)) {
     return { start: node.start, end: node.end };
   }
-  if (node.body && node.body.start && node.body.end) {
+  if (
+    node.body &&
+    (node.body.start || node.body.start === 0) &&
+    (node.body.end || node.body.end === 0)
+  ) {
     return { start: node.body.start, end: node.body.end };
   }
 

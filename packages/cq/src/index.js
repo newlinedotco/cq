@@ -580,8 +580,8 @@ function cq(code, queries, opts = {}) {
         try {
           engine = require(`cq-${engine}-engine`)(engineOpts);
         } catch (err) {
-          throw new Error("unknown engine: " + engine);
           console.log(err, err.stack);
+          throw new Error("unknown engine: " + engine);
         }
         break;
     }

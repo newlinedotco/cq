@@ -618,13 +618,13 @@ function noComments() {
 }
 `;
 
-    it("find a group of single-line comments preceeding", async () => {
+    it.skip("find a group of single-line comments preceeding", async () => {
       let { code } = await cq(src, "comments(.hello)", cqOptions);
       const wanted = lines(src, 1, 5);
       assert.equal(code, wanted);
     });
 
-    it("find a block comment preceeding", async () => {
+    it.skip("find a block comment preceeding", async () => {
       let { code } = await cq(src, "comments(.bye)", cqOptions);
       const wanted = lines(src, 7, 12);
       assert.equal(code, wanted);

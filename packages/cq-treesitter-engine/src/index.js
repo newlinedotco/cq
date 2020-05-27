@@ -15,6 +15,7 @@ function isNode(node) {
 
 function traverse(node, nodeCbs) {
   let nodeName = getNodeName(node);
+  // console.log(" trav nodeName: ", nodeName, node.text);
   if (nodeCbs.hasOwnProperty(nodeName)) {
     nodeCbs[nodeName](node);
   }
@@ -115,6 +116,11 @@ export default function treeSitterEngine(engineOpts = {}) {
             paths = [...paths, node.parent];
           }
         },
+        PropertyIdentifierNode: function (node) {
+          if (node.text === query.matcher) {
+            paths = [...paths, node.parent];
+          }
+        },
         // python
         ExpressionListNode: function (node) {
           if (node.text === query.matcher) {
@@ -209,3 +215,7 @@ export default function treeSitterEngine(engineOpts = {}) {
     nodeToRange
   };
 }
+
+// ClassBodyNode
+// MethodDefinitionNode
+// PropertyIdentifierNode

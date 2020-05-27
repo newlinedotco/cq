@@ -20,7 +20,8 @@
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
     "babylon": "^6.8.1",
-    "tree-sitter": "0.16.1"
+    "tree-sitter": "0.16.1",
+    "@fullstackio/cq": "^7.0.0"
   },
   "peerDependencies": {
     "tree-sitter-go": "^0.16.0",
@@ -30,7 +31,6 @@
     "tree-sitter-typescript": "0.16.1"
   },
   "devDependencies": {
-    "@fullstackio/cq": "^4.0.5",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.9.1",
     "babel-plugin-add-module-exports": "^0.2.1",

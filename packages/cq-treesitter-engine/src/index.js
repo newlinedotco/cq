@@ -62,6 +62,7 @@ function nodeToRange(node) {
 export default function treeSitterEngine(engineOpts = {}) {
   let commentNodes = [];
   return {
+    name: "treesitter",
     parse(code, opts = {}) {
       commentNodes = [];
       const parser = new Parser();

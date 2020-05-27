@@ -47,7 +47,7 @@ function traverse(node, nodeCbs) {
     let propValue = node[prop];
 
     if (Array.isArray(propValue)) {
-      propValue.filter(v => isNode(v)).map(v => traverse(v, nodeCbs));
+      propValue.filter((v) => isNode(v)).map((v) => traverse(v, nodeCbs));
     } else if (isNode(propValue)) {
       traverse(propValue, nodeCbs);
     }
@@ -75,7 +75,7 @@ function nodeToRange(node) {
 
   if (node.decorators) {
     let decoratorsRange = rangeExtents(
-      node.decorators.map(d => nodeToRange(d))
+      node.decorators.map((d) => nodeToRange(d))
     );
     range.start = decoratorsRange.end + 1;
   }
@@ -85,6 +85,7 @@ function nodeToRange(node) {
 
 export default function typescriptEngine(engineOpts = {}) {
   return {
+    name: "typescript",
     parse(code, opts = {}) {
       return ts.createSourceFile(
         opts.filename || "(no filename)",
@@ -104,7 +105,7 @@ export default function typescriptEngine(engineOpts = {}) {
         let nodePos = node.pos;
         let parentPos = node.parent.pos;
         let comments = ts.getLeadingCommentRanges(code, nodePos);
-        let commentRanges = comments.map(c => ({ start: c.pos, end: c.end }));
+        let commentRanges = comments.map((c) => ({ start: c.pos, end: c.end }));
         let commentRange = rangeExtents(commentRanges);
         start = Math.min(start, commentRange.start);
       }
@@ -115,12 +116,12 @@ export default function typescriptEngine(engineOpts = {}) {
     findNodesWithIdentifier(ast, root, query) {
       let paths = [];
       traverse(root, {
-        Identifier: function(node) {
+        Identifier: function (node) {
           if (node.text === query.matcher) {
             paths = [...paths, node.parent];
           }
         },
-        Constructor: function(node) {
+        Constructor: function (node) {
           // `constructor` is a special node in TypeScript (vs. babylon where
           // it's an Identifier) If the query is looking for a constructor by
           // identifier, then we will accept this Constructor node
@@ -134,7 +135,7 @@ export default function typescriptEngine(engineOpts = {}) {
     findNodesWithString(ast, root, query) {
       let paths = [];
       traverse(root, {
-        StringLiteral: function(node) {
+        StringLiteral: function (node) {
           if (node.text === query.matcher) {
             paths = [...paths, node.parent];
           }

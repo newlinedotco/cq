@@ -62,12 +62,12 @@ function traverse(node, nodeCbs) {
 
     if (Array.isArray(propValue)) {
       propValue
-        .filter(v => isNode(v))
-        .map(v => {
+        .filter((v) => isNode(v))
+        .map((v) => {
           v.parent = node;
           return v;
         })
-        .map(v => traverse(v, nodeCbs));
+        .map((v) => traverse(v, nodeCbs));
     } else if (isNode(propValue)) {
       propValue.parent = node;
       traverse(propValue, nodeCbs);
@@ -98,6 +98,7 @@ function nodeToRange(node) {
 
 export default function babylonEngine(engineOpts = {}) {
   return {
+    name: "babylon",
     parse(code, opts = {}) {
       let ast = babylon.parse(
         code,
@@ -114,13 +115,13 @@ export default function babylonEngine(engineOpts = {}) {
       let end = node.end;
       if (getLeading && node.leadingComments) {
         let commentRange = rangeExtents(
-          node.leadingComments.map(n => nodeToRange(n))
+          node.leadingComments.map((n) => nodeToRange(n))
         );
         start = Math.min(start, commentRange.start);
       }
       if (getTrailing && node.trailingComments) {
         let commentRange = rangeExtents(
-          node.trailingComments.map(n => nodeToRange(n))
+          node.trailingComments.map((n) => nodeToRange(n))
         );
         end = Math.max(end, commentRange.end);
       }
@@ -128,7 +129,7 @@ export default function babylonEngine(engineOpts = {}) {
     },
     findNodesWithIdentifier(ast, root, query) {
       let paths = [];
-      const nodeCb = node => {
+      const nodeCb = (node) => {
         if (node.name === query.matcher) {
           paths = [...paths, node.parent];
         }
@@ -142,7 +143,7 @@ export default function babylonEngine(engineOpts = {}) {
     findNodesWithString(ast, root, query) {
       let paths = [];
       traverse(root, {
-        StringLiteral: function(node) {
+        StringLiteral: function (node) {
           if (node.value === query.matcher) {
             paths = [...paths, node.parent];
           }

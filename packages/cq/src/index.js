@@ -555,6 +555,7 @@ function resolveListOfQueries(ast, root, code, query, engine, opts) {
 
 function cq(code, queries, opts = {}) {
   let engine = opts.engine || babylonEngine();
+  let engineOpts = opts.engineOpts || {};
   let language = opts.language || undefined;
 
   if (typeof queries === "string") {
@@ -565,17 +566,17 @@ function cq(code, queries, opts = {}) {
   if (typeof engine === "string") {
     switch (engine) {
       case "typescript":
-        engine = typescriptEngine();
+        engine = typescriptEngine(engineOpts);
         break;
       case "babylon":
-        engine = babylonEngine();
+        engine = babylonEngine(engineOpts);
         break;
       case "treesitter":
-        engine = require(`cq-treesitter-engine`);
+        engine = require(`cq-treesitter-engine`)(engineOpts);
         break;
       default:
         try {
-          engine = require(`cq-${engine}-engine`);
+          engine = require(`cq-${engine}-engine`)(engineOpts);
         } catch (err) {
           throw new Error("unknown engine: " + engine);
           console.log(err, err.stack);

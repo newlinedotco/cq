@@ -1,7 +1,8 @@
-import "babel-polyfill";
 import chai from "chai";
 const assert = chai.assert;
 import cq, { NodeTypes } from "../../cq/src/index";
+import treesitterEngine from "../src/index";
+const engine = treesitterEngine();
 
 function lines(str, startLine, endLine) {
   return str
@@ -13,7 +14,7 @@ function lines(str, startLine, endLine) {
 async function assertQueryLines(rawCode, query, lineRange) {
   let [startLine, endLine] = lineRange;
   let { code } = await cq(rawCode, query, {
-    engine: "treeSitter",
+    engine,
     language: "python"
   });
   const wanted = lines(rawCode, startLine, endLine);
@@ -45,7 +46,7 @@ bye() # -> bye
       }
     ];
 
-    tests.forEach(function(test) {
+    tests.forEach(function (test) {
       it(test.desc, async () => {
         await assertQueryLines(src, test.query, test.lines);
       });
@@ -96,7 +97,7 @@ pickles.meow()
       }
     ];
 
-    tests.forEach(function(test) {
+    tests.forEach(function (test) {
       it(test.desc, async () => {
         await assertQueryLines(src, test.query, test.lines);
       });
@@ -132,7 +133,7 @@ print 'you did it'`;
       }
     ];
 
-    tests.forEach(function(test) {
+    tests.forEach(function (test) {
       it(test.desc, async () => {
         await assertQueryLines(src, test.query, test.lines);
       });
@@ -159,7 +160,7 @@ def sleep(message):
       }
     ];
 
-    tests.forEach(function(test) {
+    tests.forEach(function (test) {
       it(test.desc, async () => {
         await assertQueryLines(src, test.query, test.lines);
       });
@@ -208,7 +209,7 @@ dogs = [
       }
     ];
 
-    tests.forEach(function(test) {
+    tests.forEach(function (test) {
       it(test.desc, async () => {
         await assertQueryLines(src, test.query, test.lines);
       });

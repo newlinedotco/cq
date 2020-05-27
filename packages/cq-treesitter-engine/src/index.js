@@ -15,7 +15,7 @@ function isNode(node) {
 
 function traverse(node, nodeCbs) {
   let nodeName = getNodeName(node);
-  // console.log(" trav nodeName: ", nodeName, node.text);
+  // console.log(" trav nodeName: ", nodeName, node.text); // KEY
   if (nodeCbs.hasOwnProperty(nodeName)) {
     nodeCbs[nodeName](node);
   }
@@ -112,6 +112,11 @@ export default function treeSitterEngine(engineOpts = {}) {
       let paths = [];
       traverse(root, {
         IdentifierNode: function (node) {
+          if (node.text === query.matcher) {
+            paths = [...paths, node.parent];
+          }
+        },
+        TypeIdentifierNode: function (node) {
           if (node.text === query.matcher) {
             paths = [...paths, node.parent];
           }

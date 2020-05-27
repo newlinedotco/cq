@@ -393,6 +393,7 @@ function resolveIndividualQuery(ast, root, code, query, engine, originalOpts) {
       switch (query.type) {
         case NodeTypes.IDENTIFIER:
           matchingNodes = engine.findNodesWithIdentifier(ast, root, query);
+          // console.log("matchingNodes: ", matchingNodes); // KEY
           break;
         case NodeTypes.STRING:
           matchingNodes = engine.findNodesWithString(ast, root, query);

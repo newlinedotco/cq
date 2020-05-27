@@ -15,4 +15,6 @@ Beta. See TODOs
 
 Often you'll find that if you aren't picking up the tokens you want, you probably have a missing type in `findNodesWithIdentifier`.
 
+Also, hop into `cq/src/index.js` and look for `matchingNodes` to see what's matching. (Search for `KEY`)
+
 Check if your token needs to be added.

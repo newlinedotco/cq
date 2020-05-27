@@ -559,6 +559,7 @@ function cq(code, queries) {
   var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var engine = opts.engine || (0, _babylon2.default)();
+  var engineOpts = opts.engineOpts || {};
   var language = opts.language || undefined;
 
   if (typeof queries === "string") {
@@ -569,17 +570,17 @@ function cq(code, queries) {
   if (typeof engine === "string") {
     switch (engine) {
       case "typescript":
-        engine = (0, _typescript2.default)();
+        engine = (0, _typescript2.default)(engineOpts);
         break;
       case "babylon":
-        engine = (0, _babylon2.default)();
+        engine = (0, _babylon2.default)(engineOpts);
         break;
       case "treesitter":
-        engine = require("cq-treesitter-engine");
+        engine = require("cq-treesitter-engine")(engineOpts);
         break;
       default:
         try {
-          engine = require("cq-" + engine + "-engine");
+          engine = require("cq-" + engine + "-engine")(engineOpts);
         } catch (err) {
           throw new Error("unknown engine: " + engine);
           console.log(err, err.stack);

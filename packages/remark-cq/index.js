@@ -386,6 +386,7 @@ async function visitCq(ast, vFile, options) {
       const secondaryFilename = node.options.filename
         ? path.join(path.dirname(node.options.filename), actualFilename)
         : null;
+
       const thirdFilename =
         vFile.history && vFile.history[0]
           ? path.join(path.dirname(vFile.history[0]), actualFilename)
@@ -397,7 +398,7 @@ async function visitCq(ast, vFile, options) {
         if (fs.existsSync(secondaryFilename)) {
           root = path.dirname(node.options.filename);
         } else if (thirdFilename && fs.existsSync(thirdFilename)) {
-          root = path.dirname(path.dirname(vFile.history[0]));
+          root = path.dirname(vFile.history[0]);
         }
       }
 

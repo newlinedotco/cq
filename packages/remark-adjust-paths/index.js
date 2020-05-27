@@ -14,9 +14,20 @@ module.exports = function attacher(options = {}) {
     function visitor(node) {
       var data = file.data || (file.data = {});
       if (node.url) {
-        const isAbsoluteOrUrl = path.isAbsolute(node.url) || isUrl(node.url);
+        const isAbsoluteOrUrl =
+          path.isAbsolute(node.url) || isUrl(node.url);
 
         if (!isAbsoluteOrUrl) {
+          if (root === "relative" && options.filename) {
+            root = path.dirname(options.filename);
+          }
+
+          if (root === "absolute" && options.filename) {
+            root = path.dirname(
+              path.resolve(options.filename)
+            );
+          }
+
           node.url = path.join(root, node.url);
         }
       }

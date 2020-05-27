@@ -33,17 +33,13 @@ const render = (text, config) =>
     .process(text);
 
 const renderMarkdown = (text, config) =>
-  unified()
-    .use(reParse)
-    .use(remarkStringify)
-    .use(plugin, config)
-    .process(text);
+  unified().use(reParse).use(remarkStringify).use(plugin, config).process(text);
 
 /*
  * Tests.
  */
 
-test("remark-cq code imports crop-query works", async t => {
+test("remark-cq code imports crop-query works", async (t) => {
   const markup = `
 The code:
 
@@ -57,7 +53,7 @@ The code:
   t.end();
 });
 
-test("remark-cq code imports line numbers works", async t => {
+test("remark-cq code imports line numbers works", async (t) => {
   const markup = `
 The code:
 
@@ -72,7 +68,7 @@ The code:
   t.end();
 });
 
-test("remark-cq code doesn't break normal blocks", async t => {
+test("remark-cq code doesn't break normal blocks", async (t) => {
   const markup = `
 The code:
 
@@ -87,7 +83,7 @@ var foo = 1;
   t.end();
 });
 
-test("remark-cq code imports compile back to markdown", async t => {
+test("remark-cq code imports compile back to markdown", async (t) => {
   const markup = `
 The code:
 
@@ -104,7 +100,7 @@ const dogs = () => "Like snuggles";
   t.end();
 });
 
-test("remark-cq code imports compile back to markdown in the middle of a document", async t => {
+test("remark-cq code imports compile back to markdown in the middle of a document", async (t) => {
   const markup = `
 The code:
 
@@ -137,7 +133,7 @@ see?
   t.end();
 });
 
-test("remark-cq meta doesn't affect html", async t => {
+test("remark-cq meta doesn't affect html", async (t) => {
   const markup = `
 The code:
 
@@ -151,7 +147,7 @@ The code:
   t.end();
 });
 
-test("remark-cq code meta compiles back to markdown", async t => {
+test("remark-cq code meta compiles back to markdown", async (t) => {
   const markup = `
 The code:
 
@@ -168,7 +164,7 @@ const dogs = () => "Like snuggles";
   t.end();
 });
 
-test("remark-cq code meta as top-level config should work", async t => {
+test("remark-cq code meta as top-level config should work", async (t) => {
   const markup = `
 The code:
 
@@ -186,18 +182,20 @@ const dogs = () => "Like snuggles";
   t.end();
 });
 
-test("remark-cq code meta should allow specifying a source root URL", async t => {
+test("remark-cq code meta should allow specifying a source root URL", async (t) => {
   const markup = `
 The code:
 
 {lang=javascript,crop-query=.dogs}
 <<[](test.js)`;
-  const actual = (await renderMarkdown(markup, {
-    root: __dirname,
-    meta: true,
-    defaultMetaRootUrl:
-      "https://github.com/fullstackio/cq/blob/master/packages/remark-cq"
-  })).contents;
+  const actual = (
+    await renderMarkdown(markup, {
+      root: __dirname,
+      meta: true,
+      defaultMetaRootUrl:
+        "https://github.com/fullstackio/cq/blob/master/packages/remark-cq",
+    })
+  ).contents;
   const expected = `The code:
 
 \`\`\`javascript { actualFilename=test.js endChar=189 endLine=11 startChar=154 startLine=11 url=https&#x3A;//github.com/fullstackio/cq/blob/master/packages/remark-cq/test.js#L11 }
@@ -208,12 +206,28 @@ const dogs = () => "Like snuggles";
   t.end();
 });
 
-test("remark-cq code imports TypeScript crop-query works", async t => {
+test("remark-cq code imports TypeScript crop-query works", async (t) => {
   const markup = `
 The code:
 
 {lang=javascript,crop-query=.constructor}  
 <<[](test/typescript.ts)`;
+  const actual = (await render(markup, { root: __dirname })).contents;
+  const expected = `<p>The code:</p>
+<pre><code class="language-javascript">constructor() {
+  this.onProductSelected = new EventEmitter();
+}
+</code></pre>`;
+  t.equal(actual, expected);
+  t.end();
+});
+
+test("remark-cq code imports relative paths", async (t) => {
+  const markup = `
+The code:
+
+{lang=javascript,crop-query=.constructor}  
+<<[](../remark-cq/test/typescript.ts)`;
   const actual = (await render(markup, { root: __dirname })).contents;
   const expected = `<p>The code:</p>
 <pre><code class="language-javascript">constructor() {

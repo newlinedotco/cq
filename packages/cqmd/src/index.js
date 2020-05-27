@@ -15,13 +15,16 @@ async function cqmd(text, opts = {}) {
       .use(reParse)
       .use(remarkStringify)
       .use(remarkCq, config)
-      .use(remarkAdjustPaths, { root: config.adjustPath || "" })
+      .use(remarkAdjustPaths, {
+        root: config.adjustPath || "",
+        filename: config.filename,
+      })
       .use(remarkLeanpub)
       .use(frontmatter)
       .use(yamlConfig);
 
     if (opts.extensions) {
-      opts.extensions.map(extension => {
+      opts.extensions.map((extension) => {
         processor = processor.use(require(extension));
       });
     }
@@ -34,7 +37,10 @@ async function cqmd(text, opts = {}) {
     unified()
       .use(reParse)
       .use(remarkCq, config)
-      .use(remarkAdjustPaths, { root: config.adjustPath || "" })
+      .use(remarkAdjustPaths, {
+        root: config.adjustPath || "",
+        filename: config.filename,
+      })
       .use(remarkLeanpub)
       .use(frontmatter)
       .use(yamlConfig)
@@ -42,7 +48,8 @@ async function cqmd(text, opts = {}) {
       .use(rehypeStringify)
       .process(text);
 
-  const results = (await renderMarkdown(text, opts)).contents;
+  const results = (await renderMarkdown(text, opts))
+    .contents;
   return results;
 }
 

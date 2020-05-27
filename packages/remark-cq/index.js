@@ -17,7 +17,7 @@ var fs = require("fs");
 var path = require("path");
 var repeat = require("repeat-string");
 var cq = require("@fullstackio/cq");
-var debug = require("debug")("remark-cq");
+var debug = require("debug")("cq:remark-cq");
 var trim = require("trim-trailing-lines");
 var visit = require("unist-util-visit");
 var uuid = require("uuid/v4");
@@ -61,6 +61,10 @@ function locateCodeImport(value, fromIndex) {
   return index;
 }
 codeImportBlock.locator = locateCodeImport;
+
+function dequote(value) {
+  return value ? value.replace(/['"]/g, "") : "";
+}
 
 /**
  * Tokenize a code import
@@ -127,27 +131,28 @@ function codeImportBlock(eat, value, silent) {
   var fileMatches = /<<\[(.*)\]\((.*)\)/.exec(match[0]);
   var statedFilename = fileMatches[1];
   var actualFilename = fileMatches[2];
+  debug(actualFilename);
 
   var cqOpts = {
-    ...__options
+    ...__options,
   };
   if (__lastBlockAttributes["undent"]) {
     cqOpts.undent = true;
   }
   if (__lastBlockAttributes["root"]) {
-    cqOpts.root = __lastBlockAttributes["root"];
+    cqOpts.root = dequote(__lastBlockAttributes["root"]);
   }
   if (__lastBlockAttributes["meta"]) {
     cqOpts.meta = __lastBlockAttributes["meta"];
   }
   if (__lastBlockAttributes["engine"]) {
-    cqOpts.engine = __lastBlockAttributes["engine"];
+    cqOpts.engine = dequote(__lastBlockAttributes["engine"]);
   }
   if (__lastBlockAttributes["language"]) {
-    cqOpts.language = __lastBlockAttributes["language"];
+    cqOpts.language = dequote(__lastBlockAttributes["language"]);
   }
   if (__lastBlockAttributes["lang"]) {
-    cqOpts.language = __lastBlockAttributes["lang"];
+    cqOpts.language = dequote(__lastBlockAttributes["lang"]);
   }
 
   let newNode = {
@@ -158,11 +163,11 @@ function codeImportBlock(eat, value, silent) {
     query: null,
     cropStartLine: null,
     cropEndLine: null,
-    options: cqOpts
+    options: cqOpts,
   };
 
   if (__lastBlockAttributes["lang"]) {
-    newNode.lang = __lastBlockAttributes["lang"].toLowerCase();
+    newNode.lang = dequote(__lastBlockAttributes["lang"]).toLowerCase();
   }
 
   if (__lastBlockAttributes["crop-query"]) {
@@ -176,6 +181,9 @@ function codeImportBlock(eat, value, silent) {
   if (__lastBlockAttributes["crop-end-line"]) {
     newNode.cropEndLine = parseInt(__lastBlockAttributes["crop-end-line"]);
   }
+
+  // if there's no actualFilename, don't eat.
+  if (!newNode.actualFilename) return;
 
   // meta: `{ info=string filename="foo/bar/baz.js" githubUrl="https://github.com/foo/bar"}`
   return eat(subvalue)(newNode);
@@ -321,7 +329,7 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
 
         var pairs = splitNoParen(matches[1]);
 
-        pairs.forEach(function(pair) {
+        pairs.forEach(function (pair) {
           var kv = pair.split(/=\s*/);
           blockAttrs[kv[0]] = kv[1];
         });
@@ -329,6 +337,7 @@ function tokenizeBlockInlineAttributeList(eat, value, silent) {
       }
 
       __lastBlockAttributes = parseBlockAttributes(subvalue);
+      // if (!__lastBlockAttributes.lang) return; // ?
 
       if (__options.preserveEmptyLines) {
         return eat(subvalue)({ type: T_BREAK });
@@ -355,7 +364,7 @@ async function visitCq(ast, vFile, options) {
 
   // Gather all cq nodes
   // visit is sync, so we have to make two passes :\
-  visit(ast, "cq", node => {
+  visit(ast, "cq", (node) => {
     node.uuid = uuid();
     nodes.push(node);
     return node;
@@ -367,141 +376,172 @@ async function visitCq(ast, vFile, options) {
 
   const codeNodes = {};
   await Promise.all(
-    nodes.map(async node => {
+    nodes.map(async (node) => {
       // For each cq node, produce a code node and save, by uuid, in codeNodes
       // We can replace them in a sync visit below
-      const root = node.options.root;
-      const actualFilename = node.actualFilename;
-      let codeString = "";
-      try {
-        codeString = fs
-          .readFileSync(path.join(root, actualFilename))
-          .toString();
-      } catch (err) {
-        console.warn(
-          `WARNING: cq couldn't find ${actualFilename} at ${node.position.start.line}:${node.position.start.column}`
-        );
-        vFile.message(err, node.position, "remark-cq");
+      let root = node.options.root;
+      let actualFilename = node.actualFilename;
 
-        if (options.warnErrors) {
-          const codeNode = {
-            uuid: node.uuid,
-            type: "blockquote",
-            lang: null,
-            children: [
-              {
-                type: "text",
-                value: `WARNING: cq couldn't find file ${actualFilename}`
-              }
-            ]
-          };
-          codeNodes[node.uuid] = codeNode;
-          return;
-        } else {
-          throw err;
-        }
-      }
-      const query = node.query;
+      const primaryFilename = path.join(root, actualFilename);
+      const secondaryFilename = node.options.filename
+        ? path.join(path.dirname(node.options.filename), actualFilename)
+        : null;
 
-      let engine = "babylon";
-      if (actualFilename && actualFilename.match(/\.tsx?/)) {
-        engine = "typescript";
-      }
-      if (actualFilename && actualFilename.match(/\.py/)) {
-        engine = "treeSitter";
-      }
+      const thirdFilename =
+        vFile.history && vFile.history[0]
+          ? path.join(path.dirname(vFile.history[0]), actualFilename)
+          : null;
 
-      let cqDefaults = { engine };
-      let cqOpts = { ...cqDefaults, ...node.options };
-
-      let results;
-
-      if (query) {
-        results = await cq(codeString, query, cqOpts);
-      } else if (node.cropStartLine) {
-        const lines = codeString.split("\n");
-        const endSlice = node.cropEndLine || lines.length;
-        results = {
-          code: lines.slice(node.cropStartLine - 1, endSlice).join("\n"),
-          start_line: node.cropStartLine,
-          end_line: endSlice,
-          start: null, // TODO
-          end: null // TODO
-        };
+      if (fs.existsSync(primaryFilename)) {
+        // do nothing
       } else {
-        // the whole file
-        const lines = codeString.split("\n");
-        results = {
-          code: codeString,
-          start_line: 1,
-          end_line: lines.length,
-          start: 0,
-          end: codeString.length
-        };
+        if (fs.existsSync(secondaryFilename)) {
+          root = path.dirname(node.options.filename);
+        } else if (thirdFilename && fs.existsSync(thirdFilename)) {
+          root = path.dirname(vFile.history[0]);
+        }
       }
-      // vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
-      // vFile.message(error, position, PLUGIN_NAME);
 
-      const lines = results.code;
-      const language = node.lang;
-
-      const createMeta = (metaTypes, node) => {
-        const allMetas = {};
-
-        // filenames
-        allMetas.statedFilename = node.statedFilename;
-        allMetas.actualFilename = node.actualFilename;
-
-        // location
-        allMetas.startLine = results.start_line;
-        allMetas.endLine = results.end_line;
-        allMetas.startChar = results.start;
-        allMetas.endChar = results.end;
-
-        // attach a URL
-        if (cqOpts.defaultMetaRootUrl && !allMetas.url) {
-          const importedPath = allMetas.actualFilename.replace(/\.\//, ""); // e.g. ./foo.js
-          const anchor =
-            allMetas.startLine && parseInt(allMetas.startLine, 10) > 1
-              ? `#L${allMetas.startLine}`
-              : "";
-
-          allMetas.url = `${cqOpts.defaultMetaRootUrl}/${importedPath}${anchor}`;
-        }
-
-        if (metaTypes) {
-          return (
-            "{ " +
-            Object.keys(allMetas)
-              .sort()
-              .map(key => {
-                const value = allMetas[key];
-                return value === null || value === ""
-                  ? null
-                  : `${key}=${value}`;
-              })
-              .filter(Boolean)
-              .join(" ") +
-            " }"
+      try {
+        let codeString = "";
+        try {
+          codeString = fs
+            .readFileSync(path.join(root, actualFilename))
+            .toString();
+        } catch (err) {
+          console.warn(
+            `WARNING: cq couldn't find ${actualFilename} at ${node.position.start.line}:${node.position.start.column}`
           );
-        } else {
-          return null;
-        }
-      };
+          vFile.message(err, node.position, "remark-cq");
 
-      const codeNode = {
-        uuid: node.uuid,
-        type: "code",
-        lang: language || null,
-        fence: "`",
-        meta: createMeta(cqOpts.meta || false, node),
-        value: trim(lines)
-      };
-      codeNodes[node.uuid] = codeNode;
+          if (options.warnErrors) {
+            const codeNode = {
+              uuid: node.uuid,
+              type: "blockquote",
+              lang: null,
+              children: [
+                {
+                  type: "text",
+                  value: `WARNING: cq couldn't find file ${actualFilename}`,
+                },
+              ],
+            };
+            codeNodes[node.uuid] = codeNode;
+            return;
+          } else {
+            throw err;
+          }
+        }
+        const query = node.query;
+
+        let engine = "babylon";
+        if (actualFilename && actualFilename.match(/\.tsx?/)) {
+          engine = "typescript";
+        }
+        if (actualFilename && actualFilename.match(/\.py/)) {
+          engine = "treeSitter";
+        }
+
+        let cqOpts = { ...node.options };
+        if (!cqOpts.engine) {
+          cqOpts.engine = engine;
+        }
+        debug(`${actualFilename} ` + JSON.stringify(cqOpts, null, 2));
+
+        let results;
+
+        if (query) {
+          results = await cq(codeString, query, cqOpts);
+        } else if (node.cropStartLine) {
+          const lines = codeString.split("\n");
+          const endSlice = node.cropEndLine || lines.length;
+          results = {
+            code: lines.slice(node.cropStartLine - 1, endSlice).join("\n"),
+            start_line: node.cropStartLine,
+            end_line: endSlice,
+            start: null, // TODO
+            end: null, // TODO
+          };
+        } else {
+          // the whole file
+          const lines = codeString.split("\n");
+          results = {
+            code: codeString,
+            start_line: 1,
+            end_line: lines.length,
+            start: 0,
+            end: codeString.length,
+          };
+        }
+        // vFile.info(`artifacts fetched from ${projectId} ${jobName}`, position, PLUGIN_NAME);
+        // vFile.message(error, position, PLUGIN_NAME);
+
+        const lines = results.code;
+        const language = node.lang;
+
+        const createMeta = (metaTypes, node) => {
+          const allMetas = {};
+
+          // filenames
+          allMetas.statedFilename = node.statedFilename;
+          allMetas.actualFilename = node.actualFilename;
+
+          // location
+          allMetas.startLine = results.start_line;
+          allMetas.endLine = results.end_line;
+          allMetas.startChar = results.start;
+          allMetas.endChar = results.end;
+
+          // attach a URL
+          if (cqOpts.defaultMetaRootUrl && !allMetas.url) {
+            const importedPath = allMetas.actualFilename.replace(/\.\//, ""); // e.g. ./foo.js
+            const anchor =
+              allMetas.startLine && parseInt(allMetas.startLine, 10) > 1
+                ? `#L${allMetas.startLine}`
+                : "";
+
+            allMetas.url = `${cqOpts.defaultMetaRootUrl}/${importedPath}${anchor}`;
+          }
+
+          if (metaTypes) {
+            return (
+              "{ " +
+              Object.keys(allMetas)
+                .sort()
+                .map((key) => {
+                  const value = allMetas[key];
+                  return value === null || value === ""
+                    ? null
+                    : `${key}=${value}`;
+                })
+                .filter(Boolean)
+                .join(" ") +
+              " }"
+            );
+          } else {
+            return null;
+          }
+        };
+
+        const codeNode = {
+          uuid: node.uuid,
+          type: "code",
+          lang: language || null,
+          fence: "`",
+          meta: createMeta(cqOpts.meta || false, node),
+          value: trim(lines),
+        };
+        codeNodes[node.uuid] = codeNode;
+      } catch (err) {
+        console.log(
+          `Error processing: ${actualFilename}, imported at ${node.position.start.line}:${node.position.start.column}`
+        );
+        throw err;
+      }
     })
   );
 
-  visit(ast, "cq", node => {
+  visit(ast, "cq", (node) => {
     // swap nodes by overwriting *this* node object
     Object.assign(node, codeNodes[node.uuid]);
     return node;

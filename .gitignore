@@ -43,3 +43,4 @@ jspm_packages
 .\#*
 .vscode
 packages/*/fullstackio-*-*.tgz
+.DS_Store

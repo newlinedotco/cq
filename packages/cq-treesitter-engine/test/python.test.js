@@ -18,7 +18,7 @@ async function assertQueryLines(rawCode, query, lineRange) {
   assert.equal(code, wanted);
 }
 
-describe.only("python", () => {
+describe("python", () => {
   describe("top level functions", () => {
     const src = `
 def hello():
@@ -48,9 +48,13 @@ bye() # -> bye
         await assertQueryLines(src, test.query, test.lines);
       });
     });
+
+    // it("py test", async () => {
+    //   await assertQueryLines(src, ".hello", [1, 2]);
+    // });
   });
 
-  describe.only("classes", async () => {
+  describe("classes", async () => {
     const src = `
 import mycats
 

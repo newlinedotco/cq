@@ -74,7 +74,7 @@ export default function treeSitterEngine(engineOpts = {}) {
       const parser = new Parser();
 
       let langModule;
-      switch (engineOpts.language) {
+      switch (opts.language) {
         case "javascript":
           langModule = JavaScript;
           break;

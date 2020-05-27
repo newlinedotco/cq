@@ -79,7 +79,7 @@ function traverse(node, nodeCbs) {
 }
 
 function nodeToRange(node) {
-  if (node.startIndex && node.endIndex) {
+  if ((node.startIndex || node.startIndex === 0) && (node.endIndex || node.endIndex === 0)) {
     return { start: node.startIndex, end: node.endIndex };
   }
   /*

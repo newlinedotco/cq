@@ -92,6 +92,30 @@ const dogs = () => "Like snuggles";
 -   `undent`: undent the code (default `true`)
 -   the rest are passed to `cq`
 
+## Use with Docusaurus
+
+`remark-cq` can be used with [Docusaurus](https://v2.docusaurus.io/) easily. Just add the following to your `docusaurus.config.js`:
+
+
+```js
+  remarkPlugins: [require("@fullstackio/remark-cq")]
+```
+
+For example, if you're using `@docusaurus/preset-classic`
+
+```js
+presets: [
+    "@docusaurus/preset-classic",
+    {
+       docs: { 
+           remarkPlugins: [require("@fullstackio/remark-cq")]
+       }
+    }
+]
+```
+
+
+
 ## License
 
 [MIT][license] © [Nate Murray][author]

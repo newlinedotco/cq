@@ -4,13 +4,13 @@
 
 # cq: Code Query [![npm package](https://img.shields.io/npm/v/@fullstackio/cq.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@fullstackio/cq) [![Dolpins](https://cdn.rawgit.com/fullstackio/cq/master/packages/cq/doc/readme/dolphins-badge-ff00ff.svg)](https://www.fullstackreact.com)
 
-> A tool to extract code snippets using selectors (instead of line numbers)
+> A query language and toolkit to query lines of code for blogs and documentation - without copying and pasting or using manual line numbers
 >
 > **[Try the demo](https://cq-demo.now.sh/)**
 >
-> Supports JavaScript ES5, ES6, JSX, and TypeScript
+> Supports JavaScript ES5, ES6, JSX, and TypeScript as well as any [Treesitter](https://tree-sitter.github.io/tree-sitter/) language: Python, Ruby, Rust, C, Java, etc.
 >
-> `cq` supports sophisticated, production-ready selectors and is used for all of the [Fullstack.io Books](https://fullstack.io)
+> `cq` supports sophisticated, production-ready selectors and is used for all of the [newline Books](https://newline.co)
 >
 > If you're a developer and you're interested in writing a programming book, but you're not sure where to start, then [read here](https://www.fullstack.io/write-a-book/)
 
@@ -22,8 +22,8 @@
 
 -   [`cq`](./packages/cq) - The core cq library -- given a code string and a query, returns the lines of code
 -   [`cqmd`](./packages/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
--   [`remark-cq`](./packages/remark-cq) - a [remark](https://github.com/remarkjs/remark) (rehype-compatible) plugin to slurp code snippets with cq
--   [`cq-python-engine`](./packages/cq-python-engine) - an engine for using python with cq
+-   [`remark-cq`](./packages/remark-cq) - a [remark](https://github.com/remarkjs/remark) (rehype-compatible) plugin to slurp code snippets with cq - (e.g. load code snippets into Docusaurus)
+-   [`cq-treesitter-engine`](./packages/cq-treesitter-engine) - an engine for using [treesitter](https://tree-sitter.github.io/tree-sitter/) with cq, meaning you can query any language treesitter supports (Python, Rust, C, Java, Ruby)
 
 ## Install
 
@@ -637,7 +637,7 @@ Originally written by [Nate Murray](https://twitter.com/eigenjoy).
 ## Related
 
 -   [`cqmd`](./packages/cqmd) - CLI tool to pre-process markdown with `cq`. (Used to [generate the current README](./packages/cq/doc/readme/README.cq.md))
--   [`remark-cq`](./packages/remark-cq) - a remark plugin to slurp code snippets with cq
+-   [`remark-cq`](./packages/remark-cq) - a remark plugin to slurp code snippets with cq - works with Docusaurus
 -   [GraspJS](http://www.graspjs.com/) - another tool to search JavaScript code based on structure
 -   [Pygments](http://pygments.org/) - a handy tool to colorize code snippets on the command line
 -   [ASTExplorer](https://astexplorer.net/) - an online tool to explore the AST of your code

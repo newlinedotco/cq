@@ -154,6 +154,10 @@ function codeImportBlock(eat, value, silent) {
   if (__lastBlockAttributes["lang"]) {
     cqOpts.language = dequote(__lastBlockAttributes["lang"]);
   }
+  if (__lastBlockAttributes["gap-filler"]) {
+    cqOpts.gapFiller =
+      "\n " + dequote(__lastBlockAttributes["gap-filler"]) + "\n";
+  }
 
   let newNode = {
     type: "cq",
@@ -445,6 +449,9 @@ async function visitCq(ast, vFile, options) {
         let cqOpts = { ...node.options };
         if (!cqOpts.engine) {
           cqOpts.engine = engine;
+        }
+        if (!cqOpts.gapFiller) {
+          cqOpts.gapFiller = "\n  // ...\n";
         }
         debug(`${actualFilename} ` + JSON.stringify(cqOpts, null, 2));
 

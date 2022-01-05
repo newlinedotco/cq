@@ -1,6 +1,6 @@
 {
   "name": "@fullstackio/remark-cq",
-  "version": "7.0.0",
+  "version": "7.0.1-treesitter.40",
   "description": "Import code into markdown with cq",
   "license": "MIT",
   "keywords": [

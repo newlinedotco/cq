@@ -1,6 +1,6 @@
 {
   "name": "cq-treesitter-engine",
-  "version": "7.0.0",
+  "version": "7.0.1-treesitter.35",
   "description": "treesitter engine for cq",
   "main": "dist/index.js",
   "repository": "https://github.com/fullstackio/cq/tree/master/packages/cq-treesitter-engine",
@@ -16,12 +16,12 @@
     "access": "public"
   },
   "dependencies": {
+    "@fullstackio/cq": "^7.0.1-treesitter",
     "babel-polyfill": "^6.9.1",
     "babel-traverse": "^6.9.0",
     "babel-types": "^6.10.0",
     "babylon": "^6.8.1",
-    "tree-sitter": "0.16.1",
-    "@fullstackio/cq": "^7.0.0"
+    "tree-sitter": "0.20.0"
   },
   "peerDependencies": {
     "tree-sitter-go": "^0.16.0",
